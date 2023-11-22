@@ -8,18 +8,18 @@ Welcome to the documentation for the HomeCare application. This C++ application 
 
 #Installation
 Clone the Repository:
-'''bash
-git clone https://github.com/tuonometuo/HomeCare.git
-cd HomeCare
-'''
+    '''bash
+    git clone https://github.com/tuonometuo/HomeCare.git
+    cd HomeCare
+    '''
 
 Compile the Code:
-''' bash
-g++ -std=c++11 -o HomeCare main.cpp
-Run the Application:
-'''
+    ''' bash
+    g++ -std=c++11 -o HomeCare main.cpp
+    Run the Application:
+    '''
 
 Run the program:
-'''bash
-./HomeCare
-'''
+    '''bash
+    ./HomeCare
+    '''

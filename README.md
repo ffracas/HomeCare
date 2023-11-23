@@ -17,11 +17,10 @@ cd HomeCare
 Compile the Code:
     
 ''' 
-g++ -std=c++11 -o HomeCare main.cpp
-Run the Application:
+g++ -o HomeCare main.cpp ../include/Params/params.cpp
 '''
 
-Run the program:
+Run the Application:
 
 '''
 ./HomeCare

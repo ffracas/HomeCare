@@ -1,0 +1,5 @@
+L'ultima voce del file best_conf_param corrisponde alla configurazione del programma
+
+1 - Problema non sincronizzato   (configurazione alfa_1=0.96 alfa_2=0.04 mu=0.95 lambda=2.12 seme=1)
+4 - Problema sincronizzato con punto di sincronizzazione dinamico e ALNS migliorata   (configurazione alfa_1=0.98 alfa_2=0.02 mu=1.45 lambda=1.53 seme=1)
+    Problema reale   (configurazione alfa_1=0.8 alfa_2=0.2 mu=0.88 lambda=1.67 seme=1)

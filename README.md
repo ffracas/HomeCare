@@ -9,19 +9,19 @@ Welcome to the documentation for the HomeCare application. This C++ application 
 # Installation
 Clone the Repository:
 
-''' bash
+``` bash
 git clone https://github.com/tuonometuo/HomeCare.git
 cd HomeCare
-'''
+```
 
 Compile the Code:
     
-''' 
-g++ -o HomeCare main.cpp ../include/Params/params.cpp
-'''
+``` 
+g++ -o HomeCare main.cpp ../include/params/params.cpp
+```
 
 Run the Application:
 
-'''
+```
 ./HomeCare
-'''
+```

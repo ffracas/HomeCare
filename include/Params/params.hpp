@@ -42,6 +42,7 @@ public:
     Params(std::string, std::string);
     ~Params();
     double getInsertionCost(int , int , int , int );
+    int getProgramConfig();
 };
   
 } // namespace homecare

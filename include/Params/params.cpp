@@ -144,3 +144,13 @@ bool Params::controlParameters(){
     return true;
 }
 
+/**
+ * @brief get the value of the field configurazione_programma.
+ * 
+ * Get method for the field configurazione_programma.
+ * 
+ * @return the configurazione_programma's integer value.
+*/
+int Params::getProgramConfig(){
+    return m_configurazione_programma;
+}

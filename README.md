@@ -10,14 +10,14 @@ Welcome to the documentation for the HomeCare application. This C++ application 
 Clone the Repository:
 
 ``` bash
-git clone https://github.com/tuonometuo/HomeCare.git
+git clone https://github.com/ffracas/HomeCare
 cd HomeCare
 ```
 
 Compile the Code:
     
 ``` 
-g++ -o HomeCare main.cpp ../include/params/params.cpp
+g++ -std=c++11 main.cpp ../include/problemdef/problemdef.cpp ../include/params/params.cpp ../include/route/route.cpp ../include/arc/arc.cpp ../include/node/node.cpp -o HomeCare
 ```
 
 Run the Application:

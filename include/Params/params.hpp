@@ -17,7 +17,7 @@ private:
     double m_mu;
     double m_lambda;
     int m_num_run;
-    int m_settaggio_seme;          //sceglie vertice (1)più lontano dal deposito (2)con la finestra temporale più piccola              
+    int m_settaggio_seme;       //sceglie vertice (1) più lontano dal deposito (2) con la finestra temporale più piccola              
     //parametri di sistema
     int m_lunghezza_segmento;
     int m_iterazioni_totali;
@@ -43,6 +43,10 @@ public:
     ~Params();
     double getInsertionCost(int , int , int , int );
     int getProgramConfig();
+    double mu();
+    double alfa1();
+    double alfa2();
+    double lambda();
 };
   
 } // namespace homecare

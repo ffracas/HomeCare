@@ -111,6 +111,15 @@ Params::Params(string t_systemConfPath, string t_heuristicsConfPath){
 
 Params::~Params(){}
 
+double Params::mu() { return m_mu; }
+
+double Params::alfa1() { return m_alfa_1; }
+
+double Params::alfa2() { return m_alfa_2; }
+
+double Params::lambda() { return m_lambda; }
+
+
 /** TODO Da completare questa è di prova
  * The getInsertCost method takes the problem variables and returns the cost of the solution. (I1)
  * 

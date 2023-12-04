@@ -17,7 +17,14 @@ cd HomeCare
 Compile the Code:
     
 ``` 
+cd src
 g++ -std=c++11 main.cpp ../include/problemdef/problemdef.cpp ../include/params/params.cpp ../include/route/route.cpp ../include/arc/arc.cpp ../include/node/node.cpp -o HomeCare
+```
+
+Another option is:
+``` 
+cd src
+make
 ```
 
 Run the Application:

@@ -20,34 +20,53 @@ using namespace homecare;
 Node::Node(int t_id, int t_id_city, double t_x_coord, double t_y_coord, 
             double t_start_window, double t_end_window, int t_service, int t_demand, bool t_depot = false)   
         : m_id(t_id), m_id_city(t_id_city), m_x_coord(t_x_coord), m_y_coord(t_y_coord),
-            m_window_start_time(t_start_window), m_window_end_time(t_end_window), 
-            m_service(t_service), m_demand(t_demand), m_depot(t_depot){}
+            m_start_window_time(t_start_window), m_end_window_time(t_end_window), 
+            m_service(t_service), m_demand(t_demand), m_depot(t_depot), 
+            m_arrival_time(NO_TIME), m_departure_time(NO_TIME){}
 
-Node::~Node(){}
+Node::~Node() {}
 
-int Node::getID(){ return m_id; }
+int Node::getID() { return m_id; }
 
-int Node::getCityID(){ return m_id_city; }
+int Node::getCityID() { return m_id_city; }
     
-double Node::getXCoord(){ return m_x_coord; }
+double Node::getXCoord() { return m_x_coord; }
     
-double Node::getYCoord(){ return m_y_coord; }
+double Node::getYCoord() { return m_y_coord; }
 
-double Node::getWindowStartTime(){ return m_window_start_time; }
+double Node::getWindowStartTime() { return m_start_window_time; }
 
-double Node::getWindowEndTime(){ return m_window_end_time; }
+double Node::getWindowEndTime() { return m_end_window_time; }
 
-int Node::getService(){ return m_service; }
+int Node::getService() { return m_service; }
 
-int Node::getDemand(){ return m_demand; }
+int Node::getDemand() { return m_demand; }
 
-void Node::setSyncConfig(bool t_sync, int t_handlerIndex){
+double Node::getDeparturTime() { return m_depot ? 0.0 : m_departure_time; }
+
+double Node::getArrvalTime() { return m_depot ? 0.0 : m_arrival_time; }
+
+int Node::getSyncNode() { return m_indice_nodo_sync; }
+
+bool Node::isSync() { return m_sync; }
+
+bool Node::isInTimeWindow(double t_time) { return t_time <= m_end_window_time; }
+
+void Node::setSyncConfig(bool t_sync, int t_handlerIndex) {
     m_sync = t_sync;
     m_indice_gestore_sync = t_handlerIndex;
 }
 
-void Node::setSyncDuplicateNode(int t_id, int t_syncNodeIndex){
+void Node::setSyncDuplicateNode(int t_id, int t_syncNodeIndex) {
     m_id = t_id;
     m_indice_nodo_sync = t_syncNodeIndex;
     m_demand = 0;
 }
+
+void Node::setArrivalTime(double t_arrival) {
+    if(!m_depot){
+        m_arrival_time = t_arrival > m_start_window_time ? t_arrival : m_start_window_time;
+        m_departure_time = m_arrival_time + m_service;
+    }   
+}
+

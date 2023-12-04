@@ -64,16 +64,12 @@ ProblemDef::ProblemDef(string t_pathDataFile,
             std::istream_iterator<std::string>()
         };
 
-        /*std::istream_iterator<std::string> begin(iss);
-        std::istream_iterator<std::string> end;
-        std::vector<std::string> info_nodo(begin, end);*/
-
-        Node toInsert(stoi(info_nodo[0]), stoi(info_nodo[0]), stod(info_nodo[1]), stod(info_nodo[2]),
+        Node toInsert(i, stoi(info_nodo[0]), stod(info_nodo[1]), stod(info_nodo[2]),
                     stod(info_nodo[4]), stod(info_nodo[5]), stoi(info_nodo[6]), stoi(info_nodo[3]), i == m_depotIndex);
 
         m_nodes.push_back(toInsert);
 
-        i++;  
+        ++i;  
     }
 
     file.close(); 
@@ -83,7 +79,7 @@ ProblemDef::ProblemDef(string t_pathDataFile,
         //add synchronized node
         int nodeNumber = m_nodes.size();
         int nodeSyncNumber = (nodeNumber - 1) / 10;
-        for(i = 0; i < nodeSyncNumber; i++){
+        for(i = 0; i < nodeSyncNumber; ++i){
             int nodoInSyncIndex = nodeSyncNumber * (i + 1);
             m_nodes[nodoInSyncIndex].setSyncConfig(true, i);
             
@@ -96,23 +92,73 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     }
 
     //calculation of distances
-    //initialise distances matrix
+    //initialise distances matrix to 0
     int nodeNumber = m_nodes.size();
     m_distances = new double*[nodeNumber];
-    for(i = 0; i < nodeNumber; i++){
-        m_distances[i] = new double[nodeNumber];
+    for(i = 0; i < nodeNumber; ++i){
+        m_distances[i] = new double[nodeNumber]();
     }
     //set value in matrix
-    for(i = 0; i < nodeNumber - 1; i++){
+    for(i = 0; i < nodeNumber - 1; ++i){
         for(int j = i + 1; j < nodeNumber; j++){
             m_distances[i][j] = sqrt(pow(m_nodes[i].getXCoord() - m_nodes[j].getXCoord(), 2) + 
                                         pow(m_nodes[i].getYCoord() - m_nodes[j].getYCoord(), 2));
         }
     }
 
-    for(Node node : m_nodes){
-        cout << node.getID() << endl;
-    }
+    /*for(Node node : m_nodes){
+        cout << node.getID() << '\n';
+    }*/
 }
 
 ProblemDef::~ProblemDef(){}
+
+void ProblemDef::generateFirstSolution(){
+    vector<Node> nodesToServe(m_nodes.begin() + 1, m_nodes.end());  //depot is the first one
+    /*int nodesToServeNumber = nodesToServe.size(); */ //viene tolto dal conto il deposito
+    vector<Route> setOfRoute;
+
+    while(nodesToServe.size() > 0){
+        Route route(m_nodes[m_depotIndex]);
+        
+        int nodeIndex = searchForSeed(nodesToServe);
+        Node seed(nodesToServe[nodeIndex]);
+        route.addNextNode(seed, m_distances);  
+        nodesToServe.erase(nodesToServe.begin() + nodeIndex);           //delete served node
+        //search for new node to insert in the root
+        nodeIndex = -1;
+        /*route.setSeed(m_nodes[m_depotIndex], m_distances[m_depotIndex][m_depotIndex]);*/
+
+        int nextNodeIndex = searchForNextNode(nodesToServe, route);
+        if(nextNodeIndex != NO_INDEX_NODE){
+            route.addNextNode(nodesToServe[nextNodeIndex], m_distances);        //add node to route
+            nodesToServe.erase(nodesToServe.begin() + nextNodeIndex);           //delete served node
+        }
+                
+        /*nodesToServeNumber = */
+        setOfRoute.push_back(route);
+    }
+}
+
+int ProblemDef::searchForNextNode(vector<Node> t_nodes, Route t_route) {
+    int nextNodeIndex = NO_INDEX_NODE;
+
+    int i = t_route.searchForNextNode(t_nodes, m_distances, m_params);
+
+    return nextNodeIndex;
+}
+
+int ProblemDef::searchForSeed(vector<Node> t_nodes){   //di default Elena usa questa
+    int seedIndex = NO_INDEX_NODE;
+    double distance = 0;
+    for(int i = 0; i < t_nodes.size(); ++i){
+        if(m_distances[0][i] <= t_nodes[i].getWindowEndTime()){
+            if(m_distances[0][i] > distance){
+                seedIndex = i;
+                distance = m_distances[0][i];
+            }
+        }
+    }
+    return seedIndex;
+}
+

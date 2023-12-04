@@ -129,23 +129,16 @@ void ProblemDef::generateFirstSolution(){
         nodeIndex = -1;
         /*route.setSeed(m_nodes[m_depotIndex], m_distances[m_depotIndex][m_depotIndex]);*/
 
-        int nextNodeIndex = searchForNextNode(nodesToServe, route);
+        //questo va in un ciclo
+        int nextNodeIndex = route.searchForNextNode(nodesToServe, m_distances, m_params);
         if(nextNodeIndex != NO_INDEX_NODE){
-            route.addNextNode(nodesToServe[nextNodeIndex], m_distances);        //add node to route
             nodesToServe.erase(nodesToServe.begin() + nextNodeIndex);           //delete served node
         }
+        //fin qui più altra roba
                 
         /*nodesToServeNumber = */
         setOfRoute.push_back(route);
     }
-}
-
-int ProblemDef::searchForNextNode(vector<Node> t_nodes, Route t_route) {
-    int nextNodeIndex = NO_INDEX_NODE;
-
-    int i = t_route.searchForNextNode(t_nodes, m_distances, m_params);
-
-    return nextNodeIndex;
 }
 
 int ProblemDef::searchForSeed(vector<Node> t_nodes){   //di default Elena usa questa

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 #include "../arc/arc.hpp"
 #include "../params/params.hpp"
 #include "../utils/utils.hpp"
@@ -29,8 +30,9 @@ class Route{
         void setSeed(Node, double);
         bool contains(int);
         int searchForNextNode(vector<Node>, double**, Params);
-        bool addNodeBetween(int, Node, double**);
+        int addNodeBetween(int, Node, double**);
         double getCurrentTime();
+        string getRouteToString();
 };
 
 }

@@ -42,9 +42,9 @@ int Node::getService() { return m_service; }
 
 int Node::getDemand() { return m_demand; }
 
-double Node::getDeparturTime() { return m_depot ? 0.0 : m_departure_time; }
+double Node::getDeparturTime() { return m_departure_time; }
 
-double Node::getArrvalTime() { return m_depot ? 0.0 : m_arrival_time; }
+double Node::getArrvalTime() { return m_arrival_time; }
 
 int Node::getSyncNode() { return m_indice_nodo_sync; }
 

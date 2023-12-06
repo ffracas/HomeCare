@@ -113,8 +113,9 @@ ProblemDef::~ProblemDef(){}
 
 void ProblemDef::generateFirstSolution(){
     if(m_nodes.size() < 2) {                                            //check for min number of node to proceed
-        return;
+        throw std::runtime_error("Errore nella definizione del problema");
     }
+
     vector<Node> nodesToServe(m_nodes.begin() + 1, m_nodes.end());  //depot is the first one
     while(nodesToServe.size() > 0){
         Route route(m_nodes[m_depotIndex]);

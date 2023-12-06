@@ -14,20 +14,19 @@ Route::~Route() {}
 
 double Route::getCurrentTime() { return m_currentTime; }
 
-int Route::addNextNode(Node t_arrival, double** t_distances) {
+int Route::addNextNode(Node t_newNode, double** t_distances) {
     if(m_arcs_in_route.size() >= BASE_ROUTE_LEN) {
-        return addNodeBetween(m_arcs_in_route.size() - 1, t_arrival, t_distances);
+        return addNodeBetween(m_arcs_in_route.size() - 1, t_newNode, t_distances);
     }
      
-    Node* lastNode = &m_depot; 
-    double distance = t_distances[lastNode->getID()][t_arrival.getID()];
-    t_arrival.setArrivalTime(lastNode->getDeparturTime() + distance);
-    lastNode->setArrivalTime(t_arrival.getDeparturTime() + distance);
-    Node* newOne = new Node(t_arrival);
-    m_arcs_in_route.push_back(Arc(lastNode, newOne, distance));                                         //insert new arc
-    m_arcs_in_route.push_back(Arc(newOne, lastNode, t_distances[m_depot.getID()][t_arrival.getID()]));  //insert new last arc
-    m_quantity += t_arrival.getDemand();
-    m_currentTime = t_arrival.getDeparturTime();
+    Node lastNode = m_depot; 
+    double distance = t_distances[lastNode.getID()][t_newNode.getID()];
+    t_newNode.setArrivalTime(lastNode.getDeparturTime() + distance);
+    lastNode.setArrivalTime(t_newNode.getDeparturTime() + distance);
+    m_arcs_in_route.push_back(Arc(lastNode, t_newNode, distance));                                         //insert new arc
+    m_arcs_in_route.push_back(Arc(t_newNode, lastNode, distance));  //insert new last arc
+    m_quantity += t_newNode.getDemand();
+    m_currentTime = t_newNode.getDeparturTime();
     
     return m_arcs_in_route.size() - 1; //do not count the arc that return to depot*/
 }
@@ -96,17 +95,16 @@ int Route::addNodeBetween(int t_arcIndex, Node t_node, double** t_distances){   
     int arcNum = m_arcs_in_route.size();
     if(t_arcIndex < 0 || t_arcIndex > arcNum) return EMPTY_ROUTE;
     vector<Arc> backup = m_arcs_in_route;
-    Node* node_i = t_arcIndex == 0 ? &m_depot : m_arcs_in_route[t_arcIndex].getDepartureRef();       //departure Node in solomon notation
-    Node* node_j = t_arcIndex == arcNum ? &m_depot : m_arcs_in_route[t_arcIndex].getArrivalRef();    //arrival Node in solomon notation
+    Node node_i = t_arcIndex == 0 ? m_depot : m_arcs_in_route[t_arcIndex].getDeparture();       //departure Node in solomon notation
+    Node node_j = t_arcIndex == arcNum ? m_depot : m_arcs_in_route[t_arcIndex].getArrival();    //arrival Node in solomon notation
     m_currentTime -= m_arcs_in_route[t_arcIndex].getDistance();
     m_arcs_in_route.erase(m_arcs_in_route.begin() + t_arcIndex);
-    double distance_iu = t_distances[node_i->getID()][t_node.getID()];
-    double distance_uj = t_distances[t_node.getID()][node_j->getID()];
-    t_node.setArrivalTime(node_i->getDeparturTime() + distance_iu); 
-    node_j->setArrivalTime(t_node.getDeparturTime() + distance_uj);
-    Node* newOne = new Node(t_node);
-    m_arcs_in_route.insert(m_arcs_in_route.begin() + t_arcIndex, Arc(node_i, newOne, distance_iu));
-    m_arcs_in_route.insert(m_arcs_in_route.begin() + t_arcIndex + 1, Arc(newOne, node_j, distance_uj));
+    double distance_iu = t_distances[node_i.getID()][t_node.getID()];
+    double distance_uj = t_distances[t_node.getID()][node_j.getID()];
+    t_node.setArrivalTime(node_i.getDeparturTime() + distance_iu); 
+    node_j.setArrivalTime(t_node.getDeparturTime() + distance_uj);
+    m_arcs_in_route.insert(m_arcs_in_route.begin() + t_arcIndex, Arc(node_i, t_node, distance_iu));
+    m_arcs_in_route.insert(m_arcs_in_route.begin() + t_arcIndex + 1, Arc(t_node, node_j, distance_uj));
     ++arcNum;
     m_quantity += t_node.getDemand();
     m_currentTime += distance_iu + distance_uj +  t_node.getService();
@@ -151,7 +149,7 @@ string Route::getRouteToString(){
     for (Arc arc : m_arcs_in_route){
         s_route += "ARC - partenza: " + to_string(arc.getDeparture().getID()) 
             + " alle: " + to_string(arc.getDeparture().getDeparturTime()) 
-            + " -> arrivo: " + to_string(arc.getArrival().getID()) 
+            + " . arrivo: " + to_string(arc.getArrival().getID()) 
             + " alle: " + to_string(arc.getArrival().getArrvalTime()) 
             + " servizio min: " + to_string(arc.getArrival().getService())  + "\n";
     }

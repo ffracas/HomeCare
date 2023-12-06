@@ -31,16 +31,6 @@ int Route::addNextNode(Node t_newNode, double** t_distances) {
     return m_arcs_in_route.size() - 1; //do not count the arc that return to depot*/
 }
 
-/*void Route::setSeed(Node t_seed, double t_distance) {
-    if(m_arcs_in_route.size() > 0) return;
-    t_seed.setArrivalTime(t_distance);
-    m_quantity = t_seed.getService();
-    Arc arc1(m_depot, t_seed, t_distance);
-    m_arcs_in_route.push_back(arc1);
-    Arc arc2(t_seed, m_depot, t_distance);
-    m_arcs_in_route.push_back(arc2);
-}*/
-
 bool Route::contains(int t_nodeId) {
     if(m_depot.getID() == t_nodeId) return true;
     for (Arc arc : m_arcs_in_route){

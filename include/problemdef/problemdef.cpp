@@ -137,7 +137,6 @@ void ProblemDef::generateFirstSolution(){
                 routeCompleted = true;
             }
         }
-        
         m_solution.push_back(route); //forse sei il problema
     }
 
@@ -147,6 +146,8 @@ void ProblemDef::generateFirstSolution(){
 }
 
 int ProblemDef::searchForSeed(vector<Node> t_nodes){   //di default Elena usa questa
+    if(t_nodes.size() < 1) return NO_INDEX_NODE;
+    if(t_nodes.size() == 1) return 0;
     int seedIndex = NO_INDEX_NODE;
     double distance = 0;
     for(int i = 0; i < t_nodes.size(); ++i){

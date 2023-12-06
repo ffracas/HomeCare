@@ -26,7 +26,6 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     if (!file.is_open()) {
         throw std::runtime_error("Errore nell'apertura del file dei dati del sistema.");
     }
-    cout<<"1";
     int const emptyLines = 4;
     std::string line;
     // Skipping the empty four lines  //TODO class file che implementa il salto riga un readAfter(file, righe da saltare, line)
@@ -48,7 +47,6 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     iss >> n_camion >> camion_cap;
     m_camionNumber = std::stoi(n_camion);
     m_camionCapacity = std::stoi(camion_cap);
-cout<<"2";
     // Skipping the empty four lines
     for (int i = 0; i < emptyLines; ++i) {
         std::getline(file, line);
@@ -70,7 +68,7 @@ cout<<"2";
         m_nodes.push_back(toInsert);
         ++i;  
     }
-cout<<"3";
+
     file.close(); 
 
     //for add synchronous nodes in synchronous setting
@@ -106,7 +104,6 @@ cout<<"3";
             m_distances[j][i] = distance;
         }
     }
-    cout<<"4";
     /*for(Node node : m_nodes){
         cout << node.getID() << '\n';
     }*/
@@ -116,15 +113,11 @@ ProblemDef::~ProblemDef(){}
 
 void ProblemDef::generateFirstSolution(){
     if(m_nodes.size() < 2) {                                            //check for min number of node to proceed
-        cout << "Non ci sono abbastanza nodi per procedere" << '\n';
         return;
     }
-    cout<<"5";
     vector<Node> nodesToServe(m_nodes.begin() + 1, m_nodes.end());  //depot is the first one
     while(nodesToServe.size() > 0){
-        cout<<"6";
         Route route(m_nodes[m_depotIndex]);
-        cout<<m_nodes[m_depotIndex].getDeparturTime()<< m_nodes[m_depotIndex].getArrvalTime();
         int nodeIndex = searchForSeed(nodesToServe);
         Node seed(nodesToServe[nodeIndex]);
         route.addNextNode(seed, m_distances);  
@@ -142,15 +135,14 @@ void ProblemDef::generateFirstSolution(){
             else {
                 routeCompleted = true;
             }
-            cout<<"7";
         }
         
         m_solution.push_back(route); //forse sei il problema
     }
 
-    /*for(Route route : m_solution) {
+    for(Route route : m_solution) {
         cout << route.getRouteToString() << '\n';
-    }*/
+    }
 }
 
 int ProblemDef::searchForSeed(vector<Node> t_nodes){   //di default Elena usa questa

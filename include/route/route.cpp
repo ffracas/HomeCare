@@ -52,6 +52,7 @@ bool Route::contains(int t_nodeId) {
 
 int Route::searchForNextNode(vector<Node> t_nodes, double** t_distances, Params params) {
     int nodeIndex = -1;
+    if(t_nodes.size() < 1) return nodeIndex;
     int arcIndex = -1;
     double bestCost = homecare::MIN_DOUBLE;
     for(int i = 0; i < t_nodes.size(); ++i) {

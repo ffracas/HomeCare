@@ -6,9 +6,10 @@
 #include <sstream>
 #include <vector>
 #include <regex>
-#include <math.h>
+#include <cmath>
 #include "../route/route.hpp"
 #include "../params/params.hpp"
+#include "../utils/utils.hpp"
 
 using namespace std;
 namespace homecare{

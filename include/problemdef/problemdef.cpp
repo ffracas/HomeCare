@@ -26,7 +26,7 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     if (!file.is_open()) {
         throw std::runtime_error("Errore nell'apertura del file dei dati del sistema.");
     }
-
+    cout<<"1";
     int const emptyLines = 4;
     std::string line;
     // Skipping the empty four lines  //TODO class file che implementa il salto riga un readAfter(file, righe da saltare, line)
@@ -48,7 +48,7 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     iss >> n_camion >> camion_cap;
     m_camionNumber = std::stoi(n_camion);
     m_camionCapacity = std::stoi(camion_cap);
-
+cout<<"2";
     // Skipping the empty four lines
     for (int i = 0; i < emptyLines; ++i) {
         std::getline(file, line);
@@ -68,10 +68,9 @@ ProblemDef::ProblemDef(string t_pathDataFile,
                     stod(info_nodo[4]), stod(info_nodo[5]), stoi(info_nodo[6]), stoi(info_nodo[3]), i == m_depotIndex);
 
         m_nodes.push_back(toInsert);
-
         ++i;  
     }
-
+cout<<"3";
     file.close(); 
 
     //for add synchronous nodes in synchronous setting
@@ -101,11 +100,13 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     //set value in matrix
     for(i = 0; i < nodeNumber - 1; ++i){
         for(int j = i + 1; j < nodeNumber; j++){
-            m_distances[i][j] = sqrt(pow(m_nodes[i].getXCoord() - m_nodes[j].getXCoord(), 2) + 
+            double distance = sqrt(pow(m_nodes[i].getXCoord() - m_nodes[j].getXCoord(), 2) + 
                                         pow(m_nodes[i].getYCoord() - m_nodes[j].getYCoord(), 2));
+            m_distances[i][j] = distance;
+            m_distances[j][i] = distance;
         }
     }
-
+    cout<<"4";
     /*for(Node node : m_nodes){
         cout << node.getID() << '\n';
     }*/
@@ -114,13 +115,16 @@ ProblemDef::ProblemDef(string t_pathDataFile,
 ProblemDef::~ProblemDef(){}
 
 void ProblemDef::generateFirstSolution(){
+    if(m_nodes.size() < 2) {                                            //check for min number of node to proceed
+        cout << "Non ci sono abbastanza nodi per procedere" << '\n';
+        return;
+    }
+    cout<<"5";
     vector<Node> nodesToServe(m_nodes.begin() + 1, m_nodes.end());  //depot is the first one
-    /*int nodesToServeNumber = nodesToServe.size(); */ //viene tolto dal conto il deposito
-    vector<Route> setOfRoute;
-
     while(nodesToServe.size() > 0){
+        cout<<"6";
         Route route(m_nodes[m_depotIndex]);
-        
+        cout<<m_nodes[m_depotIndex].getDeparturTime()<< m_nodes[m_depotIndex].getArrvalTime();
         int nodeIndex = searchForSeed(nodesToServe);
         Node seed(nodesToServe[nodeIndex]);
         route.addNextNode(seed, m_distances);  
@@ -129,16 +133,24 @@ void ProblemDef::generateFirstSolution(){
         nodeIndex = -1;
         /*route.setSeed(m_nodes[m_depotIndex], m_distances[m_depotIndex][m_depotIndex]);*/
 
-        //questo va in un ciclo
-        int nextNodeIndex = route.searchForNextNode(nodesToServe, m_distances, m_params);
-        if(nextNodeIndex != NO_INDEX_NODE){
-            nodesToServe.erase(nodesToServe.begin() + nextNodeIndex);           //delete served node
+        bool routeCompleted = false;
+        while(!routeCompleted){
+            int nextNodeIndex = route.searchForNextNode(nodesToServe, m_distances, m_params);
+            if(nextNodeIndex != NO_INDEX_NODE){
+                nodesToServe.erase(nodesToServe.begin() + nextNodeIndex);           //delete served node
+            }
+            else {
+                routeCompleted = true;
+            }
+            cout<<"7";
         }
-        //fin qui più altra roba
-                
-        /*nodesToServeNumber = */
-        setOfRoute.push_back(route);
+        
+        m_solution.push_back(route); //forse sei il problema
     }
+
+    /*for(Route route : m_solution) {
+        cout << route.getRouteToString() << '\n';
+    }*/
 }
 
 int ProblemDef::searchForSeed(vector<Node> t_nodes){   //di default Elena usa questa

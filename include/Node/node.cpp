@@ -21,8 +21,13 @@ Node::Node(int t_id, int t_id_city, double t_x_coord, double t_y_coord,
             double t_start_window, double t_end_window, int t_service, int t_demand, bool t_depot = false)   
         : m_id(t_id), m_id_city(t_id_city), m_x_coord(t_x_coord), m_y_coord(t_y_coord),
             m_start_window_time(t_start_window), m_end_window_time(t_end_window), 
-            m_service(t_service), m_demand(t_demand), m_depot(t_depot), 
-            m_arrival_time(NO_TIME), m_departure_time(NO_TIME){}
+            m_service(t_service), m_demand(t_demand), m_depot(t_depot) { 
+    m_sync = false;
+    m_arrival_time = NO_TIME;
+    m_departure_time = NO_TIME;
+    m_indice_gestore_sync = NO_VALUE; 
+    m_indice_nodo_sync = NO_VALUE; 
+}
 
 Node::~Node() {}
 
@@ -64,9 +69,9 @@ void Node::setSyncDuplicateNode(int t_id, int t_syncNodeIndex) {
 }
 
 void Node::setArrivalTime(double t_arrival) {
+    m_arrival_time = t_arrival > m_start_window_time ? t_arrival : m_start_window_time;
     if(!m_depot){
-        m_arrival_time = t_arrival > m_start_window_time ? t_arrival : m_start_window_time;
-        m_departure_time = m_arrival_time + m_service;
+        m_departure_time = m_arrival_time + 1.0 * m_service;
     }   
 }
 

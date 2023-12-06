@@ -106,6 +106,7 @@ Params::Params(string t_systemConfPath, string t_heuristicsConfPath){
         i++;
     }
 
+    file.close();
     controlParameters();
 }
 

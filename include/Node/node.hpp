@@ -9,10 +9,11 @@ namespace homecare{
 
 class Node{
     private:
+        static const int NO_TIME = 0;                  //default di non assegnato
         static const int NO_VALUE = -1;
-        bool m_sync = false;                            //dato di configurazione per la sincronia: bool flag servizio sincrono
-        int m_indice_gestore_sync = NO_VALUE;           //dato di configurazione per la sincronia: indice del nodo copiato
-        int m_indice_nodo_sync = NO_VALUE;              //dato di configurazione per la sincronia: riferimento al nodo copiato
+        bool m_sync;                                    //dato di configurazione per la sincronia: bool flag servizio sincrono
+        int m_indice_gestore_sync;                      //dato di configurazione per la sincronia: indice del nodo copiato
+        int m_indice_nodo_sync;                         //dato di configurazione per la sincronia: riferimento al nodo copiato
         int m_id;                                       //posizione in lista e nella matrice delle distanze
         int m_id_city;
         double m_x_coord;                               //coordinata x
@@ -24,8 +25,7 @@ class Node{
         bool m_depot;                                   //flag del deposito
         double m_arrival_time;                          //tempo di arrivo al nodo
         double m_departure_time;                        //tempo di partenza dal nodo
-        static const int NO_TIME = -1;                  //default di non assegnato
-
+        
     public:
         Node(int, int, double, double, double, double, int, int, bool);
         ~Node();

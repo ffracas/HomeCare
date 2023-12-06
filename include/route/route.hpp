@@ -16,9 +16,9 @@ class Route{
     private:
         std::vector<Arc> m_arcs_in_route;
         Node m_depot;
-        int m_quantity = 0;
-        int m_distance = 0;
-        double m_currentTime = 0;
+        int m_quantity; 
+        //int m_distance;
+        double m_currentTime;
         static const int BASE_ROUTE_LEN = 2;
 
     public:
@@ -27,12 +27,12 @@ class Route{
         Route(Node);
         ~Route();
         int addNextNode(Node, double**);
-        void setSeed(Node, double);
         bool contains(int);
         int searchForNextNode(vector<Node>, double**, Params);
         int addNodeBetween(int, Node, double**);
         double getCurrentTime();
         string getRouteToString();
+        double valutateAlternativeRoute(int, Node, double**);
 };
 
 }

@@ -9,8 +9,8 @@ namespace homecare{
 
 class Arc{
     private:
-        Node* m_departure;
-        Node* m_arrival;
+        Node m_departure;
+        Node m_arrival;
         double m_distance;
 
     public:
@@ -18,7 +18,10 @@ class Arc{
         ~Arc();
         Node getArrival();
         Node getDeparture();
+        Node* getArrivalRef();
+        Node* getDepartureRef();
         double getDistance();
+        void setArrivalTime(double);
 };
 
 }

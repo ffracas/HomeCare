@@ -26,7 +26,7 @@ class Route{
 
         Route(Node);
         ~Route();
-        int addNextNode(Node, double**);
+        int startRoute(Node, double**);
         bool contains(int);
         int searchForNextNode(vector<Node>, double**, Params);
         int addNodeBetween(int, Node, double**);

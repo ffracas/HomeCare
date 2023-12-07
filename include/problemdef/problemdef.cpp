@@ -45,8 +45,7 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     std::istringstream iss(cleaned_line);
     std::string n_camion, camion_cap;
     iss >> n_camion >> camion_cap;
-    m_camionNumber = std::stoi(n_camion);
-    m_camionCapacity = std::stoi(camion_cap);
+    m_params.setCamionLimits(std::stoi(n_camion), std::stoi(camion_cap));
     // Skipping the empty four lines
     for (int i = 0; i < emptyLines; ++i) {
         std::getline(file, line);
@@ -104,9 +103,6 @@ ProblemDef::ProblemDef(string t_pathDataFile,
             m_distances[j][i] = distance;
         }
     }
-    /*for(Node node : m_nodes){
-        cout << node.getID() << '\n';
-    }*/
 }
 
 ProblemDef::~ProblemDef(){}
@@ -115,18 +111,15 @@ void ProblemDef::generateFirstSolution(){
     if(m_nodes.size() < 2) {                                            //check for min number of node to proceed
         throw std::runtime_error("Errore nella definizione del problema");
     }
-
     vector<Node> nodesToServe(m_nodes.begin() + 1, m_nodes.end());  //depot is the first one
     while(nodesToServe.size() > 0){
         Route route(m_nodes[m_depotIndex]);
         int nodeIndex = searchForSeed(nodesToServe);
         Node seed(nodesToServe[nodeIndex]);
-        route.addNextNode(seed, m_distances);  
+        route.startRoute(seed, m_distances);  
         nodesToServe.erase(nodesToServe.begin() + nodeIndex);           //delete served node
         //search for new node to insert in the root
         nodeIndex = -1;
-        /*route.setSeed(m_nodes[m_depotIndex], m_distances[m_depotIndex][m_depotIndex]);*/
-
         bool routeCompleted = false;
         while(!routeCompleted){
             int nextNodeIndex = route.searchForNextNode(nodesToServe, m_distances, m_params);

@@ -16,8 +16,10 @@ private:
     double m_alfa_2;
     double m_mu;
     double m_lambda;
+    //num massimo di tentativi
     int m_num_run;
-    int m_settaggio_seme;       //sceglie vertice (1) più lontano dal deposito (2) con la finestra temporale più piccola              
+    //sceglie vertice (1) più lontano dal deposito (2) con la finestra temporale più piccola
+    int m_settaggio_seme;                     
     //parametri di sistema
     int m_lunghezza_segmento;
     int m_iterazioni_totali;
@@ -35,7 +37,9 @@ private:
     int m_i_freq;
     int m_iterazioni_tolleranza_miglioramento;
     int m_configurazione_programma;
-    
+    int m_camionCapacity;
+    int m_camionNumber;
+    //validity check on parameters
     bool controlParameters();
 
 public:
@@ -47,6 +51,9 @@ public:
     double alfa1();
     double alfa2();
     double lambda();
+    void setCamionLimits(int, int);
+    int getCamionCapacity();
+    int getCamionNumber();
 };
   
 } // namespace homecare

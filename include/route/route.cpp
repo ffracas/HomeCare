@@ -14,17 +14,15 @@ Route::~Route() {}
 
 double Route::getCurrentTime() { return m_currentTime; }
 
-int Route::addNextNode(Node t_newNode, double** t_distances) {
+int Route::startRoute(Node t_newNode, double** t_distances) {
     if(m_arcs_in_route.size() >= BASE_ROUTE_LEN) {
         return addNodeBetween(m_arcs_in_route.size() - 1, t_newNode, t_distances);
     }
-     
-    Node lastNode = m_depot; 
-    double distance = t_distances[lastNode.getID()][t_newNode.getID()];
-    t_newNode.setArrivalTime(lastNode.getDeparturTime() + distance);
-    lastNode.setArrivalTime(t_newNode.getDeparturTime() + distance);
-    m_arcs_in_route.push_back(Arc(lastNode, t_newNode, distance));                                         //insert new arc
-    m_arcs_in_route.push_back(Arc(t_newNode, lastNode, distance));  //insert new last arc
+    double distance = t_distances[m_depot.getID()][t_newNode.getID()];
+    t_newNode.setArrivalTime(m_depot.getDeparturTime() + distance);
+    m_depot.setArrivalTime(t_newNode.getDeparturTime() + distance);
+    m_arcs_in_route.push_back(Arc(m_depot, t_newNode, distance));    //insert new arc
+    m_arcs_in_route.push_back(Arc(t_newNode, m_depot, distance));    //insert new last arc
     m_quantity += t_newNode.getDemand();
     m_currentTime = t_newNode.getDeparturTime();
     
@@ -55,9 +53,10 @@ int Route::searchForNextNode(vector<Node> t_nodes, double** t_distances, Params 
                 double u_arrivalTime = node_i.getDeparturTime() + d_iu > t_nodes[i].getWindowStartTime() ? 
                                         node_i.getDeparturTime() + d_iu : t_nodes[i].getWindowStartTime();
                 if(!(t_nodes[i].getWindowEndTime() < node_i.getWindowStartTime() 
-                        || t_nodes[i].getWindowStartTime() > node_j.getWindowEndTime()
-                        || node_i.getDeparturTime() + d_iu > t_nodes[i].getWindowEndTime() 
-                        || u_arrivalTime + t_nodes[i].getService() > node_j.getWindowEndTime())) {
+                            || t_nodes[i].getWindowStartTime() > node_j.getWindowEndTime()
+                            || node_i.getDeparturTime() + d_iu > t_nodes[i].getWindowEndTime() 
+                            || u_arrivalTime + t_nodes[i].getService() > node_j.getWindowEndTime() )
+                        && t_nodes[i].getDemand() + m_quantity <= params.getCamionCapacity()) {
                     double newCurrentTime = valutateAlternativeRoute(j, t_nodes[i], t_distances);
                     if(newCurrentTime != EMPTY_ROUTE){
                         double c_11 = d_iu + d_uj - params.mu() * d_ij;
@@ -84,6 +83,7 @@ int Route::searchForNextNode(vector<Node> t_nodes, double** t_distances, Params 
 int Route::addNodeBetween(int t_arcIndex, Node t_node, double** t_distances){                   //ij + u -> iuj
     int arcNum = m_arcs_in_route.size();
     if(t_arcIndex < 0 || t_arcIndex > arcNum) return EMPTY_ROUTE;
+    if(arcNum < BASE_ROUTE_LEN) return startRoute(t_node, t_distances);
     vector<Arc> backup = m_arcs_in_route;
     Node node_i = t_arcIndex == 0 ? m_depot : m_arcs_in_route[t_arcIndex].getDeparture();       //departure Node in solomon notation
     Node node_j = t_arcIndex == arcNum ? m_depot : m_arcs_in_route[t_arcIndex].getArrival();    //arrival Node in solomon notation
@@ -111,12 +111,14 @@ int Route::addNodeBetween(int t_arcIndex, Node t_node, double** t_distances){   
 
 double Route::valutateAlternativeRoute(int t_arcIndex, Node t_node, double** t_distaces) {
     int newCurrentTime = 0;
+    //calcolate time until the arc to modify
     for(int i = 0; i < t_arcIndex; ++i) {
         newCurrentTime += m_arcs_in_route[i].getDistance();
         newCurrentTime  = (newCurrentTime > m_arcs_in_route[i].getArrival().getWindowStartTime() ?
                 newCurrentTime : m_arcs_in_route[i].getArrival().getWindowStartTime())
                 + m_arcs_in_route[i].getArrival().getService();
     }
+    //calcolate the time changes of the arc
     newCurrentTime += t_distaces[m_arcs_in_route[t_arcIndex].getDeparture().getID()][t_node.getID()];
     if(!t_node.isInTimeWindow(newCurrentTime)) return EMPTY_ROUTE;
     newCurrentTime = (newCurrentTime > t_node.getWindowStartTime() ? newCurrentTime : t_node.getWindowStartTime()) 
@@ -127,6 +129,7 @@ double Route::valutateAlternativeRoute(int t_arcIndex, Node t_node, double** t_d
                 newCurrentTime : m_arcs_in_route[t_arcIndex].getArrival().getWindowStartTime())
                 + m_arcs_in_route[t_arcIndex].getArrival().getService();
     if(!m_arcs_in_route[t_arcIndex].getArrival().isInTimeWindow(newCurrentTime)) return EMPTY_ROUTE;
+    //check if change destroys the rest of the route
     for(int i = t_arcIndex + 1; i < m_arcs_in_route.size(); ++i) {
         newCurrentTime += m_arcs_in_route[i].getDistance();
         if(!m_arcs_in_route[i].getArrival().isInTimeWindow(newCurrentTime)) return EMPTY_ROUTE;

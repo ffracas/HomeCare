@@ -15,6 +15,8 @@ using namespace homecare;
 */
 Params::Params(string t_systemConfPath, string t_heuristicsConfPath){
 
+    m_camionCapacity = 0;
+    m_camionNumber = 0;
     //lettura e salvataggio della configurazione di sistema
     std::ifstream file(t_systemConfPath);
     if (!file.is_open()) {
@@ -161,6 +163,15 @@ bool Params::controlParameters(){
  * 
  * @return the configurazione_programma's integer value.
 */
-int Params::getProgramConfig(){
+int Params::getProgramConfig() {
     return m_configurazione_programma;
 }
+
+void Params::setCamionLimits(int t_capacity, int t_number) {
+    m_camionCapacity = t_capacity;
+    m_camionNumber = t_number;
+}
+
+int Params::getCamionCapacity() { return m_camionCapacity; }
+
+int Params::getCamionNumber() { return m_camionNumber; }

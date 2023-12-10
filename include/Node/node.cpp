@@ -17,23 +17,23 @@ using namespace homecare;
  * @param t_demand The demand associated with the node.
  * @param t_depot The flag that identify the depot node.
  */
-Node::Node(int t_id, int t_id_city, double t_x_coord, double t_y_coord, 
+Node::Node(int t_id, int t_id_client, double t_x_coord, double t_y_coord, 
             double t_start_window, double t_end_window, int t_service, int t_demand, bool t_depot = false)   
-        : m_id(t_id), m_id_city(t_id_city), m_x_coord(t_x_coord), m_y_coord(t_y_coord),
+        : m_id(t_id), m_id_client(t_id_client), m_x_coord(t_x_coord), m_y_coord(t_y_coord),
             m_start_window_time(t_start_window), m_end_window_time(t_end_window), 
             m_service(t_service), m_demand(t_demand), m_depot(t_depot) { 
     m_sync = false;
-    m_arrival_time = NO_TIME;
-    m_departure_time = NO_TIME;
-    m_indice_gestore_sync = NO_VALUE; 
-    m_indice_nodo_sync = NO_VALUE; 
 }
 
 Node::~Node() {}
 
+void Node::setSync() { m_sync = true; }
+
+void Node::resetReq() { m_demand = 0; }
+
 int Node::getID() { return m_id; }
 
-int Node::getCityID() { return m_id_city; }
+int Node::getCityID() { return m_id_client; }
     
 double Node::getXCoord() { return m_x_coord; }
     
@@ -47,31 +47,14 @@ int Node::getService() { return m_service; }
 
 int Node::getDemand() { return m_demand; }
 
-double Node::getDeparturTime() { return m_departure_time; }
+bool Node::isDepot() { return m_depot; }
 
-double Node::getArrvalTime() { return m_arrival_time; }
-
-int Node::getSyncNode() { return m_indice_nodo_sync; }
+Node Node::getSyncNode() {
+    Node copy(*this);
+    copy.resetReq();
+    return copy;
+}
 
 bool Node::isSync() { return m_sync; }
 
 bool Node::isInTimeWindow(double t_time) { return t_time <= m_end_window_time; }
-
-void Node::setSyncConfig(bool t_sync, int t_handlerIndex) {
-    m_sync = t_sync;
-    m_indice_gestore_sync = t_handlerIndex;
-}
-
-void Node::setSyncDuplicateNode(int t_id, int t_syncNodeIndex) {
-    m_id = t_id;
-    m_indice_nodo_sync = t_syncNodeIndex;
-    m_demand = 0;
-}
-
-void Node::setArrivalTime(double t_arrival) {
-    m_arrival_time = t_arrival > m_start_window_time ? t_arrival : m_start_window_time;
-    if(!m_depot){
-        m_departure_time = m_arrival_time + 1.0 * m_service;
-    }   
-}
-

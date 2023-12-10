@@ -9,26 +9,24 @@ namespace homecare{
 
 class Node{
     private:
-        static const int NO_TIME = 0;                  //default di non assegnato
-        static const int NO_VALUE = -1;
-        bool m_sync;                                    //dato di configurazione per la sincronia: bool flag servizio sincrono
-        int m_indice_gestore_sync;                      //dato di configurazione per la sincronia: indice del nodo copiato
-        int m_indice_nodo_sync;                         //dato di configurazione per la sincronia: riferimento al nodo copiato
         int m_id;                                       //posizione in lista e nella matrice delle distanze
-        int m_id_city;
+        int m_id_client;
         double m_x_coord;                               //coordinata x
         double m_y_coord;                               //coordinata y
         double m_start_window_time;                     //inizio della finestra, dovrebbe essere int ed indicare i minuti ma bho
         double m_end_window_time;                       //fine della finestra, dovrebbe essere int ed indicare i minuti ma bho
         int m_service;                                  //durata servizio in min
-        int m_demand;
+        int m_demand;                                   //richiesta cliente
         bool m_depot;                                   //flag del deposito
-        double m_arrival_time;                          //tempo di arrivo al nodo
-        double m_departure_time;                        //tempo di partenza dal nodo
-        
+        bool m_sync;                                    //dato di configurazione per la sincronia: bool flag servizio sincrono
+
     public:
         Node(int, int, double, double, double, double, int, int, bool);
         ~Node();
+        //setter
+        void setSync();
+        void resetReq();
+        //getter
         int getID();
         int getCityID();
         double getXCoord();
@@ -37,12 +35,9 @@ class Node{
         double getWindowEndTime();
         int getService();
         int getDemand();
-        void setSyncConfig(bool, int);
-        void setSyncDuplicateNode(int, int);
-        void setArrivalTime(double);
-        double getDeparturTime();
-        double getArrvalTime();
-        int getSyncNode();
+        Node getSyncNode();
+        //checker
+        bool isDepot();
         bool isSync();
         bool isInTimeWindow(double);
 };

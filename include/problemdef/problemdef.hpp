@@ -21,13 +21,11 @@ private:
     double** m_distances;
     vector<Route> m_solution;
     Params m_params;
-    int m_camionNumber;
-    int m_camionCapacity;
     int m_depotIndex;
-    static const int NO_INDEX_NODE = -1;
+    static const int NO_INDEX = -1;
 
-    int searchForSeed(vector<Node>);
-    int searchForNextNode(vector<Node>, Route);
+    int searchForRoute(Node, int = NO_INDEX);
+    double syncTime(int, int, Node);
     
 public:
     ProblemDef(string, string, string);

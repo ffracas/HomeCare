@@ -16,23 +16,25 @@ class Route{
     private:
         std::vector<Arc> m_arcs_in_route;
         Node m_depot;
+        int m_maxQuantity;
         int m_quantity; 
-        //int m_distance;
         double m_currentTime;
+        int m_lastClientID;
         static const int BASE_ROUTE_LEN = 2;
 
     public:
         static const int EMPTY_ROUTE = -1;
+        static constexpr double ZERO_TIME = 0.0;
 
         Route(Node);
         ~Route();
-        int startRoute(Node, double**);
-        bool contains(int);
-        int searchForNextNode(vector<Node>, double**, Params);
-        int addNodeBetween(int, Node, double**);
-        double getCurrentTime();
+        //getter
+        double getFreeTime();
+        int getLastClient();
+        int addNode(Node, double**, int = 0);
         string getRouteToString();
-        double valutateAlternativeRoute(int, Node, double**);
+        //cheker
+        bool isSuitableFor(Node);
 };
 
 }

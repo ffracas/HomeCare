@@ -28,7 +28,8 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     }
     int const emptyLines = 4;
     std::string line;
-    // Skipping the empty four lines  //TODO class file che implementa il salto riga un readAfter(file, righe da saltare, line)
+    // Skipping the empty four lines  
+    //TODO class file che implementa il salto riga un readAfter(file, righe da saltare, line)
     for (int i = 0; i < emptyLines; ++i) {
         std::getline(file, line);
     }
@@ -73,17 +74,9 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     //for add synchronous nodes in synchronous setting
     if(m_params.getProgramConfig() != 1){
         //add synchronized node
-        int nodeNumber = m_nodes.size();
-        int nodeSyncNumber = (nodeNumber - 1) / 10;
-        for(i = 0; i < nodeSyncNumber; ++i){
-            int nodoInSyncIndex = nodeSyncNumber * (i + 1);
-            m_nodes[nodoInSyncIndex].setSyncConfig(true, i);
-            
-            //create synchronized node
-            Node duplicate(m_nodes[nodoInSyncIndex]);
-            duplicate.setSyncDuplicateNode(nodeNumber + i, nodoInSyncIndex);
-
-            m_nodes.push_back(duplicate);
+        int nodeSyncNumber = (m_nodes.size() - 1) / 10;
+        for(i = 0; i < nodeSyncNumber; ++i) {
+            m_nodes[nodeSyncNumber * (i + 1)].setSync();
         }
     }
 
@@ -105,32 +98,39 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     }
 }
 
-ProblemDef::~ProblemDef(){}
+ProblemDef::~ProblemDef() {}
 
-void ProblemDef::generateFirstSolution(){
+void ProblemDef::generateFirstSolution() {
     if(m_nodes.size() < 2) {                                            //check for min number of node to proceed
         throw std::runtime_error("Errore nella definizione del problema");
     }
-    vector<Node> nodesToServe(m_nodes.begin() + 1, m_nodes.end());  //depot is the first one
-    while(nodesToServe.size() > 0){
-        Route route(m_nodes[m_depotIndex]);
-        int nodeIndex = searchForSeed(nodesToServe);
-        Node seed(nodesToServe[nodeIndex]);
-        route.startRoute(seed, m_distances);  
-        nodesToServe.erase(nodesToServe.begin() + nodeIndex);           //delete served node
-        //search for new node to insert in the root
-        nodeIndex = -1;
-        bool routeCompleted = false;
-        while(!routeCompleted){
-            int nextNodeIndex = route.searchForNextNode(nodesToServe, m_distances, m_params);
-            if(nextNodeIndex != NO_INDEX_NODE){
-                nodesToServe.erase(nodesToServe.begin() + nextNodeIndex);           //delete served node
-            }
-            else {
-                routeCompleted = true;
-            }
+    //set the group of the node of the path
+    vector<Node> nodesToServe(m_nodes.begin() + 1, m_nodes.end());      //depot is the first one
+    if(m_params.getCamionNumber() < 1) {                                //check for min number of routes
+        throw std::runtime_error("Errore nella definizione del problema");
+    }
+    //ordering nodes to serve by greatest end window
+    sort(nodesToServe.begin(), nodesToServe.end(), 
+            [] (Node n1, Node n2) { return n1.getWindowEndTime() < n2.getWindowEndTime(); });
+    
+    for(int i = 0; i < m_params.getCamionNumber(); ++i) {               //initialisation of the route
+        m_solution.push_back(Route(m_nodes[m_depotIndex]));
+    }
+
+    //generate first solution
+    while(nodesToServe.size() > 0) {
+        int bestRoute = searchForRoute(nodesToServe[0]);
+        
+        //TODO manca aggiustamento del tempo di inizio.
+        double time = Route::ZERO_TIME;
+        if (nodesToServe[0].isSync()) {
+            int bestSync = searchForRoute(nodesToServe[0], bestRoute);
+            time = syncTime(bestRoute, bestSync, nodesToServe[0]);
+            m_solution[bestSync].addNode(nodesToServe[0].getSyncNode(), m_distances, time);
         }
-        m_solution.push_back(route); //forse sei il problema
+        m_solution[bestRoute].addNode(nodesToServe[0], m_distances, time);
+        
+        nodesToServe.erase(nodesToServe.begin());
     }
 
     for(Route route : m_solution) {
@@ -138,19 +138,29 @@ void ProblemDef::generateFirstSolution(){
     }
 }
 
-int ProblemDef::searchForSeed(vector<Node> t_nodes){   //di default Elena usa questa
-    if(t_nodes.size() < 1) return NO_INDEX_NODE;
-    if(t_nodes.size() == 1) return 0;
-    int seedIndex = NO_INDEX_NODE;
-    double distance = 0;
-    for(int i = 0; i < t_nodes.size(); ++i){
-        if(m_distances[0][i] <= t_nodes[i].getWindowEndTime()){
-            if(m_distances[0][i] > distance){
-                seedIndex = i;
-                distance = m_distances[0][i];
+int ProblemDef::searchForRoute(Node t_node, int t_syncRoute) {
+    int bestRoute = NO_INDEX;
+    double bestCost = MAX_DOUBLE;
+    for (int i = 0; i < m_solution.size(); ++i) {
+        if (i != t_syncRoute && m_solution[i].isSuitableFor(t_node)) {
+            double cost = 3 * m_solution[i].getFreeTime() + m_distances[m_solution[i].getLastClient()][t_node.getID()];
+            if(cost < bestCost) {
+                bestCost = cost;
+                bestRoute = i;
             }
         }
     }
-    return seedIndex;
+    if (bestRoute == NO_INDEX) {
+        throw std::runtime_error("Problema nella composizione della I soluzione");
+    }
+    return bestRoute;
 }
 
+double ProblemDef::syncTime(int mainRoute, int syncRoute, Node node) {
+    double serviceTimePrevision = m_solution[mainRoute].getFreeTime() + 
+                                    m_distances[m_solution[mainRoute].getLastClient()][node.getID()];
+    double time = node.getWindowStartTime() > serviceTimePrevision ? node.getWindowStartTime() : serviceTimePrevision;
+    serviceTimePrevision = m_solution[syncRoute].getFreeTime() + 
+                                    m_distances[m_solution[syncRoute].getLastClient()][node.getID()];
+    return time > serviceTimePrevision ? time : serviceTimePrevision;
+}

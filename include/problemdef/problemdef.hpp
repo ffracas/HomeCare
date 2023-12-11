@@ -18,14 +18,14 @@ class ProblemDef
 {
 private:
     std::vector<Node> m_nodes;
-    double** m_distances;
+    vector<vector<double>> m_distances;
     vector<Route> m_solution;
     Params m_params;
     int m_depotIndex;
     static const int NO_INDEX = -1;
 
-    int searchForRoute(Node, int = NO_INDEX);
-    double syncTime(int, int, Node);
+    int searchForRoute(Node, int = NO_INDEX) noexcept(false);
+    double calculateArrivalTime(int, Node);
     
 public:
     ProblemDef(string, string, string);

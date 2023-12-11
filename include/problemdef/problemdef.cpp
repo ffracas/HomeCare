@@ -46,7 +46,7 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     std::istringstream iss(cleaned_line);
     std::string n_camion, camion_cap;
     iss >> n_camion >> camion_cap;
-    m_params.setCamionLimits(std::stoi(n_camion), std::stoi(camion_cap));
+    m_params.setCamionLimits(std::stoi(camion_cap), std::stoi(n_camion));
     // Skipping the empty four lines
     for (int i = 0; i < emptyLines; ++i) {
         std::getline(file, line);
@@ -83,10 +83,7 @@ ProblemDef::ProblemDef(string t_pathDataFile,
     //calculation of distances
     //initialise distances matrix to 0
     int nodeNumber = m_nodes.size();
-    m_distances = new double*[nodeNumber];
-    for(i = 0; i < nodeNumber; ++i){
-        m_distances[i] = new double[nodeNumber]();
-    }
+    m_distances = std::vector<std::vector<double>>(nodeNumber, std::vector<double>(nodeNumber, 0.0));
     //set value in matrix
     for(i = 0; i < nodeNumber - 1; ++i){
         for(int j = i + 1; j < nodeNumber; j++){
@@ -96,6 +93,10 @@ ProblemDef::ProblemDef(string t_pathDataFile,
             m_distances[j][i] = distance;
         }
     }
+
+    for(int i = 0; i < m_params.getCamionNumber(); ++i) {               //initialisation of the route
+        m_solution.push_back(Route(m_nodes[m_depotIndex], m_params.getCamionCapacity()));
+    }
 }
 
 ProblemDef::~ProblemDef() {}
@@ -104,41 +105,43 @@ void ProblemDef::generateFirstSolution() {
     if(m_nodes.size() < 2) {                                            //check for min number of node to proceed
         throw std::runtime_error("Errore nella definizione del problema");
     }
-    //set the group of the node of the path
-    vector<Node> nodesToServe(m_nodes.begin() + 1, m_nodes.end());      //depot is the first one
-    if(m_params.getCamionNumber() < 1) {                                //check for min number of routes
+    //check for min number of routes
+    if(m_params.getCamionNumber() < 1) {                                
         throw std::runtime_error("Errore nella definizione del problema");
     }
+    //set the group of the node of the path
+    vector<Node> nodesToServe(m_nodes.begin() + 1, m_nodes.end());      //depot is the first one
     //ordering nodes to serve by greatest end window
     sort(nodesToServe.begin(), nodesToServe.end(), 
             [] (Node n1, Node n2) { return n1.getWindowEndTime() < n2.getWindowEndTime(); });
-    
-    for(int i = 0; i < m_params.getCamionNumber(); ++i) {               //initialisation of the route
-        m_solution.push_back(Route(m_nodes[m_depotIndex]));
-    }
 
     //generate first solution
     while(nodesToServe.size() > 0) {
-        int bestRoute = searchForRoute(nodesToServe[0]);
-        
-        //TODO manca aggiustamento del tempo di inizio.
-        double time = Route::ZERO_TIME;
-        if (nodesToServe[0].isSync()) {
-            int bestSync = searchForRoute(nodesToServe[0], bestRoute);
-            time = syncTime(bestRoute, bestSync, nodesToServe[0]);
-            m_solution[bestSync].addNode(nodesToServe[0].getSyncNode(), m_distances, time);
+        try{
+            int bestRoute = searchForRoute(nodesToServe[0]);
+            double time = calculateArrivalTime(bestRoute, nodesToServe[0]);
+            if (nodesToServe[0].isSync()) {
+                int bestSync = searchForRoute(nodesToServe[0], bestRoute);
+                double syncTime = calculateArrivalTime(bestSync, nodesToServe[0]);
+                time = time >= syncTime ? time : syncTime;
+                m_solution[bestSync].addNode(nodesToServe[0].getSyncNode(), m_distances, time);
+            }
+            m_solution[bestRoute].addNode(nodesToServe[0], m_distances, time);
+            
+            nodesToServe.erase(nodesToServe.begin());
+        } catch (const std::exception& e) {
+            std::cerr << "Errore: " << e.what() << '\n';
+            return;
         }
-        m_solution[bestRoute].addNode(nodesToServe[0], m_distances, time);
         
-        nodesToServe.erase(nodesToServe.begin());
     }
-
-    for(Route route : m_solution) {
+    
+    /*for(Route route : m_solution) {
         cout << route.getRouteToString() << '\n';
-    }
+    }*/
 }
 
-int ProblemDef::searchForRoute(Node t_node, int t_syncRoute) {
+int ProblemDef::searchForRoute(Node t_node, int t_syncRoute) noexcept(false) {
     int bestRoute = NO_INDEX;
     double bestCost = MAX_DOUBLE;
     for (int i = 0; i < m_solution.size(); ++i) {
@@ -156,11 +159,8 @@ int ProblemDef::searchForRoute(Node t_node, int t_syncRoute) {
     return bestRoute;
 }
 
-double ProblemDef::syncTime(int mainRoute, int syncRoute, Node node) {
-    double serviceTimePrevision = m_solution[mainRoute].getFreeTime() + 
-                                    m_distances[m_solution[mainRoute].getLastClient()][node.getID()];
-    double time = node.getWindowStartTime() > serviceTimePrevision ? node.getWindowStartTime() : serviceTimePrevision;
-    serviceTimePrevision = m_solution[syncRoute].getFreeTime() + 
-                                    m_distances[m_solution[syncRoute].getLastClient()][node.getID()];
-    return time > serviceTimePrevision ? time : serviceTimePrevision;
+double ProblemDef::calculateArrivalTime(int route, Node node) {
+    double serviceTimePrevision = m_solution[route].getFreeTime() + 
+                                    m_distances[m_solution[route].getLastClient()][node.getID()];
+    return node.getWindowStartTime() > serviceTimePrevision ? node.getWindowStartTime() : serviceTimePrevision;
 }

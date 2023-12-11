@@ -26,12 +26,12 @@ class Route{
         static const int EMPTY_ROUTE = -1;
         static constexpr double ZERO_TIME = 0.0;
 
-        Route(Node);
+        Route(Node, double);
         ~Route();
         //getter
         double getFreeTime();
         int getLastClient();
-        int addNode(Node, double**, int = 0);
+        int addNode(Node, vector<vector<double>>, int = 0);
         string getRouteToString();
         //cheker
         bool isSuitableFor(Node);

@@ -27,11 +27,12 @@ int Route::addNode(Node t_newNode, vector<vector<double>> t_distances, int t_del
         lastNode = Node(m_arcs_in_route[m_arcs_in_route.size() - 1].getArrival());
     }
     //insert new arc
+    m_currentTime = getFreeTime();
     double distanceLastNew = t_distances[lastNode.getID()][t_newNode.getID()];
     m_arcs_in_route.push_back(Arc(lastNode, t_newNode, distanceLastNew, 
-                            m_currentTime, m_currentTime + distanceLastNew));    
+                            m_currentTime, t_delay));    
     //insert new last arc
-    double newTime = getFreeTime() + distanceLastNew;
+    double newTime = getFreeTime();
     double distanceNewDepot = t_distances[t_newNode.getID()][m_depot.getID()];
     m_arcs_in_route.push_back(Arc(t_newNode, m_depot, distanceNewDepot, 
                             newTime, newTime + distanceNewDepot)); 

@@ -136,9 +136,7 @@ void ProblemDef::generateFirstSolution() {
         
     }
     
-    /*for(Route route : m_solution) {
-        cout << route.getRouteToString() << '\n';
-    }*/
+    writeSolutionFile();
 }
 
 int ProblemDef::searchForRoute(Node t_node, int t_syncRoute) noexcept(false) {
@@ -163,4 +161,15 @@ double ProblemDef::calculateArrivalTime(int route, Node node) {
     double serviceTimePrevision = m_solution[route].getFreeTime() + 
                                     m_distances[m_solution[route].getLastClient()][node.getID()];
     return node.getWindowStartTime() > serviceTimePrevision ? node.getWindowStartTime() : serviceTimePrevision;
+}
+
+void ProblemDef::writeSolutionFile() {
+    // Create and open a text file
+    ofstream file("solution1.txt");
+    // Write to the file
+    for( Route route : m_solution) {
+        file << route.getRouteToString();
+    }
+    // Close the file
+    file.close();
 }

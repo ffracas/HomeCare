@@ -19,7 +19,7 @@ Arc::Arc(Node t_departure, Node t_arrival, double t_distance, double t_departure
             : m_departure (t_departure), m_arrival (t_arrival), m_distance(t_distance),
             m_departure_time (t_departure_time) {
     m_arrival_time = t_arrival_time >= t_arrival.getWindowStartTime() ? t_arrival_time : t_arrival.getWindowStartTime();
-    m_ready_time = m_arrival_time + 1.0 * m_arrival.getService();
+    m_ready_time = m_arrival_time + (double) m_arrival.getService();
 }
 
 Arc::~Arc() {}

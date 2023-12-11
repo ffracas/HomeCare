@@ -31,6 +31,7 @@ public:
     ProblemDef(string, string, string);
     ~ProblemDef();
     void generateFirstSolution();
+    void writeSolutionFile();
 };
 
 }  //homecare

@@ -7,6 +7,8 @@
 #include <vector>
 #include <regex>
 #include <cmath>
+#include <json/json.h> 
+#include "../patient/patient.hpp"
 #include "../route/route.hpp"
 #include "../params/params.hpp"
 #include "../utils/utils.hpp"
@@ -29,6 +31,7 @@ private:
     
 public:
     ProblemDef(string, string, string);
+    ProblemDef(string);
     ~ProblemDef();
     void generateFirstSolution();
     void writeSolutionFile();

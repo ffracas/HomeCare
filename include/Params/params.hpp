@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <regex>
 
 namespace homecare
 {
@@ -43,7 +44,7 @@ private:
     bool controlParameters();
 
 public:
-    Params(std::string, std::string);
+    Params(std::string, std::string) noexcept (false);
     ~Params();
     double getInsertionCost(int , int , int , int );
     int getProgramConfig();

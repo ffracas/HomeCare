@@ -22,6 +22,7 @@ ProblemDef::ProblemDef(string t_pathDataFile,
                     string t_systemConfPath, string t_heuristicsConfPath) 
         : m_params(t_systemConfPath, t_heuristicsConfPath) {
     m_depotIndex = 0;
+    
     std::ifstream file(t_pathDataFile);
     if (!file.is_open()) {
         throw std::runtime_error("Errore nell'apertura del file dei dati del sistema.");

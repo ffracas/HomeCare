@@ -13,7 +13,7 @@ using namespace homecare;
  * @param t_heuristicsConfPath: A string specifying the path to read constants for the problem configuration.
  * 
 */
-Params::Params(string t_systemConfPath, string t_heuristicsConfPath){
+Params::Params(string t_systemConfPath, string t_heuristicsConfPath) {
 
     m_camionCapacity = 0;
     m_camionNumber = 0;
@@ -112,7 +112,7 @@ Params::Params(string t_systemConfPath, string t_heuristicsConfPath){
     controlParameters();
 }
 
-Params::~Params(){}
+Params::~Params() {}
 
 double Params::mu() { return m_mu; }
 

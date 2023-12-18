@@ -22,7 +22,7 @@ Service::~Service() {}
  * @param t_patient Flag indicating whether the service is associated with a patient.
  */
 Service::Service(Json::Value t_service, bool t_patient) {
-    const string ID         (t_patient ? "service"  : "id");               //String
+    const string ID         (t_patient ? "service"  : "id");                    //String
     const string DURATION   (t_patient ? "duration" : "default_duration");      //Int
 
     if (!t_service.isMember(ID)             || !t_service[ID].isString()    ||

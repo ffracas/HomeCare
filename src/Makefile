@@ -5,7 +5,7 @@ LIBDIR = ../include
 	
 hc: main.cpp
 	rm -f ./HomeCare
-	$(CC) $(CFLAGS) main.cpp $(LIBDIR)/readjson/hcreader.cpp $(LIBDIR)/patient/patient.cpp $(LIBDIR)/service/service.cpp -o HomeCare
+	$(CC) $(CFLAGS) main.cpp $(LIBDIR)/readjson/hcreader.cpp $(LIBDIR)/patient/patient.cpp $(LIBDIR)/service/service.cpp $(LIBDIR)/caregiver/caregiver.cpp $(LIBDIR)/depot/depot.cpp -o HomeCare
 
 main: main.cpp
 	rm -f ./HomeCare

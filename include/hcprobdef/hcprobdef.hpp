@@ -8,7 +8,7 @@ class hcprobdef
 private:
     /* data */
 public:
-    hcprobdef(string);
+    hcprobdef();
     ~hcprobdef();
 };
 

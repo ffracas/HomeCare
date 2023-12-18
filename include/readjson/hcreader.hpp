@@ -9,17 +9,19 @@
 #include <json/json.h> 
 
 #include "../patient/patient.hpp"
-
+#include "../service/service.hpp"
 
 using namespace std;
 namespace homecare {
 
-class hcreader
-{
+class hcreader {
 private:
-    /* data */
+    vector<Patient> m_patients;
+    vector<vector<int>> m_distances;
+    vector<Service> m_services;
+
 public:
-    hcreader(string);
+    hcreader(string) noexcept (false);
     ~hcreader();
 };
 

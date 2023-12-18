@@ -20,6 +20,8 @@ Service::~Service() {}
  *
  * @param t_service The JSON representation of the service.
  * @param t_patient Flag indicating whether the service is associated with a patient.
+ * 
+ * @throws std::runtime_error if the JSON object is not formatted correctly.
  */
 Service::Service(Json::Value t_service, bool t_patient) {
     const string ID         (t_patient ? "service"  : "id");                    //String
@@ -34,6 +36,9 @@ Service::Service(Json::Value t_service, bool t_patient) {
     m_duration = t_service[DURATION].asInt();
 }
 
+/**
+ * This method writes the object into a string
+*/
 string Service::toString() const {
     stringstream ss;
     ss << "id: " << m_service << " dur: " << m_duration;

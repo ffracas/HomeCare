@@ -1,9 +1,9 @@
-#include "hcreader.hpp"
+#include "hcsolver.hpp"
 
 using namespace homecare; 
 
 
-hcreader::hcreader(string t_dataPath) {
+hcsolver::hcsolver(string t_dataPath) {
     //set fields name
     const string DISTANCES_FIELD    ("distances");
     const string PATIENTS_FIELD     ("patients");
@@ -70,7 +70,8 @@ hcreader::hcreader(string t_dataPath) {
         m_caregivers.push_back(Caregiver(caregiver));
     }
 
-    for (Patient pat : m_patients) {
+    ////////// Print read elements
+    /*for (Patient pat : m_patients) {
         cout<<pat.toString();
     }
     for (Depot dep : m_depots) {
@@ -78,11 +79,10 @@ hcreader::hcreader(string t_dataPath) {
     }
     for (Caregiver car : m_caregivers) {
         cout<<car.toString();
-    }
-
+    }*/
 
 }
 
-hcreader::~hcreader() {}
+hcsolver::~hcsolver() {}
 
 

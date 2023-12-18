@@ -1,5 +1,5 @@
-#ifndef HCREADER_HPP
-#define HCREADER_HPP
+#ifndef HCSOLVER_HPP
+#define HCSOLVER_HPP
 
 #include <iostream>
 #include <fstream>
@@ -16,7 +16,7 @@
 using namespace std;
 namespace homecare {
 
-class hcreader {
+class hcsolver {
 private:
     vector<Patient> m_patients;
     vector<vector<int>> m_distances;
@@ -25,8 +25,8 @@ private:
     vector<Caregiver> m_caregivers;
 
 public:
-    hcreader(string) noexcept (false);
-    ~hcreader();
+    hcsolver(string) noexcept (false);
+    ~hcsolver();
 };
 
 }

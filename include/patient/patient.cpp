@@ -3,6 +3,14 @@
 using namespace std;
 using namespace homecare;
 
+/**
+ * Constructor for initializing a Patient object based on a JSON representation.
+ *
+ * @param t_patient The JSON representation of the patient.
+ * @param t_defaultServices A vector of services to recover any missing information on patient service.
+ * 
+ * @throws std::runtime_error if the JSON object is not formatted correctly.
+ */
 Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices) {
     //patient object fields
     const string ID                 ("id");                         //String
@@ -78,6 +86,9 @@ Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices) {
 
 Patient::~Patient() {}
 
+/**
+ * This method writes the object into a string
+*/
 string Patient::toString() {
     stringstream ss;
     ss << "id: " << m_id << ' ';

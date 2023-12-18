@@ -1,5 +1,5 @@
 #include "../include/problemdef/problemdef.hpp"
-#include "../include/readjson/hcreader.hpp"
+#include "../include/readjson/hcsolver.hpp"
 #include <iostream>
 
 using namespace homecare;
@@ -10,7 +10,7 @@ int main() {
     //ProblemDef pd("../resources/c101.txt", "../config/best_conf_param.txt", "../config/parametri_ottimali.txt");
     //pd.generateFirstSolution();
     try {
-        hcreader("../resources/rome-p240-s10-d20-i0_15.json");
+        hcsolver("../resources/rome-p240-s10-d20-i0_15.json");
     } catch (const exception& e) {
         cerr << "Errore " << e.what();
     }

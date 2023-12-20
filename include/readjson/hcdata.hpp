@@ -1,5 +1,5 @@
-#ifndef HCSOLVER_HPP
-#define HCSOLVER_HPP
+#ifndef HCDATA_HPP
+#define HCDATA_HPP
 
 #include <iostream>
 #include <fstream>
@@ -16,7 +16,7 @@
 using namespace std;
 namespace homecare {
 
-class hcsolver {
+class HCData {
 private:
     vector<Patient> m_patients;
     vector<vector<int>> m_distances;
@@ -25,8 +25,14 @@ private:
     vector<Caregiver> m_caregivers;
 
 public:
-    hcsolver(string) noexcept (false);
-    ~hcsolver();
+    HCData(string) noexcept (false);
+    ~HCData();
+    const vector<Patient> getPatients() const;
+    const vector<std::vector<int>> getDistances() const;
+    const int getDistance(int, int) noexcept(false);
+    const vector<Service> getServices() const;
+    const vector<Depot> getDepots() const;
+    const vector<Caregiver> getCaregivers() const;
 };
 
 }

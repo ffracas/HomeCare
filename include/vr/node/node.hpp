@@ -5,7 +5,7 @@
 #include <sstream>
 #include "../utils/utils.hpp"
 
-namespace homecare{
+namespace vr{
 
 class Node{
     private:

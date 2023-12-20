@@ -1,7 +1,7 @@
 #include "params.hpp"
 
 using namespace std;
-using namespace homecare;
+using namespace vr;
 
 /**
  * @brief Constructor for the 'Params' class

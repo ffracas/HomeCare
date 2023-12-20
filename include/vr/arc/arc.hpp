@@ -5,7 +5,7 @@
 #include <sstream>
 #include "../node/node.hpp"
 
-namespace homecare{
+namespace vr{
 
 class Arc{
     private:

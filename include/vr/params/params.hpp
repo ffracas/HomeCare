@@ -6,7 +6,7 @@
 #include <sstream>
 #include <regex>
 
-namespace homecare
+namespace vr
 {
     
 class Params
@@ -57,6 +57,6 @@ public:
     int getCamionNumber();
 };
   
-} // namespace homecare
+} // namespace vr
 
 #endif

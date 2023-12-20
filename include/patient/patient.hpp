@@ -33,6 +33,8 @@ public:
     Patient(Json::Value, vector<Service>) noexcept (false);
     ~Patient();
     string toString();
+    int getWindowStartTime();   //
+    int getServiceTime();       //
 };
 
 }

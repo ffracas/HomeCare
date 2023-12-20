@@ -8,13 +8,12 @@
 #include <regex>
 #include <cmath>
 #include <json/json.h> 
-#include "../patient/patient.hpp"
 #include "../route/route.hpp"
 #include "../params/params.hpp"
 #include "../utils/utils.hpp"
 
 using namespace std;
-namespace homecare{
+namespace vr{
 
 class ProblemDef
 {
@@ -37,6 +36,6 @@ public:
     void writeSolutionFile();
 };
 
-}  //homecare
+}  //vr
 
 #endif

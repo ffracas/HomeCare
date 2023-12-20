@@ -1,6 +1,6 @@
 #include "node.hpp"
 
-using namespace homecare;
+using namespace vr;
 
 /**
  * @brief Constructor for the Node class.

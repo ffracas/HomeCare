@@ -4,7 +4,7 @@
 #include <iostream>
 #include <functional>
 
-namespace homecare{
+namespace vr{
 
 const double MIN_DOUBLE = -1.79769e+308;
 const double MAX_DOUBLE = 1.79769e+308;

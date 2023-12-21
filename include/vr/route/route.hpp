@@ -29,7 +29,7 @@ class Route{
         Route(Node, double);
         ~Route();
         //getter
-        double getFreeTime();
+        double getFreeTime(bool = false);
         int getLastClient();
         int addNode(Node, vector<vector<double>>, int = 0);
         string getRouteToString();

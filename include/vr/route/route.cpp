@@ -14,8 +14,11 @@ Route::Route(Node t_depot, double t_maxQuantity)
 
 Route::~Route() {}
 
-double Route::getFreeTime() { 
-    return m_arcs_in_route.size() > 0 ? m_arcs_in_route[m_arcs_in_route.size() - 1].getReadyTime() : ZERO_TIME; 
+double Route::getFreeTime(bool t_depotInArcs) {
+    if(!t_depotInArcs) {
+        return m_arcs_in_route.size() > 0 ? m_arcs_in_route[m_arcs_in_route.size() - 1].getReadyTime() : ZERO_TIME; 
+    }
+    return m_arcs_in_route.size() > 0 ? m_arcs_in_route[m_arcs_in_route.size() - 2].getReadyTime() : ZERO_TIME; 
 }
 
 int Route::getLastClient() { return m_lastClientID; }
@@ -27,12 +30,12 @@ int Route::addNode(Node t_newNode, vector<vector<double>> t_distances, int t_del
         lastNode = Node(m_arcs_in_route[m_arcs_in_route.size() - 1].getArrival());
     }
     //insert new arc
-    m_currentTime = getFreeTime();
+    m_currentTime = getFreeTime(true);
     double distanceLastNew = t_distances[lastNode.getID()][t_newNode.getID()];
     m_arcs_in_route.push_back(Arc(lastNode, t_newNode, distanceLastNew, 
                             m_currentTime, t_delay));    
     //insert new last arc
-    double newTime = getFreeTime();
+    double newTime = getFreeTime(true);
     double distanceNewDepot = t_distances[t_newNode.getID()][m_depot.getID()];
     m_arcs_in_route.push_back(Arc(t_newNode, m_depot, distanceNewDepot, 
                             newTime, newTime + distanceNewDepot)); 

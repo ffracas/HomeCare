@@ -1,28 +1,39 @@
 #ifndef NODE_HPP
 #define NODE_HPP
 
-namespace homecare{
+#include <sstream>
 
-//TODO da fare con template
-class Node
-{
+#include "../patient/patient.hpp"
+#include "../caregiver/caregiver.hpp"
+
+using namespace std;
+
+namespace homecare {
+
+class Node {
 private:
-    /* data */
+    string m_id;
+    int m_timeWindowOpen;
+    int m_timeWindowClose;
+    int m_distanceIndex;
+    int m_duration;
+    string m_service;
+    static const int ZERO;
+    static const string NO_SERVICE;
+
 public:
-    Node(/* args */);
+    Node(string, int, int, int, int = ZERO, string = NO_SERVICE);
+    Node(Caregiver);
     ~Node();
+    string getId() const;
+    int getTimeWindowOpen() const;
+    int getTimeWindowClose() const;
+    int getServiceTime() const;
+    int getDistancesIndex() const;
+    string getService() const;
+    string toString() const;
 };
-
-Node::Node(/* args */)
-{
-}
-
-Node::~Node()
-{
-}
-
     
 } // namespace homecare
-
 
 #endif

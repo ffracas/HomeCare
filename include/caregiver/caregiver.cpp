@@ -4,7 +4,7 @@ using namespace std;
 using namespace homecare;
 
 /**
- * Constructor for initializing a Caregiver object with specific attributes.
+ * @brief Constructor for initializing a Caregiver object with specific attributes.
  *
  * @param t_id The unique identifier of the caregiver.
  * @param t_services The vector of service IDs that the caregiver can provide.
@@ -61,7 +61,7 @@ Caregiver::~Caregiver() {}
 /**
  * This method writes the object into a string
 */
-string Caregiver::toString() {
+string Caregiver::toString() const {
     stringstream ss;
     ss << "id: " << m_id << ' ';
     ss << "services: [";
@@ -76,3 +76,15 @@ string Caregiver::toString() {
     
     return ss.str();
 }
+
+string Caregiver::getID() const { return m_id; }
+
+int Caregiver::getDepotDistanceIndex() const { return m_depotDistanceIndex; }
+
+int Caregiver::getShiftStartTime() const { return m_shiftStartTime; }
+
+int Caregiver::getShiftEndTime() const { return m_shiftEndTime; }
+
+string Caregiver::getDepot() const { return m_depot; }
+
+vector<string> Caregiver::getServicesList() const { return m_services; }

@@ -27,12 +27,13 @@ private:
 public:
     HCData(string) noexcept (false);
     ~HCData();
-    const vector<Patient> getPatients() const;
-    const vector<std::vector<int>> getDistances() const;
-    const int getDistance(int, int) noexcept(false);
-    const vector<Service> getServices() const;
-    const vector<Depot> getDepots() const;
-    const vector<Caregiver> getCaregivers() const;
+    vector<Patient> getPatients() const;
+    vector<vector<int>> getDistances() const;
+    vector<int> getNodeDistances(int) noexcept(false);
+    int getDistance(int, int) noexcept(false);
+    vector<Service> getServices() const;
+    vector<Depot> getDepots() const;
+    vector<Caregiver> getCaregivers() const;
 };
 
 }

@@ -6,7 +6,7 @@ LDIRVR = ../include/vr
 	
 hc: main.cpp
 	rm -f ./HomeCare
-	$(CC) $(CFLAGS) main.cpp $(LIBDIR)/hc/hcsolution.cpp $(LIBDIR)/readjson/hcdata.cpp $(LIBDIR)/patient/patient.cpp $(LIBDIR)/service/service.cpp $(LIBDIR)/caregiver/caregiver.cpp $(LIBDIR)/depot/depot.cpp -o HomeCare
+	$(CC) $(CFLAGS) main.cpp $(LIBDIR)/structures/node.cpp $(LIBDIR)/structures/arc.cpp $(LIBDIR)/structures/route.cpp $(LIBDIR)/hc/hcsolution.cpp $(LIBDIR)/readjson/hcdata.cpp $(LIBDIR)/patient/patient.cpp $(LIBDIR)/service/service.cpp $(LIBDIR)/caregiver/caregiver.cpp $(LIBDIR)/depot/depot.cpp -o HomeCare
 
 main: main.cpp
 	rm -f ./HomeCare

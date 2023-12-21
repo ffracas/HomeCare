@@ -113,3 +113,39 @@ string Patient::toString() {
 
     return ss.str();
 }
+
+/**
+ * Getter for the patient's ID.
+ * @return The patient's ID.
+ */
+string Patient::getID() const { return m_id; }
+
+/**
+ * Getter for the distances matrix index associated with the patient.
+ * @return The distances index associated with the patient.
+ */
+int Patient::getDistancesIndex() const { return m_distanceIndex; }
+
+/**
+ * Getter for the start time of the patient's time window.
+ * @return The start time of the patient's time window.
+ */
+int Patient::getWindowStartTime() const { return m_timeWindowOpen; }
+
+/**
+ * Getter for the end time of the patient's time window.
+ * @return The end time of the patient's time window.
+ */
+int Patient::getWindowEndTime() const { return m_timeWindowClose; }
+
+/**
+ * Getter for the list of services associated with the patient.
+ * @return The list of services associated with the patient.
+ */
+vector<Service> Patient::getServices() const { return m_services; }
+
+/**
+ * Getter for the list of invalid caregivers for the patient.
+ * @return The list of invalid caregivers for the patient.
+ */
+vector<string> Patient::getInvalidCaregivers() const { return m_invalidCaregivers; }

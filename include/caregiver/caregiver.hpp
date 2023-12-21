@@ -24,7 +24,13 @@ public:
     Caregiver(string, vector<string>, string, int, int, int);
     Caregiver(Json::Value) noexcept (false);
     ~Caregiver();
-    string toString();
+    string toString() const;
+    string getID() const;
+    int getDepotDistanceIndex() const;
+    int getShiftStartTime() const;
+    int getShiftEndTime() const;
+    string getDepot() const;
+    vector<string> getServicesList() const;
 };
 
 }

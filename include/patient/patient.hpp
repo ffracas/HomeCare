@@ -14,8 +14,7 @@ namespace homecare
 
 enum SyncType { NoSync, Sequential, Simultaneous };
 
-class Patient
-{
+class Patient {
 private:
     string m_id;
     double m_x;
@@ -33,8 +32,12 @@ public:
     Patient(Json::Value, vector<Service>) noexcept (false);
     ~Patient();
     string toString();
-    int getWindowStartTime();   //
-    int getServiceTime();       //
+    string getID() const;
+    int getDistancesIndex() const;
+    int getWindowStartTime() const;   
+    int getWindowEndTime() const;
+    vector<Service> getServices() const;
+    vector<string> getInvalidCaregivers() const;
 };
 
 }

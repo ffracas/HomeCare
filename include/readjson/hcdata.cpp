@@ -90,14 +90,32 @@ HCData::~HCData() {}
  *
  * @return A const of vector of patients.
  */
-const vector<Patient> HCData::HCData::getPatients() const { return m_patients; }
+vector<Patient> HCData::getPatients() const { return m_patients; }
 
 /**
  * Getter for the distances matrix.
  *
  * @return A const of values of the distances matrix.
  */
-const vector<vector<int>> HCData::HCData::getDistances() const { return m_distances; }
+vector<vector<int>> HCData::getDistances() const { return m_distances; }
+
+/**
+ * @brief Get the distances from the specified node to all other nodes.
+ * 
+ * This method retrieves a vector of distances from the specified node to all other nodes
+ * based on the distance matrix of the HCData object.
+ * 
+ * @param t_node The index of the node for which distances are requested.
+ * @return vector<int> A vector containing the distances from the specified node to all other nodes.
+ * @throws std::out_of_range If the specified index is out of bounds.
+ */
+vector<int> HCData::getNodeDistances(int t_node) noexcept(false) {
+    if (t_node < 0 || t_node >= m_distances.size()) {
+        throw std::out_of_range("Indice non contenuto nella matrice delle distanze");
+        return vector<int>();
+    }
+    return m_distances[t_node];
+}
 
 /**
  * @brief Get the distance between two nodes in the distance matrix.
@@ -110,9 +128,9 @@ const vector<vector<int>> HCData::HCData::getDistances() const { return m_distan
  * @return const int The value of the distance value between the specified nodes.
  * @throws std::out_of_range If the specified indices are out of bounds.
  */
-const int HCData::HCData::getDistance(int t_departure, int t_arrival) { 
-    if (t_departure < 0 || t_departure > m_distances.size() || 
-            t_arrival < 0 || t_arrival > m_distances[t_departure].size()) {
+int HCData::getDistance(int t_departure, int t_arrival) { 
+    if (t_departure < 0 || t_departure >= m_distances.size() || 
+            t_arrival < 0 || t_arrival >= m_distances[t_departure].size()) {
         throw std::out_of_range("Indice non contenuto nella matrice delle distanze");
         return 1;
     }
@@ -124,18 +142,18 @@ const int HCData::HCData::getDistance(int t_departure, int t_arrival) {
  *
  * @return A const of vector of services.
  */
-const vector<Service> HCData::HCData::getServices() const { return m_services;}
+vector<Service> HCData::getServices() const { return m_services;}
 
 /**
  * Getter for the depots vector.
  *
  * @return A const of vector of depots.
  */
-const vector<Depot> HCData::getDepots() const { return m_depots; }
+vector<Depot> HCData::getDepots() const { return m_depots; }
 
 /**
  * Getter for the caregivers vector.
  *
  * @return A const of vector of caregivers.
  */
-const vector<Caregiver> HCData::getCaregivers() const { return m_caregivers; }
+vector<Caregiver> HCData::getCaregivers() const { return m_caregivers; }

@@ -6,21 +6,23 @@
 #include <string>
 
 #include "arc.hpp"
+#include "node.hpp"
 #include "../patient/patient.hpp"
-#include "../depot/depot.hpp"
 #include "../caregiver/caregiver.hpp"
 
 using namespace std;
 
-namespace homecare{
+namespace homecare {
 
 class Route{
     private:
-        std::vector<Arc> m_arcs_in_route;
+        vector<Arc> m_arcs;
         Caregiver m_caregiver;
         int m_currentTime;
         int m_lastPatientDistanceIndex;
         static const int BASE_ROUTE_LEN = 2;
+        Node m_depot;
+        bool m_depot2depot;
 
     public:
         static const int EMPTY_ROUTE = -1;
@@ -29,10 +31,14 @@ class Route{
         Route(Caregiver);
         ~Route();
         //getter
-        int getFreeTime();
-        int getLastClient();
-        int addNode(Patient, vector<vector<int>>, int = 0); 
-        string getRouteToString();
+        int getFreeTime() const;
+        int getlastPatientDistanceIndex() const;
+        vector<string> getAvilableServices() const;
+        string getCaregiver() const;
+        //solver
+        int addNode(Node, vector<int>, vector<int>, int = 0); 
+        //tostring
+        string getRouteToString() const;
 };
 
 }

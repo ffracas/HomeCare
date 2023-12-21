@@ -4,20 +4,22 @@
 #include <sstream>
 
 #include "../readjson/hcdata.hpp"
+#include "../structures/route.hpp"
 
 using namespace std;
 
 namespace homecare {
 
-class HCSolution
-{
+class HCSolution {
+
 private:
     HCData m_data;
-    //vettore di routes
+    vector<Route> m_routes;
+
 public:
     HCSolution(string);
     ~HCSolution();
-    void generateISolution();
+    int generateISolution() noexcept (false);
 };
 
 }

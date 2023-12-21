@@ -3,6 +3,14 @@
 using namespace std;
 using namespace homecare;
 
+Patient::Patient(string t_id, double t_x, double t_y, int t_timeWindowOpen, int t_timeWindowClose, 
+        int t_distanceIndex, vector<string> t_invalidCaregivers, vector<Service> t_services, 
+        SyncType t_sync, int t_minWait, int t_maxWait) 
+        : m_id (t_id), m_x (t_x), m_y (t_y), 
+        m_timeWindowOpen (t_timeWindowOpen), m_timeWindowClose (t_timeWindowClose), m_distanceIndex (t_distanceIndex), 
+        m_invalidCaregivers (t_invalidCaregivers), m_services (t_services), m_sync (t_sync), 
+        m_minWait (t_minWait), m_maxWait (t_maxWait) {}
+
 /**
  * Constructor for initializing a Patient object based on a JSON representation.
  *
@@ -149,3 +157,13 @@ vector<Service> Patient::getServices() const { return m_services; }
  * @return The list of invalid caregivers for the patient.
  */
 vector<string> Patient::getInvalidCaregivers() const { return m_invalidCaregivers; }
+
+SyncType Patient::getSync() const { return m_sync; }
+
+Service Patient::getCurrentService() const { return m_services[0]; }
+
+Patient Patient::getPatientAndNextService() const { 
+    vector<Service> next(m_services.begin() + 1, m_services.end());
+    return Patient(m_id, m_x, m_y, m_timeWindowClose + m_minWait, m_timeWindowClose + m_maxWait, m_distanceIndex,
+            m_invalidCaregivers, next, m_sync, 0, 0);
+}

@@ -16,7 +16,13 @@ private:
     HCData m_data;
     vector<Route> m_routes;
 
+    int searchForRoute(Patient, int = NO_INDEX);
+    int calculateArrivalTime(int route, Patient node); 
+
 public:
+    static const int NO_INDEX;
+    static const int MAX_INT;
+
     HCSolution(string);
     ~HCSolution();
     int generateISolution() noexcept (false);

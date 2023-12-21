@@ -24,6 +24,7 @@ private:
 public:
     Node(string, int, int, int, int = ZERO, string = NO_SERVICE);
     Node(Caregiver);
+    Node(Patient);
     ~Node();
     string getId() const;
     int getTimeWindowOpen() const;

@@ -21,7 +21,7 @@ class Route{
         int m_currentTime;
         int m_lastPatientDistanceIndex;
         static const int BASE_ROUTE_LEN = 2;
-        Node m_depot;
+        const Node m_depot;
         bool m_depot2depot;
 
     public:

@@ -12,7 +12,7 @@ using namespace std;
 namespace homecare
 {
 
-enum SyncType { NoSync, Sequential, Simultaneous };
+enum SyncType { NoSync, Sequential, Simultaneous, Copy };
 
 class Patient {
 private:
@@ -30,14 +30,18 @@ private:
     
 public:
     Patient(Json::Value, vector<Service>) noexcept (false);
+    Patient(string, double, double, int, int, int, vector<string>, vector<Service>, SyncType, int, int);
     ~Patient();
     string toString();
     string getID() const;
+    SyncType getSync() const;
     int getDistancesIndex() const;
     int getWindowStartTime() const;   
     int getWindowEndTime() const;
     vector<Service> getServices() const;
     vector<string> getInvalidCaregivers() const;
+    Service getCurrentService() const;
+    Patient getPatientAndNextService() const;
 };
 
 }

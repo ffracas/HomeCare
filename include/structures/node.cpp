@@ -21,6 +21,12 @@ Node::Node(string t_id, int t_openTimeWindow, int t_closeTimeWindow,
         : m_id (t_id), m_timeWindowOpen (t_openTimeWindow), m_timeWindowClose (t_closeTimeWindow),
         m_distanceIndex (t_distanceIndex), m_duration (t_duration), m_service (t_service) {}
 
+Node::Node(Patient t_patient) 
+        : m_id (t_patient.getID()), m_timeWindowOpen (t_patient.getWindowStartTime()), 
+        m_timeWindowClose (t_patient.getWindowEndTime()), m_distanceIndex (t_patient.getDistancesIndex()), 
+        m_duration (t_patient.getCurrentService().getDuration()), 
+        m_service (t_patient.getCurrentService().getService()) {}
+
 Node::Node(Caregiver t_caregiver) 
         : m_id(t_caregiver.getDepot()), m_timeWindowOpen (t_caregiver.getShiftStartTime()), 
         m_timeWindowClose(t_caregiver.getShiftEndTime()), m_distanceIndex(t_caregiver.getDepotDistanceIndex()),

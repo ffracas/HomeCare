@@ -27,7 +27,8 @@ int Route::addNode(Node t_newNode, vector<int> t_depDists, vector<int> t_arrDist
     //insert new arc
     m_currentTime = getFreeTime();
     int distance = t_depDists[t_newNode.getDistancesIndex()];
-    m_arcs.push_back(Arc(last, t_newNode, distance, m_currentTime, t_delay));    
+    m_arcs.push_back(Arc(last, t_newNode, distance, m_currentTime, t_delay));
+    m_lastPatientDistanceIndex = t_newNode.getDistancesIndex();    
 
     //link to depot
     m_currentTime = getFreeTime();

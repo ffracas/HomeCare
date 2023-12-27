@@ -41,7 +41,7 @@ public:
     vector<Service> getServices() const;
     vector<string> getInvalidCaregivers() const;
     Service getCurrentService() const;
-    Patient getPatientAndNextService() const;
+    Patient getPatientAndNextService() const noexcept (false);
 };
 
 }

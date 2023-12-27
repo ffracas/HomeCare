@@ -46,3 +46,25 @@ string Arc::toString() const {
 
     return ss.str();
 }
+
+Json::Value Arc::getJSONArc() const {
+    const string DEPARTURE_FIELD        ("daprture");
+    const string DEPARTURE_TIME_FIELD   ("daprture_time");
+    const string ARRIVAL_FIELD          ("arrival");
+    const string ARRIVAL_TIME_FIELD     ("arrival_time");
+    const string ARRIVAL_SERVICE_FIELD  ("service_info");
+    const string ARR_SERV_TYPE_FIELD    ("service");
+    const string ARR_SERV_TIME_FIELD    ("serve_time");
+    const string DISTANCE_FIELD         ("distance_time");
+    Json::Value arc;
+
+    arc[DEPARTURE_FIELD      ] = Json::Value(m_departure.getId());
+    arc[DEPARTURE_TIME_FIELD ] = Json::Value(m_departureTime);
+    arc[ARRIVAL_FIELD        ] = Json::Value(m_arrival.getId());
+    arc[ARRIVAL_TIME_FIELD   ] = Json::Value(m_arrivalTime);
+    arc[ARRIVAL_SERVICE_FIELD][ARR_SERV_TYPE_FIELD] = Json::Value(m_arrival.getService());
+    arc[ARRIVAL_SERVICE_FIELD][ARR_SERV_TIME_FIELD] = Json::Value(m_arrival.getServiceTime());
+    arc[DISTANCE_FIELD       ] = Json::Value(m_distance);
+
+    return arc;
+}

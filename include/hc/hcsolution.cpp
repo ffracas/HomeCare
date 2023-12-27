@@ -34,7 +34,7 @@ int HCSolution::generateISolution() {
             time = time >= syncTime ? time : syncTime;
             m_routes[bestSync].addNode(newNode, 
                             m_data.getNodeDistances(m_routes[bestSync].getlastPatientDistanceIndex()), 
-                            m_data.getNodeDistances(newNode.getDistancesIndex()));
+                            m_data.getNodeDistances(newNode.getDistancesIndex()), time);
         } else if (patientsToServe[0].getSync() == Sequential && patientsToServe[0].getServices().size() > 1) {
             patientsToServe.insert(patientsToServe.begin() + 0, patientsToServe[0].getPatientAndNextService());
             sort(patientsToServe.begin(), patientsToServe.end(), 
@@ -42,13 +42,13 @@ int HCSolution::generateISolution() {
         } 
         m_routes[bestRoute].addNode(newNode, 
                             m_data.getNodeDistances(m_routes[bestRoute].getlastPatientDistanceIndex()), 
-                            m_data.getNodeDistances(newNode.getDistancesIndex()));
+                            m_data.getNodeDistances(newNode.getDistancesIndex()), time);
 
         patientsToServe.erase(patientsToServe.begin());
     }
-    for (Route route : m_routes) {
-        cout << route.getRouteToString() << '\n';
-    }
+    
+    writeSolutionOnFile("I_soluzione.json");
+
     return 0;
 }
 
@@ -84,4 +84,20 @@ int HCSolution::calculateArrivalTime(int route, Patient patient) {
     double serviceTimePrevision = m_routes[route].getFreeTime() + 
                 m_data.getDistance(m_routes[route].getlastPatientDistanceIndex(), patient.getDistancesIndex());
     return patient.getWindowStartTime() > serviceTimePrevision ? patient.getWindowStartTime() : serviceTimePrevision;
+}
+
+int HCSolution::writeSolutionOnFile(string outputFilePath) const {
+    Json::Value routes;
+    Json::StreamWriterBuilder builder;
+    const std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+
+    for (const Route& route : m_routes) {
+        routes[route.getCaregiver()] = route.getJSONRoute();
+    }
+
+    std::ofstream outputFile(outputFilePath);
+    writer -> write(routes, &outputFile);
+    outputFile.close();
+
+    return 0;
 }

@@ -50,6 +50,16 @@ string Route::getRouteToString() const {
     return ss.str();
 }
 
+Json::Value Route::getJSONRoute() const {
+    Json::Value route;
+
+    for (int i = 0; i < m_arcs.size(); ++i) {
+        route[i] = m_arcs[i].getJSONArc();
+    }
+
+    return route;
+}
+
 vector<string> Route::getAvilableServices() const { return m_caregiver.getServicesList(); }
 
 string Route::getCaregiver() const { return m_caregiver.getID(); }

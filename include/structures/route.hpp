@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <json/json.h>
 
 #include "arc.hpp"
 #include "node.hpp"
@@ -36,9 +37,10 @@ class Route{
         vector<string> getAvilableServices() const;
         string getCaregiver() const;
         //solver
-        int addNode(Node, vector<int>, vector<int>, int = 0); 
-        //tostring
+        int addNode(Node, vector<int>, vector<int>, int); 
+        //toFileFormat
         string getRouteToString() const;
+        Json::Value getJSONRoute() const;
 };
 
 }

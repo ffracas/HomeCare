@@ -18,6 +18,7 @@ private:
 
     int searchForRoute(Patient, int = NO_INDEX);
     int calculateArrivalTime(int route, Patient node); 
+    int writeSolutionOnFile(string) const;
 
 public:
     static const int NO_INDEX;

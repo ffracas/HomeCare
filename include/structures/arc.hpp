@@ -1,6 +1,8 @@
 #ifndef ARC_HPP
 #define ARC_HPP
 
+#include <json/json.h>
+
 #include "node.hpp"
 
 using namespace std;
@@ -28,6 +30,7 @@ public:
     int getArrvalTime() const;
     int getReadyTime() const;
     string toString() const;
+    Json::Value getJSONArc() const;
 };
 
 }

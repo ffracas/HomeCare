@@ -18,6 +18,7 @@ namespace homecare {
 
 class HCData {
 private:
+    bool m_orderedPatientsList;
     vector<Patient> m_patients;
     vector<vector<int>> m_distances;
     vector<Service> m_services;
@@ -27,7 +28,7 @@ private:
 public:
     HCData(string) noexcept (false);
     ~HCData();
-    vector<Patient> getPatients() const;
+    vector<Patient> getPatients();
     vector<vector<int>> getDistances() const;
     vector<int> getNodeDistances(int) noexcept(false);
     int getDistance(int, int) noexcept(false);

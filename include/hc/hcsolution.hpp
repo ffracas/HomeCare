@@ -15,10 +15,11 @@ class HCSolution {
 private:
     HCData m_data;
     vector<Route> m_routes;
+    static const string I_SOL_FILE;
 
     int searchForRoute(Patient, int = NO_INDEX);
     int calculateArrivalTime(int route, Patient node); 
-    int writeSolutionOnFile(string) const;
+    int writeSolutionOnFile(string);
 
 public:
     static const int NO_INDEX;

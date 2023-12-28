@@ -70,6 +70,8 @@ HCData::HCData(string t_dataPath) {
         m_caregivers.push_back(Caregiver(caregiver));
     }
 
+    m_orderedPatientsList = false;
+
     ////////// Print read elements
     /*for (Patient pat : m_patients) {
         cout<<pat.toString();
@@ -86,11 +88,18 @@ HCData::HCData(string t_dataPath) {
 HCData::~HCData() {}
 
 /**
- * Getter for the patients vector.
+ * Getter for the patient carrier with patients sorted in expiry order.
  *
- * @return A const of vector of patients.
+ * @return A vector of patients.
  */
-vector<Patient> HCData::getPatients() const { return m_patients; }
+vector<Patient> HCData::getPatients() { 
+    if (!m_orderedPatientsList) {
+        sort(m_patients.begin(), m_patients.end(), 
+            [] (Patient p1, Patient p2) { return p1.getWindowEndTime() < p2.getWindowEndTime(); });
+        m_orderedPatientsList = true;
+    }
+    return m_patients; 
+}
 
 /**
  * Getter for the distances matrix.

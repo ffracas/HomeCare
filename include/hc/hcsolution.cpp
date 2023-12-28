@@ -5,6 +5,7 @@ using namespace std;
 
 const int HCSolution::NO_INDEX = -1;
 const int HCSolution::MAX_INT = 2147483647;
+const string HCSolution::I_SOL_FILE("I_soluzione.json");
 
 HCSolution::HCSolution(string t_dataPath) : m_data(t_dataPath) {
     for (const Caregiver& caregiver : m_data.getCaregivers()) {
@@ -20,9 +21,6 @@ int HCSolution::generateISolution() {
         throw std::runtime_error("Errore nei dati del problema o nella lettura");
         return -1;
     }
-
-    sort(patientsToServe.begin(), patientsToServe.end(), 
-        [] (Patient p1, Patient p2) { return p1.getWindowEndTime() < p2.getWindowEndTime(); });
     
     while (patientsToServe.size() > 0) {
         int bestRoute = searchForRoute(patientsToServe[0]);
@@ -47,7 +45,7 @@ int HCSolution::generateISolution() {
         patientsToServe.erase(patientsToServe.begin());
     }
     
-    writeSolutionOnFile("I_soluzione.json");
+    writeSolutionOnFile(I_SOL_FILE);
 
     return 0;
 }
@@ -86,10 +84,16 @@ int HCSolution::calculateArrivalTime(int route, Patient patient) {
     return patient.getWindowStartTime() > serviceTimePrevision ? patient.getWindowStartTime() : serviceTimePrevision;
 }
 
-int HCSolution::writeSolutionOnFile(string outputFilePath) const {
+int HCSolution::writeSolutionOnFile(string outputFilePath) {
     Json::Value routes;
     Json::StreamWriterBuilder builder;
     const std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+    const string ORD_FIELD("global_ordering");
+
+    vector<Patient> patients(m_data.getPatients());
+    for (int i = 0; i < patients.size(); ++i) {
+        routes[ORD_FIELD][i] = patients[i].getID();
+    }
 
     for (const Route& route : m_routes) {
         routes[route.getCaregiver()] = route.getJSONRoute();

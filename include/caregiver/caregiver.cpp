@@ -88,3 +88,5 @@ int Caregiver::getShiftEndTime() const { return m_shiftEndTime; }
 string Caregiver::getDepot() const { return m_depot; }
 
 vector<string> Caregiver::getServicesList() const { return m_services; }
+
+bool Caregiver::isWorking(int actualTime) const { return actualTime < m_shiftEndTime + 240; /*straordinari*/ }

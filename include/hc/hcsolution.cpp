@@ -2,10 +2,11 @@
 
 using namespace homecare;
 using namespace std;
+using namespace Json;
 
 const int HCSolution::NO_INDEX = -1;
 const int HCSolution::MAX_INT = 2147483647;
-const string HCSolution::I_SOL_FILE("I_soluzione.json");
+const string HCSolution::I_SOL_FILE("./I_soluzione.json");
 
 HCSolution::HCSolution(string t_dataPath) : m_data(t_dataPath) {
     for (const Caregiver& caregiver : m_data.getCaregivers()) {
@@ -16,12 +17,17 @@ HCSolution::HCSolution(string t_dataPath) : m_data(t_dataPath) {
 HCSolution::~HCSolution() {}
 
 int HCSolution::generateISolution() {
+    //reset dictionary of served Sequential client and caregiver
+    m_prevServCaregiver.clear();
+    
+    //initialise vector of patient to serve
     vector<Patient> patientsToServe(m_data.getPatients());
     if (patientsToServe.size() < 1 || m_routes.size() < 1) {
         throw std::runtime_error("Errore nei dati del problema o nella lettura");
         return -1;
     }
     
+    //searching for starting solution
     while (patientsToServe.size() > 0) {
         int bestRoute = searchForRoute(patientsToServe[0]);
         int time = calculateArrivalTime(bestRoute, patientsToServe[0]);
@@ -37,6 +43,7 @@ int HCSolution::generateISolution() {
             patientsToServe.insert(patientsToServe.begin() + 0, patientsToServe[0].getPatientAndNextService());
             sort(patientsToServe.begin(), patientsToServe.end(), 
                 [] (Patient p1, Patient p2) { return p1.getWindowEndTime() < p2.getWindowEndTime(); });
+            m_prevServCaregiver[patientsToServe[0].getID()] = bestRoute;
         } 
         m_routes[bestRoute].addNode(newNode, 
                             m_data.getNodeDistances(m_routes[bestRoute].getlastPatientDistanceIndex()), 
@@ -59,10 +66,14 @@ int HCSolution::searchForRoute(Patient patient, int sync_index)  {
 
     for (const Route& route: m_routes) {
         vector<string> services(route.getAvilableServices());
-        if (i != sync_index && 
-                find(services.begin(), services.end(), request) != services.end() && 
-                find(invalidCaregivers.begin(), invalidCaregivers.end(), route.getCaregiver()) 
-                    == invalidCaregivers.end()) {
+        if (i != sync_index 
+                && find(services.begin(), services.end(), request) != services.end() 
+                && find(invalidCaregivers.begin(), invalidCaregivers.end(), route.getCaregiver()) 
+                    == invalidCaregivers.end()
+                && (m_prevServCaregiver.find(patient.getID()) == m_prevServCaregiver.end()
+                    || (m_prevServCaregiver.find(patient.getID()) != m_prevServCaregiver.end() 
+                        && m_prevServCaregiver[patient.getID()] != i))
+                ) {
             int cost = route.getFreeTime() + 
                         m_data.getDistance(route.getlastPatientDistanceIndex(), patient.getDistancesIndex());
             if (cost < bestCost) {
@@ -88,15 +99,21 @@ int HCSolution::writeSolutionOnFile(string outputFilePath) {
     Json::Value routes;
     Json::StreamWriterBuilder builder;
     const std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-    const string ORD_FIELD("global_ordering");
+    const string PATIENT_FIELD  ("global_ordering");
+    const string ROUTE_FIELD    ("routes");
+    const string CAREGIVER_FIELD("caregiver_id");
+    const string PATIENTS_FIELD ("locations");
 
     vector<Patient> patients(m_data.getPatients());
     for (int i = 0; i < patients.size(); ++i) {
-        routes[ORD_FIELD][i] = patients[i].getID();
+        routes[PATIENT_FIELD][i] = patients[i].getID();
     }
 
+    int i = 0;
     for (const Route& route : m_routes) {
-        routes[route.getCaregiver()] = route.getJSONRoute();
+        routes[ROUTE_FIELD][i][CAREGIVER_FIELD] = route.getCaregiver();
+        routes[ROUTE_FIELD][i][PATIENTS_FIELD]  = route.getJSONRoute();
+        ++i;
     }
 
     std::ofstream outputFile(outputFilePath);

@@ -41,6 +41,8 @@ class Route{
         //toFileFormat
         string getRouteToString() const;
         Json::Value getJSONRoute() const;
+        //checker
+        bool isAvailable() const;
 };
 
 }

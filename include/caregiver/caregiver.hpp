@@ -31,6 +31,7 @@ public:
     int getShiftEndTime() const;
     string getDepot() const;
     vector<string> getServicesList() const;
+    bool isWorking(int) const;
 };
 
 }

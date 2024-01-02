@@ -2,6 +2,7 @@
 #define HCSOLUTION_HPP
 
 #include <sstream>
+#include <map>
 
 #include "../readjson/hcdata.hpp"
 #include "../structures/route.hpp"
@@ -15,6 +16,7 @@ class HCSolution {
 private:
     HCData m_data;
     vector<Route> m_routes;
+    map<string, int> m_prevServCaregiver;
     static const string I_SOL_FILE;
 
     int searchForRoute(Patient, int = NO_INDEX);

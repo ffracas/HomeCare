@@ -10,7 +10,7 @@ Route::Route(Caregiver t_caregiver)
 Route::~Route() {}
 
 int Route::getFreeTime() const { 
-    if (m_arcs.size() <= 0) { return m_depot.getTimeWindowOpen(); }
+    if (m_arcs.size() <= 0) { return m_caregiver.getShiftStartTime(); }
     return m_depot2depot ? m_arcs[m_arcs.size() - 2].getReadyTime() : m_arcs[m_arcs.size() - 1].getReadyTime(); 
 }
 
@@ -52,9 +52,16 @@ string Route::getRouteToString() const {
 
 Json::Value Route::getJSONRoute() const {
     Json::Value route;
+    const string  ARRIVAL_FIELD     ("arrival_time");
+    const string  DEPARTURE_FIELD   ("departure_time");
+    const string  PATIENT_FIELD     ("patient");
+    const string  SERVICE_FIELD     ("service");
 
-    for (int i = 0; i < m_arcs.size(); ++i) {
-        route[i] = m_arcs[i].getJSONArc();
+    for (int i = 0; i < m_arcs.size() - 1; ++i) {
+        route[i][ARRIVAL_FIELD  ] = m_arcs[i].getArrvalTime();
+        route[i][DEPARTURE_FIELD] = m_arcs[i + 1].getDeparturTime();
+        route[i][PATIENT_FIELD  ] = m_arcs[i].getArrival().getId();
+        route[i][SERVICE_FIELD  ] = m_arcs[i].getArrival().getService();
     }
 
     return route;
@@ -63,3 +70,5 @@ Json::Value Route::getJSONRoute() const {
 vector<string> Route::getAvilableServices() const { return m_caregiver.getServicesList(); }
 
 string Route::getCaregiver() const { return m_caregiver.getID(); }
+
+bool Route::isAvailable() const { return m_caregiver.isWorking(this -> getFreeTime()); }

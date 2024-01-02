@@ -12,13 +12,9 @@ public:
     ~HCValidation();
 };
 
-HCValidation::HCValidation(/* args */)
-{
-}
+HCValidation::HCValidation(/* args */) {}
 
-HCValidation::~HCValidation()
-{
-}
+HCValidation::~HCValidation() {}
 
 
 }

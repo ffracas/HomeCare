@@ -1,21 +1,28 @@
 #ifndef HCVALIDATION_HPP
 #define HCVALIDATION_HPP
 
+#include <vector>
+#include <set>
+
+#include "../readjson/hcdata.hpp"
+#include "../structures/route.hpp"
+#include "../structures/arc.hpp"
+#include "../structures/node.hpp"
+
+using namespace std;
 namespace homecare {
 
 class HCValidation
 {
 private:
-    /* data */
+    HCData m_data;
+    vector<Route> m_routes;
+
 public:
-    HCValidation(/* args */);
+    HCValidation(string, string) noexcept (false);
     ~HCValidation();
+    bool checkSolution();
 };
-
-HCValidation::HCValidation(/* args */) {}
-
-HCValidation::~HCValidation() {}
-
 
 }
 

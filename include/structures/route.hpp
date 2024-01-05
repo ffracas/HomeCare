@@ -36,6 +36,7 @@ class Route{
         int getlastPatientDistanceIndex() const;
         vector<string> getAvilableServices() const;
         string getCaregiver() const;
+        vector<Arc> getArcs() const;
         //solver
         int addNode(Node, vector<int>, vector<int>, int); 
         //toFileFormat
@@ -43,6 +44,8 @@ class Route{
         Json::Value getJSONRoute() const;
         //checker
         bool isAvailable() const;
+        //reader
+        int readNodesFromJson(Json::Value, vector<Patient>, vector<vector<int>>) noexcept (false);
 };
 
 }

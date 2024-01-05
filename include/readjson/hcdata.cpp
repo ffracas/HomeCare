@@ -166,3 +166,9 @@ vector<Depot> HCData::getDepots() const { return m_depots; }
  * @return A const of vector of caregivers.
  */
 vector<Caregiver> HCData::getCaregivers() const { return m_caregivers; }
+
+Caregiver HCData::getCaregiver(string t_caregiverID) const {
+    for (const auto& caregiver : m_caregivers ){
+        if (caregiver.getID() == t_caregiverID) { return caregiver; }
+    }
+}

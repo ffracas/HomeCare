@@ -35,6 +35,7 @@ public:
     vector<Service> getServices() const;
     vector<Depot> getDepots() const;
     vector<Caregiver> getCaregivers() const;
+    Caregiver getCaregiver(string) const;
 };
 
 }

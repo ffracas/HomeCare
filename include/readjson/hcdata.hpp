@@ -13,8 +13,6 @@
 #include "../depot/depot.hpp"
 #include "../caregiver/caregiver.hpp"
 
-
-using namespace std;
 namespace homecare {
 
 class HCData {

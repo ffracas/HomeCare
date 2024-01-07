@@ -8,7 +8,6 @@
 
 #include "../service/service.hpp"
 
-using namespace std;
 namespace homecare
 {
 

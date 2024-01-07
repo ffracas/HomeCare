@@ -5,8 +5,6 @@
 
 #include "node.hpp"
 
-using namespace std;
-
 namespace homecare {
 
 class Arc

@@ -6,8 +6,6 @@
 #include <vector>
 #include <json/json.h>
 
-using namespace std;
-
 namespace homecare {
 
 class Caregiver

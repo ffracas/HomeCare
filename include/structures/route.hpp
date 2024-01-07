@@ -11,8 +11,6 @@
 #include "../patient/patient.hpp"
 #include "../caregiver/caregiver.hpp"
 
-using namespace std;
-
 namespace homecare {
 
 class Route{

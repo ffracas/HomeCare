@@ -9,7 +9,6 @@
 #include "../structures/arc.hpp"
 #include "../structures/node.hpp"
 
-using namespace std;
 namespace homecare {
 
 class HCValidation

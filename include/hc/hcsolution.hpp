@@ -7,8 +7,6 @@
 #include "../readjson/hcdata.hpp"
 #include "../structures/route.hpp"
 
-using namespace std;
-
 namespace homecare {
 
 class HCSolution {

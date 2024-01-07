@@ -83,9 +83,6 @@ int HCSolution::searchForRoute(Patient patient, int sync_index)  {
         }
         ++i;
     }
-    if (bestRoute == NO_INDEX) {
-        throw std::runtime_error("Problema nella composizione della I soluzione");
-    }
     return bestRoute;
 }
 

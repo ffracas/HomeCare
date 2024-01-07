@@ -20,7 +20,7 @@ private:
     static const string I_SOL_FILE;
 
     int searchForRoute(Patient, int = NO_INDEX);
-    int calculateArrivalTime(int route, Patient node); 
+    int calculateArrivalTime(int route, int node); 
     int writeSolutionOnFile(string);
 
 public:

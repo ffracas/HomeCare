@@ -28,14 +28,30 @@ HCValidation::HCValidation(string t_dataFilePath, string t_solutionFilePath)
         return;
     }
 
+    if ( !root.isMember(ROUTE_FIELD) || !root[ROUTE_FIELD].isArray()) {
+        throw runtime_error("Errore nell'apertura del file soluzione.");
+        return;        
+    }
+
     for (const auto& routeData : root[ROUTE_FIELD]) {
-        Route route(m_data.getCaregiver(routeData[CAREGIVER_FIELD].asString()));
-        if (!routeData[PATIENTS_FIELD].isArray()) {
-            throw runtime_error("Errore nel formato del file soluzione.");
-            return;
+        try{
+            if ( !root.isMember(CAREGIVER_FIELD)    || !root[CAREGIVER_FIELD].isString()||
+                    !root.isMember(PATIENTS_FIELD)  || !root[PATIENTS_FIELD].isArray()  ) {
+                throw runtime_error("Errore nell'apertura del file soluzione.");
+                return; 
+            }
+            Caregiver caregiver = m_data.getCaregiver(routeData[CAREGIVER_FIELD].asString());
+            Route route(caregiver);
+            if (!routeData[PATIENTS_FIELD].isArray()) {
+                throw runtime_error("Errore nel formato del file soluzione.");
+                return;
+            }
+            route.readNodesFromJson(routeData[PATIENTS_FIELD], m_data.getPatients(), 
+                                    m_data.getNodeDistances(caregiver.getDepotDistanceIndex()));
+            m_routes.push_back(route);
+        } catch (const exception& e) {
+            cerr << "Errore " << e.what();
         }
-        route.readNodesFromJson(routeData[PATIENTS_FIELD], m_data.getPatients(), m_data.getDistances());
-        m_routes.push_back(route);
     }
 
     checkSolution();
@@ -48,8 +64,6 @@ bool HCValidation::checkSolution() {
     for (const Route& route : m_routes) {
         int departureTime = 0;
         int arrivalTime = 0;
-        for (const Arc& arc : route.getArcs()) {
-            
-        }
+        
     }
 }

@@ -2,49 +2,36 @@
 
 using namespace homecare;
 
+const int Route::BASE_ROUTE_LEN = 2;
+const int Route::DEPOT = 0;
+
 Route::Route(Caregiver t_caregiver) 
-        : m_caregiver(t_caregiver), m_currentTime (t_caregiver.getShiftStartTime()), 
-        m_lastPatientDistanceIndex (t_caregiver.getDepotDistanceIndex()),
-        m_depot(t_caregiver), m_depot2depot(false) {} 
+        : m_caregiver(t_caregiver) {
+            m_nodes.push_back(Node(t_caregiver));
+        } 
 
 Route::~Route() {}
 
-int Route::getFreeTime() const { 
-    if (m_arcs.size() <= 0) { return m_caregiver.getShiftStartTime(); }
-    return m_depot2depot ? m_arcs[m_arcs.size() - 2].getReadyTime() : m_arcs[m_arcs.size() - 1].getReadyTime(); 
-}
+int Route::getFreeTime() const { return m_nodes[m_nodes.size() - 1].getDeparturTime(); }
 
-int Route::getlastPatientDistanceIndex() const { return m_lastPatientDistanceIndex; }
+int Route::getlastPatientDistanceIndex() const { return m_nodes[m_nodes.size() - 1].getDistancesIndex(); }
 
-int Route::addNode(Node t_newNode, vector<int> t_depDists, vector<int> t_arrDists, int t_delay) { 
-    Node last = m_depot;
-    if (m_arcs.size() >= BASE_ROUTE_LEN) {
-        m_arcs.erase(m_arcs.end() - 1);  
-        last = Node(m_arcs[m_arcs.size() - 1].getArrival());
-        m_depot2depot = false;
-    }
+int Route::addNode(Patient t_newPatient, vector<int> t_arrDists, int t_estimatedArrivalTime) { 
+    t_estimatedArrivalTime = t_estimatedArrivalTime >= t_newPatient.getWindowStartTime() ? 
+                                t_estimatedArrivalTime : t_newPatient.getWindowStartTime();
+    m_nodes.push_back(Node(t_newPatient, t_estimatedArrivalTime));
+    m_nodes[DEPOT].setArrivalTime(
+        m_nodes[m_nodes.size() - 1].getDeparturTime() + t_arrDists[m_nodes[DEPOT].getDistancesIndex()]);
 
-    //insert new arc
-    m_currentTime = getFreeTime();
-    int distance = t_depDists[t_newNode.getDistancesIndex()];
-    m_arcs.push_back(Arc(last, t_newNode, distance, m_currentTime, t_delay));
-    m_lastPatientDistanceIndex = t_newNode.getDistancesIndex();    
-
-    //link to depot
-    m_currentTime = getFreeTime();
-    distance = t_arrDists[m_depot.getDistancesIndex()];
-    m_arcs.push_back(Arc(t_newNode, m_depot, distance, m_currentTime, m_currentTime + distance));  
-    m_depot2depot = true;  
-    
-    return m_arcs.size() - 1;
+    return m_nodes.size() - 1;
 } 
 
 string Route::getRouteToString() const {
     stringstream ss;
     
     ss << " ROUTE\n";
-    for (const Arc &arc: m_arcs) {
-        ss << arc.toString() << '\n';
+    for (const Node &node: m_nodes) {
+        ss << node.toString() << '\n';
     }
 
     return ss.str();
@@ -57,11 +44,12 @@ Json::Value Route::getJSONRoute() const {
     const string  PATIENT_FIELD     ("patient");
     const string  SERVICE_FIELD     ("service");
 
-    for (int i = 0; i < m_arcs.size() - 1; ++i) {
-        route[i][ARRIVAL_FIELD  ] = m_arcs[i].getArrvalTime();
-        route[i][DEPARTURE_FIELD] = m_arcs[i + 1].getDeparturTime();
-        route[i][PATIENT_FIELD  ] = m_arcs[i].getArrival().getId();
-        route[i][SERVICE_FIELD  ] = m_arcs[i].getArrival().getService();
+    //start from the first patient
+    for (int i = 1, j = 0; i < m_nodes.size() - 1; ++i, ++j) {
+        route[j][ARRIVAL_FIELD  ] = m_nodes[i].getArrivalTime();
+        route[j][DEPARTURE_FIELD] = m_nodes[i].getDeparturTime();
+        route[j][PATIENT_FIELD  ] = m_nodes[i].getId();
+        route[j][SERVICE_FIELD  ] = m_nodes[i].getService();
     }
 
     return route;
@@ -73,40 +61,41 @@ string Route::getCaregiver() const { return m_caregiver.getID(); }
 
 bool Route::isAvailable() const { return m_caregiver.isWorking(this -> getFreeTime()); }
 
-vector<Arc> Route::getArcs() const { return m_arcs; }
+vector<Node> Route::getNodes() const { return m_nodes; }
 
-int Route::readNodesFromJson (Json::Value t_patientsInJson, 
-        vector<Patient> t_patients, vector<vector<int>> t_distances) {
+int Route::readNodesFromJson (Json::Value t_patientsInJson, vector<Patient> t_patients, vector<int> t_depotDistances) {
 
-    const string  PATIENT_FIELD     ("patient");
-    const string  ARRIVAL_FIELD     ("arrival_time");
-    const string  DEPARTURE_FIELD   ("departure_time");
+    const string PATIENT_FIELD      ("patient");
+    const string SERVICE_FIELD      ("service");
+    const string ARRIVAL_FIELD      ("arrival_time");
+    const string DEPARTURE_FIELD    ("departure_time");
     
-    m_arcs.clear();
-    m_depot2depot = false;
-    Node last = m_depot;
-    
+    m_nodes.clear();
+
     for (int i = 0; i < t_patientsInJson.size(); ++i) {
         string patientToSearch = t_patientsInJson[i][PATIENT_FIELD].asString();
-        vector<Patient>::iterator patient = find(t_patients.begin(), t_patients.end(), 
+        vector<Patient>::iterator patient = find_if(t_patients.begin(), t_patients.end(), 
             [patientToSearch] (const Patient p) { return p.getID() == patientToSearch; });
         if (patient == t_patients.end()) {
-            throw runtime_error("Errore nel formato del file soluzione.");
+            throw runtime_error("Errore nel file soluzione. Paziente non trovato.");
             return -1;
         }
-        Node next(*patient);
-        int distance = t_distances[last.getDistancesIndex()][next.getDistancesIndex()];
-        m_arcs.push_back(Arc(last, next, distance, 
-                i > 0 ? t_patientsInJson[i - 1][DEPARTURE_FIELD].asInt() : m_caregiver.getShiftStartTime(), 
-                t_patientsInJson[i][ARRIVAL_FIELD].asInt()));
-        last = next;
+        if (patient -> getCurrentService().getService() != t_patientsInJson[i][SERVICE_FIELD].asString()) {
+            *patient = patient -> getPatientAndNextService();
+            if (patient -> getCurrentService().getService() != t_patientsInJson[i][SERVICE_FIELD].asString()) {
+                throw runtime_error("Errore nel file soluzione. Servizio non associato al paziente.");
+                return -1;
+            }
+        }
+        m_nodes.push_back(Node(*patient, t_patientsInJson[i][ARRIVAL_FIELD].asInt()));
+        if (m_nodes[m_nodes.size() - 1].getDeparturTime() != t_patientsInJson[i][DEPARTURE_FIELD].asInt()) {
+            throw runtime_error("Errore nel file soluzione. Problema nei tempi.");
+            return -1;
+        }
     }
     //link to depot
-    int distance = t_distances[last.getDistancesIndex()][m_depot.getDistancesIndex()];
-    int departure = t_patientsInJson[t_patientsInJson.size() - 1][DEPARTURE_FIELD].asInt();
-    m_arcs.push_back(Arc(last, m_depot, distance, departure, departure + distance));
-    m_currentTime = getFreeTime();
-    m_depot2depot = true;  
+    m_nodes[DEPOT].setArrivalTime(m_nodes[m_nodes.size() - 1].getDeparturTime() + 
+                                    t_depotDistances[m_nodes[m_nodes.size() - 1].getDistancesIndex()]);
     
-    return m_arcs.size() - 1;
+    return m_nodes.size() - 1;
 }

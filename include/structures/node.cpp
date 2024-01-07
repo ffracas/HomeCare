@@ -19,18 +19,22 @@ const string Node::NO_SERVICE = "";
 Node::Node(string t_id, int t_openTimeWindow, int t_closeTimeWindow, 
             int t_distanceIndex, int t_duration, string t_service) 
         : m_id (t_id), m_timeWindowOpen (t_openTimeWindow), m_timeWindowClose (t_closeTimeWindow),
-        m_distanceIndex (t_distanceIndex), m_duration (t_duration), m_service (t_service) {}
+        m_distanceIndex (t_distanceIndex), m_duration (t_duration), m_service (t_service), 
+        m_arrivalTime (t_openTimeWindow), m_departureTime (t_openTimeWindow) {}
 
-Node::Node(Patient t_patient) 
+Node::Node(Patient t_patient, int t_arrivalTime) 
         : m_id (t_patient.getID()), m_timeWindowOpen (t_patient.getWindowStartTime()), 
         m_timeWindowClose (t_patient.getWindowEndTime()), m_distanceIndex (t_patient.getDistancesIndex()), 
         m_duration (t_patient.getCurrentService().getDuration()), 
-        m_service (t_patient.getCurrentService().getService()) {}
+        m_service (t_patient.getCurrentService().getService()), m_arrivalTime (t_arrivalTime) {
+    m_departureTime = m_duration + m_arrivalTime;
+}
 
 Node::Node(Caregiver t_caregiver) 
         : m_id(t_caregiver.getDepot()), m_timeWindowOpen (t_caregiver.getShiftStartTime()), 
         m_timeWindowClose(t_caregiver.getShiftEndTime()), m_distanceIndex(t_caregiver.getDepotDistanceIndex()),
-        m_duration (ZERO), m_service(NO_SERVICE) {}
+        m_duration (ZERO), m_service(NO_SERVICE), m_arrivalTime (t_caregiver.getShiftStartTime()), 
+        m_departureTime (t_caregiver.getShiftStartTime()) {}
 
 Node::~Node() {}
 
@@ -69,6 +73,10 @@ int Node::getServiceTime() const { return m_duration; }
  */
 int Node::getDistancesIndex() const { return m_distanceIndex; }
 
+int Node::getArrivalTime() const { return m_arrivalTime; }
+
+int Node::getDeparturTime() const { return m_departureTime; }
+
 /**
  * Get the type of service associated with the node.
  * 
@@ -87,6 +95,12 @@ string Node::toString() const {
     ss << "id: " << m_id << ' ';
     ss << "service: " << m_service << ' ';
     ss << "duration: " << m_duration << ' ';
+    ss << "arrivalTime: " << m_arrivalTime << ' ';
+    ss << "departureTime: " << m_departureTime << ' ';
 
     return ss.str();
+}
+
+void Node::setArrivalTime(int t_time) {
+    m_arrivalTime = t_time;    
 }

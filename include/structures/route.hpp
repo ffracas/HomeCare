@@ -17,13 +17,10 @@ namespace homecare {
 
 class Route{
     private:
-        vector<Arc> m_arcs;
+        vector<Node> m_nodes;
         Caregiver m_caregiver;
-        int m_currentTime;
-        int m_lastPatientDistanceIndex;
-        static const int BASE_ROUTE_LEN = 2;
-        const Node m_depot;
-        bool m_depot2depot;
+        static const int BASE_ROUTE_LEN;
+        static const int DEPOT;
 
     public:
         static const int EMPTY_ROUTE = -1;
@@ -36,16 +33,16 @@ class Route{
         int getlastPatientDistanceIndex() const;
         vector<string> getAvilableServices() const;
         string getCaregiver() const;
-        vector<Arc> getArcs() const;
+        vector<Node> getNodes() const;
         //solver
-        int addNode(Node, vector<int>, vector<int>, int); 
+        int addNode(Patient, vector<int>, int); 
         //toFileFormat
         string getRouteToString() const;
         Json::Value getJSONRoute() const;
         //checker
         bool isAvailable() const;
         //reader
-        int readNodesFromJson(Json::Value, vector<Patient>, vector<vector<int>>) noexcept (false);
+        int readNodesFromJson(Json::Value, vector<Patient>,vector<int>) noexcept (false);
 };
 
 }

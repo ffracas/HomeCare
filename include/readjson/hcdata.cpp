@@ -171,4 +171,6 @@ Caregiver HCData::getCaregiver(string t_caregiverID) const {
     for (const auto& caregiver : m_caregivers ){
         if (caregiver.getID() == t_caregiverID) { return caregiver; }
     }
+    throw std::runtime_error("Caregiven");
+    return m_caregivers[0];
 }

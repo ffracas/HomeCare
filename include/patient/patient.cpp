@@ -56,6 +56,10 @@ Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices) {
             m_sync = Sequential;
             m_minWait = t_patient[SYNC_TYPE][SYNC_WINDOW_FIELD][0].asInt();
             m_maxWait = t_patient[SYNC_TYPE][SYNC_WINDOW_FIELD][1].asInt();
+            if (m_minWait >= m_maxWait){
+                throw std::runtime_error("Errore nel formato del file di configurazione del sistema.");
+                return;
+            }
         }
         else if (t_patient[SYNC_TYPE][SYNC_TYPE_FIELD].asString() == "simultaneous") { m_sync = Simultaneous; }
     }

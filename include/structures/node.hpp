@@ -18,14 +18,17 @@ private:
     int m_distanceIndex;
     int m_duration;
     string m_service;
+    int m_arrivalTime;
+    int m_departureTime;
     static const int ZERO;
     static const string NO_SERVICE;
 
 public:
     Node(string, int, int, int, int = ZERO, string = NO_SERVICE);
     Node(Caregiver);
-    Node(Patient);
+    Node(Patient, int);
     ~Node();
+    //getter
     string getId() const;
     int getTimeWindowOpen() const;
     int getTimeWindowClose() const;
@@ -33,6 +36,10 @@ public:
     int getDistancesIndex() const;
     string getService() const;
     string toString() const;
+    int getDeparturTime() const;
+    int getArrivalTime() const;
+    //setter
+    void setArrivalTime(int);
 };
     
 } // namespace homecare

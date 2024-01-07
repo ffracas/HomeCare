@@ -30,28 +30,28 @@ int HCSolution::generateISolution() {
     //searching for starting solution
     while (patientsToServe.size() > 0) {
         int bestRoute = searchForRoute(patientsToServe[0]);
-        int time = calculateArrivalTime(bestRoute, patientsToServe[0]);
-        Node newNode(patientsToServe[0]);
+        int PatientDistanceIndex = patientsToServe[0].getDistancesIndex();
+        int time = calculateArrivalTime(bestRoute, PatientDistanceIndex);
         if (patientsToServe[0].getSync() == Simultaneous) {
             int bestSync = searchForRoute(patientsToServe[0], bestRoute);
-            double syncTime = calculateArrivalTime(bestSync, patientsToServe[0]);
+            double syncTime = calculateArrivalTime(bestSync, PatientDistanceIndex);
             time = time >= syncTime ? time : syncTime;
-            m_routes[bestSync].addNode(newNode, 
-                            m_data.getNodeDistances(m_routes[bestSync].getlastPatientDistanceIndex()), 
-                            m_data.getNodeDistances(newNode.getDistancesIndex()), time);
-        } else if (patientsToServe[0].getSync() == Sequential && patientsToServe[0].getServices().size() > 1) {
+            m_routes[bestSync].addNode(patientsToServe[0], m_data.getNodeDistances(PatientDistanceIndex), time);
+        } 
+        else if (patientsToServe[0].getSync() == Sequential && patientsToServe[0].getServices().size() > 1) {
             patientsToServe.insert(patientsToServe.begin() + 0, patientsToServe[0].getPatientAndNextService());
             sort(patientsToServe.begin(), patientsToServe.end(), 
                 [] (Patient p1, Patient p2) { return p1.getWindowEndTime() < p2.getWindowEndTime(); });
             m_prevServCaregiver[patientsToServe[0].getID()] = bestRoute;
         } 
-        m_routes[bestRoute].addNode(newNode, 
-                            m_data.getNodeDistances(m_routes[bestRoute].getlastPatientDistanceIndex()), 
-                            m_data.getNodeDistances(newNode.getDistancesIndex()), time);
+        m_routes[bestRoute].addNode(patientsToServe[0], m_data.getNodeDistances(PatientDistanceIndex), time);
 
         patientsToServe.erase(patientsToServe.begin());
     }
     
+    for (Route route : m_routes) {
+        cout << route.getRouteToString() << '\n';
+    }
     writeSolutionOnFile(I_SOL_FILE);
 
     return 0;
@@ -89,10 +89,9 @@ int HCSolution::searchForRoute(Patient patient, int sync_index)  {
     return bestRoute;
 }
 
-int HCSolution::calculateArrivalTime(int route, Patient patient) {
-    double serviceTimePrevision = m_routes[route].getFreeTime() + 
-                m_data.getDistance(m_routes[route].getlastPatientDistanceIndex(), patient.getDistancesIndex());
-    return patient.getWindowStartTime() > serviceTimePrevision ? patient.getWindowStartTime() : serviceTimePrevision;
+int HCSolution::calculateArrivalTime(int route, int patient) {
+    return m_routes[route].getFreeTime() + 
+                m_data.getDistance(m_routes[route].getlastPatientDistanceIndex(), patient);
 }
 
 int HCSolution::writeSolutionOnFile(string outputFilePath) {

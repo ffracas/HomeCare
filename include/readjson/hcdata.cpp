@@ -1,7 +1,7 @@
 #include "hcdata.hpp"
 
 using namespace homecare; 
-
+using namespace std;
 
 HCData::HCData(string t_dataPath) {
     //set fields name
@@ -173,4 +173,12 @@ Caregiver HCData::getCaregiver(string t_caregiverID) const {
     }
     throw std::runtime_error("Caregiven");
     return m_caregivers[0];
+}
+
+Patient HCData::getPatient(string t_patientId) const {
+    for (const auto& patient : m_patients) {
+        if (patient.getID() == t_patientId) { return patient; }
+    }
+    throw std::runtime_error("Caregiven");
+    return m_patients[0];
 }

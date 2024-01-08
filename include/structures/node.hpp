@@ -10,30 +10,30 @@ namespace homecare {
 
 class Node {
 private:
-    string m_id;
+    std::string m_id;
     int m_timeWindowOpen;
     int m_timeWindowClose;
     int m_distanceIndex;
     int m_duration;
-    string m_service;
+    std::string m_service;
     int m_arrivalTime;
     int m_departureTime;
     static const int ZERO;
-    static const string NO_SERVICE;
+    static const std::string NO_SERVICE;
 
 public:
-    Node(string, int, int, int, int = ZERO, string = NO_SERVICE);
+    Node(std::string, int, int, int, int = ZERO, std::string = NO_SERVICE);
     Node(Caregiver);
     Node(Patient, int);
     ~Node();
     //getter
-    string getId() const;
+    std::string getId() const;
     int getTimeWindowOpen() const;
     int getTimeWindowClose() const;
     int getServiceTime() const;
     int getDistancesIndex() const;
-    string getService() const;
-    string toString() const;
+    std::string getService() const;
+    std::string toString() const;
     int getDeparturTime() const;
     int getArrivalTime() const;
     //setter

@@ -1,5 +1,6 @@
 #include "route.hpp"
 
+using namespace std;
 using namespace homecare;
 
 const int Route::BASE_ROUTE_LEN = 2;

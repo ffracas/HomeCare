@@ -11,24 +11,24 @@ namespace homecare {
 class Caregiver
 {
 private:
-    string m_id;
-    vector<string> m_services;
-    string m_depot;
+    std::string m_id;
+    std::vector<std::string> m_services;
+    std::string m_depot;
     int m_depotDistanceIndex;
     int m_shiftStartTime;
     int m_shiftEndTime;
 
 public:
-    Caregiver(string, vector<string>, string, int, int, int);
+    Caregiver(std::string, std::vector<std::string>, std::string, int, int, int);
     Caregiver(Json::Value) noexcept (false);
     ~Caregiver();
-    string toString() const;
-    string getID() const;
+    std::string toString() const;
+    std::string getID() const;
     int getDepotDistanceIndex() const;
     int getShiftStartTime() const;
     int getShiftEndTime() const;
-    string getDepot() const;
-    vector<string> getServicesList() const;
+    std::string getDepot() const;
+    std::vector<std::string> getServicesList() const;
     bool isWorking(int) const;
 };
 

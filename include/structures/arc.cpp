@@ -1,5 +1,6 @@
 #include "arc.hpp"
 
+using namespace std;
 using namespace homecare;
 
 /**

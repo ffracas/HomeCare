@@ -15,7 +15,7 @@ namespace homecare {
 
 class Route{
     private:
-        vector<Node> m_nodes;
+        std::vector<Node> m_nodes;
         Caregiver m_caregiver;
         static const int BASE_ROUTE_LEN;
         static const int DEPOT;
@@ -29,18 +29,18 @@ class Route{
         //getter
         int getFreeTime() const;
         int getlastPatientDistanceIndex() const;
-        vector<string> getAvilableServices() const;
-        string getCaregiver() const;
-        vector<Node> getNodes() const;
+        std::vector<std::string> getAvilableServices() const;
+        std::string getCaregiver() const;
+        std::vector<Node> getNodes() const;
         //solver
-        int addNode(Patient, vector<int>, int); 
+        int addNode(Patient, std::vector<int>, int); 
         //toFileFormat
-        string getRouteToString() const;
+        std::string getRouteToString() const;
         Json::Value getJSONRoute() const;
         //checker
         bool isAvailable() const;
         //reader
-        int readNodesFromJson(Json::Value, vector<Patient>,vector<int>) noexcept (false);
+        int readNodesFromJson(Json::Value, std::vector<Patient>,std::vector<int>) noexcept (false);
 };
 
 }

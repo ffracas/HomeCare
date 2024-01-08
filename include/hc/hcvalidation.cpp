@@ -54,16 +54,24 @@ HCValidation::HCValidation(string t_dataFilePath, string t_solutionFilePath)
         }
     }
 
-    checkSolution();
+    cout << checkSolution();
 }
 
 HCValidation::~HCValidation() {}
 
 bool HCValidation::checkSolution() {
-    set<string> visitedNode();
     for (const Route& route : m_routes) {
-        int departureTime = 0;
-        int arrivalTime = 0;
-        
+        set<string> visitedNode;
+        vector<string> services = route.getAvilableServices();
+        for (const Node& node: route.getNodes()) {
+            //controlla se il servizio è disponibile
+            if (find(services.begin(), services.end(), node.getService()) == services.end()) { return false; }
+            //controlla se il caregiver non è stato rifiutato dal paziente
+            vector<string> refused = m_data.getPatient(node.getId()).getInvalidCaregivers();
+            if (find(refused.begin(), refused.end(), route.getCaregiver()) != refused.end()) { return false; }
+            //controlla che il caregiver non sia già passato per il nodo
+            if (find(visitedNode.begin(), visitedNode.end(), node.getId()) != visitedNode.end()) { return false; }
+            visitedNode.insert(node.getId());
+        }
     }
 }

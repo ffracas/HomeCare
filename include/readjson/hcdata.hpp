@@ -18,23 +18,24 @@ namespace homecare {
 class HCData {
 private:
     bool m_orderedPatientsList;
-    vector<Patient> m_patients;
-    vector<vector<int>> m_distances;
-    vector<Service> m_services;
-    vector<Depot> m_depots;
-    vector<Caregiver> m_caregivers;
+    std::vector<Patient> m_patients;
+    std::vector<std::vector<int>> m_distances;
+    std::vector<Service> m_services;
+    std::vector<Depot> m_depots;
+    std::vector<Caregiver> m_caregivers;
 
 public:
-    HCData(string) noexcept (false);
+    HCData(std::string) noexcept (false);
     ~HCData();
-    vector<Patient> getPatients();
-    vector<vector<int>> getDistances() const;
-    vector<int> getNodeDistances(int) noexcept (false);
+    std::vector<Patient> getPatients();
+    std::vector<std::vector<int>> getDistances() const;
+    std::vector<int> getNodeDistances(int) noexcept (false);
     int getDistance(int, int) noexcept(false);
-    vector<Service> getServices() const;
-    vector<Depot> getDepots() const;
-    vector<Caregiver> getCaregivers() const;
-    Caregiver getCaregiver(string) const noexcept (false);
+    std::vector<Service> getServices() const;
+    std::vector<Depot> getDepots() const;
+    std::vector<Caregiver> getCaregivers() const;
+    Caregiver getCaregiver(std::string) const noexcept (false);
+    Patient getPatient(std::string) const noexcept (false);
 };
 
 }

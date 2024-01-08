@@ -27,7 +27,7 @@ public:
     int getDeparturTime() const;
     int getArrvalTime() const;
     int getReadyTime() const;
-    string toString() const;
+    std::string toString() const;
     Json::Value getJSONArc() const;
 };
 

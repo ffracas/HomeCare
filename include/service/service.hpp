@@ -4,8 +4,6 @@
 #include <string>
 #include <json/json.h>
 
-using namespace std;
-
 namespace homecare {
 
 /** 
@@ -14,21 +12,21 @@ namespace homecare {
 class Service
 {
 private:
-    string m_service;
+    std::string m_service;
     int m_duration;
 public:
-    Service(string, int);
+    Service(std::string, int);
     Service(Json::Value, bool = false) noexcept (false);
     ~Service();
     /**
      * Service Getter
     */
-    string getService() const { return m_service; }
+    std::string getService() const { return m_service; }
     /**
      * Duration Getter
     */
     int getDuration() const { return m_duration; }
-    string toString() const;
+    std::string toString() const;
 };
 
 }

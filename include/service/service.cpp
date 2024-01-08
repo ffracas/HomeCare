@@ -1,5 +1,6 @@
 #include "service.hpp"
 
+using namespace std;
 using namespace homecare;
 
 /** 

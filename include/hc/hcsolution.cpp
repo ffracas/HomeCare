@@ -49,9 +49,9 @@ int HCSolution::generateISolution() {
         patientsToServe.erase(patientsToServe.begin());
     }
     
-    for (Route route : m_routes) {
+    /*for (Route route : m_routes) {
         cout << route.getRouteToString() << '\n';
-    }
+    }*/
     writeSolutionOnFile(I_SOL_FILE);
 
     return 0;

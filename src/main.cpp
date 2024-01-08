@@ -2,6 +2,7 @@
 #include "../include/hc/hcsolution.hpp"
 #include <iostream>
 
+using namespace std;
 using namespace homecare;
 
 int main() {

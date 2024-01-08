@@ -15,30 +15,30 @@ enum SyncType { NoSync, Sequential, Simultaneous, Copy };
 
 class Patient {
 private:
-    string m_id;
+    std::string m_id;
     double m_x;
     double m_y;
     int m_timeWindowOpen;
     int m_timeWindowClose;
     int m_distanceIndex;
-    vector<string> m_invalidCaregivers;
-    vector<Service> m_services;
+    std::vector<std::string> m_invalidCaregivers;
+    std::vector<Service> m_services;
     SyncType m_sync;
     int m_minWait;
     int m_maxWait;
     
 public:
-    Patient(Json::Value, vector<Service>) noexcept (false);
-    Patient(string, double, double, int, int, int, vector<string>, vector<Service>, SyncType, int, int);
+    Patient(Json::Value, std::vector<Service>) noexcept (false);
+    Patient(std::string, double, double, int, int, int, std::vector<std::string>, std::vector<Service>, SyncType, int, int);
     ~Patient();
-    string toString();
-    string getID() const;
+    std::string toString();
+    std::string getID() const;
     SyncType getSync() const;
     int getDistancesIndex() const;
     int getWindowStartTime() const;   
     int getWindowEndTime() const;
-    vector<Service> getServices() const;
-    vector<string> getInvalidCaregivers() const;
+    std::vector<Service> getServices() const;
+    std::vector<std::string> getInvalidCaregivers() const;
     Service getCurrentService() const;
     Patient getPatientAndNextService() const noexcept (false);
 };

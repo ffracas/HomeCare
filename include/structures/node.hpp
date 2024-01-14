@@ -18,6 +18,7 @@ private:
     std::string m_service;
     int m_arrivalTime;
     int m_departureTime;
+    bool m_isDepot;
     static const int ZERO;
     static const std::string NO_SERVICE;
 

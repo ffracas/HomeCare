@@ -1,5 +1,6 @@
 //#include "../include/vr/problemdef/problemdef.hpp"
 #include "../include/hc/hcsolution.hpp"
+#include "../include/hc/hcvalidation.hpp"
 #include <iostream>
 
 using namespace std;

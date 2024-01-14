@@ -15,7 +15,6 @@ HCData::HCData(string t_dataPath) {
     std::ifstream file(t_dataPath);
     if (!file.is_open()) {
         throw std::runtime_error("Errore nell'apertura del file di configurazione del sistema.");
-        return;
     }
     string content = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     file.close();  // Chiudi il file
@@ -26,7 +25,6 @@ HCData::HCData(string t_dataPath) {
 
     if (!reader.parse(content, root)) {
         throw std::runtime_error("Errore nell'apertura del file di configurazione del sistema.");
-        return;
     }
 
     if ( !root.isMember(DISTANCES_FIELD)    || !root[DISTANCES_FIELD].isArray() || 
@@ -35,14 +33,12 @@ HCData::HCData(string t_dataPath) {
             !root.isMember(DEPOTS_FIELD)    || !root[DEPOTS_FIELD].isArray()    ||
             !root.isMember(CAREGIVERS_FIELD)|| !root[CAREGIVERS_FIELD].isArray()) {
         throw std::runtime_error("Errore nel formato del file di configurazione del sistema.");
-        return;
     }
     /////////////////// Parsing distances
     for (const auto& distances : root[DISTANCES_FIELD]){
         vector<int> row;
         if (!distances.isArray()) {
             throw std::runtime_error("Errore nel formato del file di configurazione del sistema");
-            return;
         }
         for (const auto& distance : distances) {
             row.push_back(distance.asInt());
@@ -121,7 +117,6 @@ vector<vector<int>> HCData::getDistances() const { return m_distances; }
 vector<int> HCData::getNodeDistances(int t_node) noexcept(false) {
     if (t_node < 0 || t_node >= m_distances.size()) {
         throw std::out_of_range("Indice non contenuto nella matrice delle distanze");
-        return vector<int>();
     }
     return m_distances[t_node];
 }
@@ -141,7 +136,6 @@ int HCData::getDistance(int t_departure, int t_arrival) {
     if (t_departure < 0 || t_departure >= m_distances.size() || 
             t_arrival < 0 || t_arrival >= m_distances[t_departure].size()) {
         throw std::out_of_range("Indice non contenuto nella matrice delle distanze");
-        return 1;
     }
     return m_distances[t_departure][t_arrival]; 
 }
@@ -172,7 +166,6 @@ Caregiver HCData::getCaregiver(string t_caregiverID) const {
         if (caregiver.getID() == t_caregiverID) { return caregiver; }
     }
     throw std::runtime_error("Caregiven");
-    return m_caregivers[0];
 }
 
 Patient HCData::getPatient(string t_patientId) const {
@@ -180,5 +173,4 @@ Patient HCData::getPatient(string t_patientId) const {
         if (patient.getID() == t_patientId) { return patient; }
     }
     throw std::runtime_error("Caregiven");
-    return m_patients[0];
 }

@@ -166,12 +166,24 @@ SyncType Patient::getSync() const { return m_sync; }
 
 Service Patient::getCurrentService() const { return m_services[0]; }
 
-Patient Patient::getPatientAndNextService() const {   
-    if (m_sync != Sequential || m_services.size() <= 1) {
+Service Patient::getNextService() const { 
+    if (m_sync == NoSync) {
         throw std::runtime_error("Errore! Non è possibile attivare il prossimo servizio per questo paziente");
-        return *this; 
     }
-    vector<Service> next(m_services.begin() + 1, m_services.end());
+    vector<Service> next(hasNext() ? m_services.begin() + 1 : m_services.begin(), m_services.end());
+    return next[0]; 
+}
+
+Patient Patient::getPatientAndNextService() const {   
+    if (m_sync == NoSync) {
+        throw std::runtime_error("Errore! Non è possibile attivare il prossimo servizio per questo paziente");
+    }
+    vector<Service> next(hasNext() ? m_services.begin() + 1 : m_services.begin(), m_services.end());
     return Patient(m_id, m_x, m_y, m_timeWindowClose + m_minWait, m_timeWindowClose + m_maxWait, m_distanceIndex,
             m_invalidCaregivers, next, m_sync, 0, 0);
+}
+
+bool Patient::hasNext() const {
+    if (m_sync == NoSync || m_services.size() <= 1) { return false; }
+    return true; 
 }

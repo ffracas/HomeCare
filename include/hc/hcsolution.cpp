@@ -24,7 +24,7 @@ int HCSolution::generateISolution() {
     vector<Patient> patientsToServe(m_data.getPatients());
     if (patientsToServe.size() < 1 || m_routes.size() < 1) {
         throw std::runtime_error("Errore nei dati del problema o nella lettura");
-        return -1;
+        
     }
     
     //searching for starting solution
@@ -33,7 +33,7 @@ int HCSolution::generateISolution() {
         int PatientDistanceIndex = patientsToServe[0].getDistancesIndex();
         int time = calculateArrivalTime(bestRoute, PatientDistanceIndex);
         if (patientsToServe[0].getSync() == Simultaneous) {
-            int bestSync = searchForRoute(patientsToServe[0], bestRoute);
+            int bestSync = searchForRoute(patientsToServe[0].getPatientAndNextService(), bestRoute);
             double syncTime = calculateArrivalTime(bestSync, PatientDistanceIndex);
             time = time >= syncTime ? time : syncTime;
             m_routes[bestSync].addNode(patientsToServe[0], m_data.getNodeDistances(PatientDistanceIndex), time);

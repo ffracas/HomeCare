@@ -37,10 +37,14 @@ public:
     int getDistancesIndex() const;
     int getWindowStartTime() const;   
     int getWindowEndTime() const;
+    int getMinWait() const;
+    int getMaxWait() const;
     std::vector<Service> getServices() const;
     std::vector<std::string> getInvalidCaregivers() const;
     Service getCurrentService() const;
+    Service getNextService() const;
     Patient getPatientAndNextService() const noexcept (false);
+    bool hasNext() const;
 };
 
 }

@@ -79,19 +79,16 @@ int Route::readNodesFromJson (Json::Value t_patientsInJson, vector<Patient> t_pa
             [patientToSearch] (const Patient p) { return p.getID() == patientToSearch; });
         if (patient == t_patients.end()) {
             throw runtime_error("Errore nel file soluzione. Paziente non trovato.");
-            return -1;
         }
         if (patient -> getCurrentService().getService() != t_patientsInJson[i][SERVICE_FIELD].asString()) {
             *patient = patient -> getPatientAndNextService();
             if (patient -> getCurrentService().getService() != t_patientsInJson[i][SERVICE_FIELD].asString()) {
                 throw runtime_error("Errore nel file soluzione. Servizio non associato al paziente.");
-                return -1;
             }
         }
         m_nodes.push_back(Node(*patient, t_patientsInJson[i][ARRIVAL_FIELD].asInt()));
         if (m_nodes[m_nodes.size() - 1].getDeparturTime() != t_patientsInJson[i][DEPARTURE_FIELD].asInt()) {
             throw runtime_error("Errore nel file soluzione. Problema nei tempi.");
-            return -1;
         }
     }
     //link to depot

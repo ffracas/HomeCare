@@ -151,6 +151,18 @@ int Patient::getWindowStartTime() const { return m_timeWindowOpen; }
 int Patient::getWindowEndTime() const { return m_timeWindowClose; }
 
 /**
+ * Getter for the maximum waiting time for the patient.
+ * @return Maximum waiting time for the patient.
+ */
+int Patient::getMaxWait() const { return m_maxWait; }
+
+/**
+ * Getter for the minimum waiting time for the patient.
+ * @return Minimum waiting time for the patient.
+ */
+int Patient::getMinWait() const { return m_minWait; }
+
+/**
  * Getter for the list of services associated with the patient.
  * @return The list of services associated with the patient.
  */

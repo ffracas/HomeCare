@@ -52,6 +52,8 @@ HCValidation::HCValidation(string t_dataFilePath, string t_solutionFilePath)
     cout << checkSolution();
 }
 
+HCValidation::HCValidation(HCData t_data, std::vector<Route> t_routes) : m_data (t_data), m_routes (t_routes) {}
+
 HCValidation::~HCValidation() {}
 
 bool HCValidation::checkSolution() {

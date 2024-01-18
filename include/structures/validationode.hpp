@@ -27,7 +27,7 @@ private:
     std::vector<ServiceInfo> m_services;
     SyncType m_sync;
     int m_minWait, m_maxWait;
-    bool checkService(string, int, int, int, int);
+    bool checkService(std::string, int, int, int, int);
     static const int FIRST, SECOND;
 
 public:

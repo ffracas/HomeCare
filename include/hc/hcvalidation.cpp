@@ -85,7 +85,7 @@ bool HCValidation::checkSolution() {
         }
     }
     for (const ValidatioNode& node : nodes) {
-        if (!node.isCompleted()) { cout<<"non tutti completi";return false; }
+        if (!node.isCompleted()) { return false; }
     }
     return true;
 }

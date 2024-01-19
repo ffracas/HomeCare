@@ -6,6 +6,7 @@
 
 #include "../readjson/hcdata.hpp"
 #include "../structures/route.hpp"
+#include "hcvalidation.hpp"
 
 namespace homecare {
 

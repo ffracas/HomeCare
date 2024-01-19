@@ -186,12 +186,13 @@ Service Patient::getNextService() const {
     return next[0]; 
 }
 
-Patient Patient::getPatientAndNextService() const {   
+Patient Patient::getPatientAndNextService(int t_time) const {   
     if (m_sync == NoSync) {
         throw std::runtime_error("Errore! Non è possibile attivare il prossimo servizio per questo paziente");
     }
+    t_time = t_time > m_timeWindowOpen ? t_time : m_timeWindowOpen;
     vector<Service> next(hasNext() ? m_services.begin() + 1 : m_services.begin(), m_services.end());
-    return Patient(m_id, m_x, m_y, m_timeWindowClose + m_minWait, m_timeWindowClose + m_maxWait, m_distanceIndex,
+    return Patient(m_id, m_x, m_y, t_time + m_minWait, t_time + m_maxWait, m_distanceIndex,
             m_invalidCaregivers, next, m_sync, 0, 0);
 }
 

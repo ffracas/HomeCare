@@ -6,8 +6,7 @@ using namespace homecare;
 const int Route::BASE_ROUTE_LEN = 2;
 const int Route::DEPOT = 0;
 
-Route::Route(Caregiver t_caregiver) 
-        : m_caregiver(t_caregiver) {
+Route::Route(Caregiver t_caregiver) : m_caregiver(t_caregiver) {
             m_nodes.push_back(Node(t_caregiver));
         } 
 
@@ -61,6 +60,11 @@ vector<string> Route::getAvilableServices() const { return m_caregiver.getServic
 string Route::getCaregiver() const { return m_caregiver.getID(); }
 
 bool Route::isAvailable() const { return m_caregiver.isWorking(this -> getFreeTime()); }
+
+bool Route::hasService(string request) const { 
+    vector<string> availableServices = m_caregiver.getServicesList();
+    return find(availableServices.begin(), availableServices.end(), request) != availableServices.end(); 
+}
 
 vector<Node> Route::getNodes() const { return m_nodes; }
 

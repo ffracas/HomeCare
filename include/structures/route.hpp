@@ -39,6 +39,7 @@ class Route{
         Json::Value getJSONRoute() const;
         //checker
         bool isAvailable() const;
+        bool hasService(std::string) const;
         //reader
         int readNodesFromJson(Json::Value, std::vector<Patient>,std::vector<int>) noexcept (false);
 };

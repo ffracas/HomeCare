@@ -11,7 +11,7 @@
 namespace homecare
 {
 
-enum SyncType { NoSync, Sequential, Simultaneous, Copy };
+enum SyncType { NoSync, Sequential, Simultaneous };
 
 class Patient {
 private:
@@ -43,7 +43,7 @@ public:
     std::vector<std::string> getInvalidCaregivers() const;
     Service getCurrentService() const;
     Service getNextService() const;
-    Patient getPatientAndNextService() const noexcept (false);
+    Patient getPatientAndNextService(int = 0) const noexcept (false);
     bool hasNext() const;
 };
 

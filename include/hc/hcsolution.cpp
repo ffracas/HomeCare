@@ -29,59 +29,61 @@ int HCSolution::generateISolution() {
     
     //searching for starting solution
     while (patientsToServe.size() > 0) {
-        int bestRoute = searchForRoute(patientsToServe[0]);
-        int PatientDistanceIndex = patientsToServe[0].getDistancesIndex();
+        Patient currentPatient(patientsToServe[0]);
+        patientsToServe.erase(patientsToServe.begin());
+        int bestRoute = searchForRoute(currentPatient);
+        int PatientDistanceIndex = currentPatient.getDistancesIndex();
         int time = calculateArrivalTime(bestRoute, PatientDistanceIndex);
-        if (patientsToServe[0].getSync() == Simultaneous) {
-            int bestSync = searchForRoute(patientsToServe[0].getPatientAndNextService(), bestRoute);
-            double syncTime = calculateArrivalTime(bestSync, PatientDistanceIndex);
+        
+        if (currentPatient.getSync() == Simultaneous) {
+            Patient syncPS(currentPatient.getPatientAndNextService());
+            int bestSync = searchForRoute(syncPS, bestRoute);
+            int syncTime = calculateArrivalTime(bestSync, PatientDistanceIndex);
             time = time >= syncTime ? time : syncTime;
-            m_routes[bestSync].addNode(patientsToServe[0], m_data.getNodeDistances(PatientDistanceIndex), time);
+            m_routes[bestSync].addNode(syncPS, m_data.getNodeDistances(PatientDistanceIndex), time);
         } 
-        else if (patientsToServe[0].getSync() == Sequential && patientsToServe[0].getServices().size() > 1) {
-            patientsToServe.insert(patientsToServe.begin() + 0, patientsToServe[0].getPatientAndNextService());
+        else if (currentPatient.getSync() == Sequential && currentPatient.hasNext()) {
+            patientsToServe.insert(patientsToServe.begin() + 0, currentPatient.getPatientAndNextService(time));
             sort(patientsToServe.begin(), patientsToServe.end(), 
                 [] (Patient p1, Patient p2) { return p1.getWindowEndTime() < p2.getWindowEndTime(); });
-            m_prevServCaregiver[patientsToServe[0].getID()] = bestRoute;
+            m_prevServCaregiver[currentPatient.getID()] = bestRoute;
         } 
-        m_routes[bestRoute].addNode(patientsToServe[0], m_data.getNodeDistances(PatientDistanceIndex), time);
-
-        patientsToServe.erase(patientsToServe.begin());
+        m_routes[bestRoute].addNode(currentPatient, m_data.getNodeDistances(PatientDistanceIndex), time);
     }
-    
+
     /*for (Route route : m_routes) {
         cout << route.getRouteToString() << '\n';
     }*/
+    HCValidation val(m_data, m_routes);
+    cout<<val.checkSolution();
+
     writeSolutionOnFile(I_SOL_FILE);
 
     return 0;
 }
 
 int HCSolution::searchForRoute(Patient patient, int sync_index)  {
-    string request = patient.getServices()[0].getService();
+    string request = patient.getCurrentService().getService();
     vector<string> invalidCaregivers(patient.getInvalidCaregivers());
     int bestRoute = NO_INDEX;
     int bestCost = MAX_INT;
-    int i = 0;
 
-    for (const Route& route: m_routes) {
-        vector<string> services(route.getAvilableServices());
+    for (int i = 0; i < m_routes.size(); ++i) {
         if (i != sync_index 
-                && find(services.begin(), services.end(), request) != services.end() 
-                && find(invalidCaregivers.begin(), invalidCaregivers.end(), route.getCaregiver()) 
+                && m_routes[i].hasService(request)
+                && find(invalidCaregivers.begin(), invalidCaregivers.end(), m_routes[i].getCaregiver()) 
                     == invalidCaregivers.end()
                 && (m_prevServCaregiver.find(patient.getID()) == m_prevServCaregiver.end()
                     || (m_prevServCaregiver.find(patient.getID()) != m_prevServCaregiver.end() 
                         && m_prevServCaregiver[patient.getID()] != i))
                 ) {
-            int cost = route.getFreeTime() + 
-                        m_data.getDistance(route.getlastPatientDistanceIndex(), patient.getDistancesIndex());
+            int cost = m_routes[i].getFreeTime() + 
+                        m_data.getDistance(m_routes[i].getlastPatientDistanceIndex(), patient.getDistancesIndex());
             if (cost < bestCost) {
                 bestCost = cost;
                 bestRoute = i;
             }
         }
-        ++i;
     }
     return bestRoute;
 }

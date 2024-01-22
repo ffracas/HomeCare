@@ -1,0 +1,490 @@
+{
+    "name": "udine",
+    "area": [
+        12.775,
+        45.7144,
+        13.6749,
+        46.3939
+    ],
+    "distances": [
+        [
+            0,
+            52,
+            21,
+            11,
+            56,
+            50,
+            40,
+            46,
+            41,
+            35,
+            33,
+            16
+        ],
+        [
+            51,
+            0,
+            45,
+            46,
+            62,
+            72,
+            28,
+            34,
+            27,
+            59,
+            20,
+            38
+        ],
+        [
+            20,
+            45,
+            0,
+            20,
+            45,
+            46,
+            32,
+            39,
+            34,
+            29,
+            28,
+            17
+        ],
+        [
+            14,
+            49,
+            21,
+            0,
+            54,
+            46,
+            36,
+            43,
+            38,
+            30,
+            37,
+            20
+        ],
+        [
+            59,
+            62,
+            45,
+            54,
+            0,
+            51,
+            49,
+            55,
+            51,
+            38,
+            58,
+            55
+        ],
+        [
+            53,
+            74,
+            46,
+            46,
+            51,
+            0,
+            61,
+            68,
+            63,
+            18,
+            69,
+            55
+        ],
+        [
+            40,
+            28,
+            34,
+            35,
+            51,
+            61,
+            0,
+            10,
+            9,
+            48,
+            24,
+            36
+        ],
+        [
+            46,
+            35,
+            40,
+            41,
+            54,
+            68,
+            9,
+            0,
+            10,
+            54,
+            27,
+            41
+        ],
+        [
+            42,
+            29,
+            36,
+            37,
+            53,
+            64,
+            10,
+            11,
+            0,
+            50,
+            21,
+            35
+        ],
+        [
+            37,
+            59,
+            28,
+            30,
+            38,
+            18,
+            47,
+            53,
+            48,
+            0,
+            53,
+            39
+        ],
+        [
+            32,
+            20,
+            28,
+            37,
+            58,
+            68,
+            24,
+            28,
+            20,
+            53,
+            0,
+            19
+        ],
+        [
+            16,
+            40,
+            18,
+            20,
+            58,
+            53,
+            38,
+            42,
+            34,
+            37,
+            20,
+            0
+        ]
+    ],
+    "departing_points": [
+        {
+            "id": "d0",
+            "location": [
+                13.2655,
+                46.0563
+            ]
+        },
+        {
+            "id": "d1",
+            "location": [
+                13.6388,
+                45.955
+            ]
+        }
+    ],
+    "patients": [
+        {
+            "id": "p0",
+            "location": [
+                13.2521,
+                45.9662
+            ],
+            "time_window": [
+                298,
+                418
+            ],
+            "required_caregivers": [
+                {
+                    "service": "s2",
+                    "duration": 15
+                }
+            ],
+            "distance_matrix_index": 2
+        },
+        {
+            "id": "p1",
+            "location": [
+                13.2368,
+                46.0828
+            ],
+            "time_window": [
+                256,
+                316
+            ],
+            "required_caregivers": [
+                {
+                    "service": "s0",
+                    "duration": 45
+                }
+            ],
+            "distance_matrix_index": 3,
+            "incompatible_caregivers": [
+                "c0"
+            ]
+        },
+        {
+            "id": "p2",
+            "location": [
+                13.0801,
+                45.7493
+            ],
+            "time_window": [
+                169,
+                349
+            ],
+            "required_caregivers": [
+                {
+                    "service": "s4",
+                    "duration": 15
+                },
+                {
+                    "service": "s1",
+                    "duration": 15
+                }
+            ],
+            "distance_matrix_index": 4,
+            "synchronization": {
+                "type": "simultaneous"
+            }
+        },
+        {
+            "id": "p3",
+            "location": [
+                12.8346,
+                45.9424
+            ],
+            "time_window": [
+                104,
+                284
+            ],
+            "required_caregivers": [
+                {
+                    "service": "s4",
+                    "duration": 15
+                }
+            ],
+            "distance_matrix_index": 5
+        },
+        {
+            "id": "p4",
+            "location": [
+                13.5034,
+                45.8204
+            ],
+            "time_window": [
+                7,
+                187
+            ],
+            "required_caregivers": [
+                {
+                    "service": "s2",
+                    "duration": 30
+                },
+                {
+                    "service": "s5",
+                    "duration": 30
+                }
+            ],
+            "distance_matrix_index": 6,
+            "synchronization": {
+                "type": "sequential",
+                "distance": [
+                    30,
+                    90
+                ]
+            }
+        },
+        {
+            "id": "p5",
+            "location": [
+                13.4345,
+                45.81
+            ],
+            "time_window": [
+                166,
+                346
+            ],
+            "required_caregivers": [
+                {
+                    "service": "s4",
+                    "duration": 15
+                }
+            ],
+            "distance_matrix_index": 7
+        },
+        {
+            "id": "p6",
+            "location": [
+                13.4564,
+                45.8461
+            ],
+            "time_window": [
+                458,
+                563
+            ],
+            "required_caregivers": [
+                {
+                    "service": "s1",
+                    "duration": 60
+                },
+                {
+                    "service": "s5",
+                    "duration": 30
+                }
+            ],
+            "distance_matrix_index": 8,
+            "synchronization": {
+                "type": "sequential",
+                "distance": [
+                    30,
+                    60
+                ]
+            }
+        },
+        {
+            "id": "p7",
+            "location": [
+                12.9911,
+                45.9565
+            ],
+            "time_window": [
+                63,
+                243
+            ],
+            "required_caregivers": [
+                {
+                    "service": "s5",
+                    "duration": 30
+                },
+                {
+                    "service": "s2",
+                    "duration": 30
+                }
+            ],
+            "distance_matrix_index": 9,
+            "synchronization": {
+                "type": "simultaneous"
+            }
+        },
+        {
+            "id": "p8",
+            "location": [
+                13.472,
+                45.95
+            ],
+            "time_window": [
+                46,
+                166
+            ],
+            "required_caregivers": [
+                {
+                    "service": "s4",
+                    "duration": 15
+                }
+            ],
+            "distance_matrix_index": 10
+        },
+        {
+            "id": "p9",
+            "location": [
+                13.3345,
+                46.0173
+            ],
+            "time_window": [
+                193,
+                253
+            ],
+            "required_caregivers": [
+                {
+                    "service": "s4",
+                    "duration": 60
+                }
+            ],
+            "distance_matrix_index": 11
+        }
+    ],
+    "caregivers": [
+        {
+            "id": "c0",
+            "abilities": [
+                "s0"
+            ],
+            "distance_matrix_index": 1,
+            "starting_point_id": "d1",
+            "working_shift": [
+                0,
+                480
+            ]
+        },
+        {
+            "id": "c1",
+            "abilities": [
+                "s1",
+                "s0",
+                "s2"
+            ],
+            "distance_matrix_index": 0,
+            "starting_point_id": "d0",
+            "working_shift": [
+                30,
+                510
+            ]
+        },
+        {
+            "id": "c2",
+            "abilities": [
+                "s5",
+                "s4",
+                "s3"
+            ],
+            "distance_matrix_index": 0,
+            "starting_point_id": "d0",
+            "working_shift": [
+                60,
+                540
+            ]
+        }
+    ],
+    "services": [
+        {
+            "id": "s0",
+            "default_duration": 45,
+            "type": "t0"
+        },
+        {
+            "id": "s1",
+            "default_duration": 15,
+            "type": "t0"
+        },
+        {
+            "id": "s2",
+            "default_duration": 30,
+            "type": "t0"
+        },
+        {
+            "id": "s3",
+            "default_duration": 30,
+            "type": "t1"
+        },
+        {
+            "id": "s4",
+            "default_duration": 15,
+            "type": "t1"
+        },
+        {
+            "id": "s5",
+            "default_duration": 30,
+            "type": "t1"
+        }
+    ]
+}

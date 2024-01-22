@@ -12,7 +12,7 @@ int main() {
     ProblemDef pd("../resources/vr/c101.txt", "../config/best_conf_param.txt", "../config/parametri_ottimali.txt");
     pd.generateFirstSolution();*/
     try {
-        HCSolution el("../resources/rome-p240-s10-d20-i0_15.json");
+        HCSolution el("../resources/hr_input/495-rome-p240-d6-i0_1-c3-3.json");
         el.generateISolution();
     } catch (const exception& e) {
         cerr << "Errore " << e.what();

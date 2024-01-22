@@ -30,7 +30,7 @@ Caregiver::Caregiver(Json::Value t_caregivers) {
     const string SERVICES               ("abilities");              //Array of string
     const string DEPOT_DISTANCES_INDEX  ("distance_matrix_index");  //int
     const string DEPOT                  ("starting_point_id");      //string
-    const string SHIFT                  ("time_window");            //Array of int
+    const string SHIFT                  ("working_shift");          //Array of int
 
     if (!t_caregivers.isMember(DEPOT_DISTANCES_INDEX)   || !t_caregivers[DEPOT_DISTANCES_INDEX].isInt() ||
             !t_caregivers.isMember(ID)                  || !t_caregivers[ID].isString()                 || 

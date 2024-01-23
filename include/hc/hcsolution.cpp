@@ -74,11 +74,6 @@ int HCSolution::generateISolution() {
     HCValidation val(m_data, m_routes);
     cout << val.checkSolution() << "\n";
 
-    cout << m_totalTardiness << "\n";
-    cout << m_totalWaitingTime << "\n";
-    cout << m_travelTime << "\n";
-    cout << m_totalExtraTime << "\n";
-
     //calculate cost
     m_solCost = calculateCost();
     cout << m_solCost << "\n";
@@ -131,9 +126,25 @@ int HCSolution::writeSolutionOnFile(string outputFilePath) {
     Json::StreamWriterBuilder builder;
     const std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
     const string PATIENT_FIELD  ("global_ordering");
+
     const string ROUTE_FIELD    ("routes");
     const string CAREGIVER_FIELD("caregiver_id");
     const string PATIENTS_FIELD ("locations");
+
+    const string COST_VAL_FIELD ("cost_components");
+    const string MAX_TARD_FIELD ("EHHC_HighestTardiness");
+    const string MAX_WAIT_FIELD ("EHHC_MaxIdleTime");
+    const string TOT_TARD_FIELD ("EHHC_TotalTardiness");
+    const string TOT_WAIT_FIELD ("EHHC_TotalWaitingTime");
+    const string T_TRAVEL_FIELD ("EHHC_TravelTime");
+    const string EXTRA_T_FIELD  ("EHHC_TotalExtraTime");
+
+    routes[COST_VAL_FIELD][MAX_TARD_FIELD] = m_maxTardiness;
+    routes[COST_VAL_FIELD][MAX_WAIT_FIELD] = m_maxIdleTime;
+    routes[COST_VAL_FIELD][TOT_TARD_FIELD] = m_totalTardiness;
+    routes[COST_VAL_FIELD][TOT_WAIT_FIELD] = m_totalWaitingTime;
+    routes[COST_VAL_FIELD][T_TRAVEL_FIELD] = m_travelTime;
+    routes[COST_VAL_FIELD][EXTRA_T_FIELD ] = m_totalExtraTime;
 
     vector<Patient> patients(m_data.getPatients());
     for (int i = 0; i < patients.size(); ++i) {

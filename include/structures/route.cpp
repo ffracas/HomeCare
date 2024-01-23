@@ -7,8 +7,14 @@ const int Route::BASE_ROUTE_LEN = 2;
 const int Route::DEPOT = 0;
 
 Route::Route(Caregiver t_caregiver) : m_caregiver(t_caregiver) {
-            m_nodes.push_back(Node(t_caregiver));
-        } 
+    m_nodes.push_back(Node(t_caregiver));
+    m_maxTardiness = 0;
+    m_maxIdleTime = 0;
+    m_totalTardiness = 0;
+    m_totalWaitingTime = 0;
+    m_travelTime = 0;
+    m_lastNode2DepotDistance = 0;
+} 
 
 Route::~Route() {}
 
@@ -16,12 +22,32 @@ int Route::getFreeTime() const { return m_nodes[m_nodes.size() - 1].getDeparturT
 
 int Route::getlastPatientDistanceIndex() const { return m_nodes[m_nodes.size() - 1].getDistancesIndex(); }
 
-int Route::addNode(Patient t_newPatient, vector<int> t_arrDists, int t_estimatedArrivalTime) { 
-    t_estimatedArrivalTime = t_estimatedArrivalTime >= t_newPatient.getWindowStartTime() ? 
-                                t_estimatedArrivalTime : t_newPatient.getWindowStartTime();
+int Route::addNode(Patient t_newPatient, vector<int> t_arrDists, int t_estimatedArrivalTime, int t_last2newDistance) { 
+    //update cost data
+    //sub distance of the last arc
+    m_travelTime -= m_lastNode2DepotDistance - t_last2newDistance;
+    //update waiting time
+    if (t_estimatedArrivalTime < t_newPatient.getWindowStartTime()){
+        int earliness = t_newPatient.getWindowStartTime() 
+                        - (m_nodes[m_nodes.size() - 1].getDeparturTime() + t_last2newDistance);
+        m_totalWaitingTime += earliness;
+        m_maxIdleTime = earliness > m_maxIdleTime ? earliness : m_maxIdleTime;
+        t_estimatedArrivalTime = t_newPatient.getWindowStartTime();
+    }
+    //update tardiness
+    if (t_estimatedArrivalTime > t_newPatient.getWindowEndTime()) {
+        int tardiness = t_estimatedArrivalTime - t_newPatient.getWindowEndTime();
+        m_totalTardiness += tardiness;
+        m_maxTardiness = tardiness > m_maxTardiness ? tardiness : m_maxTardiness;
+    }
+    
+    //add new node
     m_nodes.push_back(Node(t_newPatient, t_estimatedArrivalTime));
-    m_nodes[DEPOT].setArrivalTime(
-        m_nodes[m_nodes.size() - 1].getDeparturTime() + t_arrDists[m_nodes[DEPOT].getDistancesIndex()]);
+    m_lastNode2DepotDistance = t_arrDists[m_caregiver.getDepotDistanceIndex()];
+    m_nodes[DEPOT].setArrivalTime(m_nodes[m_nodes.size() - 1].getDeparturTime() + m_lastNode2DepotDistance);
+
+    //update cost data (travel time)
+    m_travelTime += m_lastNode2DepotDistance;
 
     return m_nodes.size() - 1;
 } 
@@ -58,6 +84,21 @@ Json::Value Route::getJSONRoute() const {
 vector<string> Route::getAvilableServices() const { return m_caregiver.getServicesList(); }
 
 string Route::getCaregiver() const { return m_caregiver.getID(); }
+
+int Route::getMaxTardiness() const { return m_maxTardiness; }
+
+int Route::getMaxIdleTime() const { return m_maxIdleTime; }
+
+int Route::getTotalTardiness() const { return m_totalTardiness; }
+
+int Route::getTotalWaitingTime() const { return m_totalWaitingTime; }
+
+int Route::getTravelTime() const { return m_travelTime; }
+
+int Route::getExtraTime() const { 
+    int endTime = m_nodes[DEPOT].getArrivalTime() - m_caregiver.getShiftEndTime();
+    return endTime > 0 ? endTime : 0;
+}
 
 bool Route::isAvailable() const { return m_caregiver.isWorking(this -> getFreeTime()); }
 

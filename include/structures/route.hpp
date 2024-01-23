@@ -17,6 +17,15 @@ class Route{
     private:
         std::vector<Node> m_nodes;
         Caregiver m_caregiver;
+
+        int m_maxTardiness;
+        int m_maxIdleTime;
+        int m_totalTardiness;
+        int m_totalWaitingTime;
+        int m_travelTime;
+
+        int m_lastNode2DepotDistance;
+
         static const int BASE_ROUTE_LEN;
         static const int DEPOT;
 
@@ -32,8 +41,14 @@ class Route{
         std::vector<std::string> getAvilableServices() const;
         std::string getCaregiver() const;
         std::vector<Node> getNodes() const;
+        int getMaxTardiness() const;
+        int getMaxIdleTime() const;
+        int getTotalTardiness() const;
+        int getTotalWaitingTime() const;
+        int getTravelTime() const;
+        int getExtraTime() const;
         //solver
-        int addNode(Patient, std::vector<int>, int); 
+        int addNode(Patient, std::vector<int>, int, int); 
         //toFileFormat
         std::string getRouteToString() const;
         Json::Value getJSONRoute() const;

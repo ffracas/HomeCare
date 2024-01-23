@@ -6,9 +6,18 @@ using namespace Json;
 
 const int HCSolution::NO_INDEX = -1;
 const int HCSolution::MAX_INT = 2147483647;
+
+const double HCSolution::m_travelTimeWeight = 0.165;
+const double HCSolution::m_maxTardinessWeight = 0.165;
+const double HCSolution::m_tardinessWeight = 0.165;
+const double HCSolution::m_extraTimeWeight = 0.165;
+const double HCSolution::m_maxIdleTimeWeight = 0.165;
+const double HCSolution::m_totWaitingTimeWeight = 0.165;
+
 const string HCSolution::I_SOL_FILE("./I_soluzione.json");
 
-HCSolution::HCSolution(string t_dataPath) : m_data(t_dataPath) {
+HCSolution::HCSolution(string t_dataPath) : m_data(t_dataPath), m_maxTardiness (0), m_maxIdleTime (0), 
+        m_totalExtraTime (0), m_totalTardiness (0), m_totalWaitingTime (0), m_travelTime (0), m_solCost (MAX_INT) {
     for (const Caregiver& caregiver : m_data.getCaregivers()) {
         m_routes.push_back(Route(caregiver));
     }
@@ -40,7 +49,8 @@ int HCSolution::generateISolution() {
             int bestSync = searchForRoute(syncPS, bestRoute);
             int syncTime = calculateArrivalTime(bestSync, PatientDistanceIndex);
             time = time >= syncTime ? time : syncTime;
-            m_routes[bestSync].addNode(syncPS, m_data.getNodeDistances(PatientDistanceIndex), time);
+            m_routes[bestSync].addNode(syncPS, m_data.getNodeDistances(PatientDistanceIndex), time, 
+              m_data.getDistance(m_routes[bestSync].getlastPatientDistanceIndex(), currentPatient.getDistancesIndex()));
         } 
         else if (currentPatient.getSync() == Sequential && currentPatient.hasNext()) {
             patientsToServe.insert(patientsToServe.begin() + 0, currentPatient.getPatientAndNextService(time));
@@ -48,15 +58,32 @@ int HCSolution::generateISolution() {
                 [] (Patient p1, Patient p2) { return p1.getWindowEndTime() < p2.getWindowEndTime(); });
             m_prevServCaregiver[currentPatient.getID()] = bestRoute;
         } 
-        m_routes[bestRoute].addNode(currentPatient, m_data.getNodeDistances(PatientDistanceIndex), time);
+        m_routes[bestRoute].addNode(currentPatient, m_data.getNodeDistances(PatientDistanceIndex), time, 
+            m_data.getDistance(m_routes[bestRoute].getlastPatientDistanceIndex(), currentPatient.getDistancesIndex()));
     }
 
-    /*for (Route route : m_routes) {
-        cout << route.getRouteToString() << '\n';
-    }*/
+    for (Route route : m_routes) {
+        m_maxIdleTime = route.getMaxIdleTime() > m_maxIdleTime ? route.getMaxIdleTime() : m_maxIdleTime;
+        m_maxTardiness = route.getMaxTardiness() > m_maxTardiness ? route.getMaxTardiness() : m_maxTardiness;
+        m_totalTardiness += route.getTotalTardiness();
+        m_totalWaitingTime += route.getTotalWaitingTime();
+        m_travelTime += route.getTravelTime();
+        m_totalExtraTime += route.getExtraTime();
+    }
+    //solution validation 
     HCValidation val(m_data, m_routes);
-    cout<<val.checkSolution();
+    cout << val.checkSolution() << "\n";
 
+    cout << m_totalTardiness << "\n";
+    cout << m_totalWaitingTime << "\n";
+    cout << m_travelTime << "\n";
+    cout << m_totalExtraTime << "\n";
+
+    //calculate cost
+    m_solCost = calculateCost();
+    cout << m_solCost << "\n";
+
+    //write json
     writeSolutionOnFile(I_SOL_FILE);
 
     return 0;
@@ -91,6 +118,12 @@ int HCSolution::searchForRoute(Patient patient, int sync_index)  {
 int HCSolution::calculateArrivalTime(int route, int patient) {
     return m_routes[route].getFreeTime() + 
                 m_data.getDistance(m_routes[route].getlastPatientDistanceIndex(), patient);
+}
+
+double HCSolution::calculateCost() {
+    return m_maxIdleTimeWeight * m_maxIdleTime + m_maxTardinessWeight * m_maxTardiness 
+        + m_tardinessWeight * m_totalTardiness + m_totWaitingTimeWeight * m_totalWaitingTime  
+        + m_extraTimeWeight * m_totalExtraTime + m_travelTimeWeight * m_travelTime;
 }
 
 int HCSolution::writeSolutionOnFile(string outputFilePath) {

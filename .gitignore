@@ -1,3 +1,7 @@
+#operation files
+./src/HomeCare
+./src/I_soluzione.json
+
 # Prerequisites
 *.d
 

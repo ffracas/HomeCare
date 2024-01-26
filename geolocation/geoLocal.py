@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import sqlite3
+from time import sleep
 from geopy.geocoders import ArcGIS
 
 def connect_db() :
@@ -17,11 +18,30 @@ def getPan(conn) :
 #    return db_cursor.execute('SELECT * FROM addresses WHERE lat IS NULL OR long IS NULL')
 
 def googleMaps_LocatePlace (address: str):
-    #googlekey = "AIzaSyDab1KqlhwAEgwFP4FNrUMM1G3CNVpuBG8"
-    #response = requests.get('https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA')
-    #resp_json_payload = response.json()
-    #print(resp_json_payload['results'][0]['geometry']['location'])
-    print("hello")
+    googlekey = "AIzaSyDab1KqlhwAEgwFP4FNrUMM1G3CNVpuBG8"
+    params = {
+        'address': address,
+        'key': googlekey
+    }
+    url = 'https://maps.googleapis.com/maps/api/geocode/json'
+    # Esecuzione della richiesta GET all'API di Google Maps
+    try:
+        response = requests.get(url, params=params)
+        data = response.json()
+
+        # Verifica se la richiesta è andata a buon fine
+        if response.status_code == 200 and data['status'] == 'OK':
+            # Estrazione delle coordinate geografiche
+            location = data['results'][0]['geometry']['location']
+            lat = location['lat']
+            lng = location['lng']
+            return lat, lng
+        else:
+            print("Errore nella richiesta all'API di Google Maps:", data['status'])
+            return None, None
+    except Exception as e:
+        print("Errore durante la richiesta all'API di Google Maps:", e)
+        return None, None
 
 def ArcGIS_LocatePlace (address: str) :
     finder = ArcGIS()
@@ -46,13 +66,14 @@ if __name__ == "__main__":
         for index, row in placesToComplete.iterrows():
             address = "{}, {}, {}, {}, {}".format(row['number'], row['road'], row['city'], row['cap'], row['country'])
             lat, long = ArcGIS_LocatePlace(address)
+            googleMaps_LocatePlace(address)
             row['lat'] = lat
             row['long'] = long
         
         update_task(connection, placesToComplete)
-        #placesToComplete.to_sql('addresses', connection, if_exists='append', index=False)
-    c = connection.cursor()
-    print(c.execute("SELECT * FROM addresses").fetchall())
+        
+    #c = connection.cursor()
+    #print(c.execute("SELECT * FROM addresses").fetchall())
 
     #end
     connection.close()

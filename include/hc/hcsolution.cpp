@@ -53,11 +53,20 @@ int HCSolution::generateISolution() {
               m_data.getDistance(m_routes[bestSync].getlastPatientDistanceIndex(), currentPatient.getDistancesIndex()));
         } 
         else if (currentPatient.getSync() == Sequential && currentPatient.hasNext()) {
+            //First sequential
             patientsToServe.insert(patientsToServe.begin() + 0, currentPatient.getPatientAndNextService(time));
             sort(patientsToServe.begin(), patientsToServe.end(), 
                 [] (Patient p1, Patient p2) { return p1.getWindowEndTime() < p2.getWindowEndTime(); });
             m_prevServCaregiver[currentPatient.getID()] = bestRoute;
         } 
+        else if (currentPatient.getSync() == Sequential && !currentPatient.hasNext()) {
+            //second sequential
+            if (time > currentPatient.getWindowEndTime()) {
+                //if second service arrive too late change time of the first service
+                m_routes[m_prevServCaregiver[currentPatient.getID()]].adaptTime(currentPatient.getID(), 
+                                                                                    time, m_data.getDistances());
+            }
+        }
         m_routes[bestRoute].addNode(currentPatient, m_data.getNodeDistances(PatientDistanceIndex), time, 
             m_data.getDistance(m_routes[bestRoute].getlastPatientDistanceIndex(), currentPatient.getDistancesIndex()));
     }

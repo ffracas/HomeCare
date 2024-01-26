@@ -193,7 +193,7 @@ Patient Patient::getPatientAndNextService(int t_time) const {
     t_time = t_time > m_timeWindowOpen ? t_time : m_timeWindowOpen;
     vector<Service> next(hasNext() ? m_services.begin() + 1 : m_services.begin(), m_services.end());
     return Patient(m_id, m_x, m_y, t_time + m_minWait, t_time + m_maxWait, m_distanceIndex,
-            m_invalidCaregivers, next, m_sync, 0, 0);
+            m_invalidCaregivers, next, m_sync, m_minWait, m_maxWait);
 }
 
 bool Patient::hasNext() const {

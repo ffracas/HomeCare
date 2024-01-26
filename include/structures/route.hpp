@@ -29,6 +29,8 @@ class Route{
         static const int BASE_ROUTE_LEN;
         static const int DEPOT;
 
+        void makeTimeRecalculation(int);
+
     public:
         static const int EMPTY_ROUTE = -1;
         static constexpr int ZERO_TIME = 0;
@@ -49,6 +51,7 @@ class Route{
         int getExtraTime() const;
         //solver
         int addNode(Patient, std::vector<int>, int, int); 
+        //int addNodeBetween(Patient, std::vector<std::vector<int>>); //TODO
         //toFileFormat
         std::string getRouteToString() const;
         Json::Value getJSONRoute() const;

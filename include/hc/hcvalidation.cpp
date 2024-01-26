@@ -74,7 +74,7 @@ bool HCValidation::checkSolution() {
             //controlla che il caregiver non sia già passato per il nodo e che il tempo sia in sincrono con altri servizi
             vector<ValidatioNode>::iterator service = find_if(nodes.begin(), nodes.end(), 
                 [node] (const ValidatioNode vnode) { return vnode.getPatient() == node.getId(); } ); 
-            if (service == nodes.end()) { cout<<"ripasso"; return false; }
+            if (service == nodes.end()) {  return false; }
             if (service -> setTime(node.getService(), node.getArrivalTime(), node.getDeparturTime()) 
                     != ValidatioNode::OK) { return false; }
             if (i > 0) {

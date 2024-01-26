@@ -44,29 +44,25 @@ int HCSolution::generateISolution() {
         int PatientDistanceIndex = currentPatient.getDistancesIndex();
         int time = calculateArrivalTime(bestRoute, PatientDistanceIndex);
         
-        if (currentPatient.getSync() == Simultaneous) {
+        if (currentPatient.getSync() != NoSync) {
             Patient syncPS(currentPatient.getPatientAndNextService());
             int bestSync = searchForRoute(syncPS, bestRoute);
             int syncTime = calculateArrivalTime(bestSync, PatientDistanceIndex);
-            time = time >= syncTime ? time : syncTime;
-            m_routes[bestSync].addNode(syncPS, m_data.getNodeDistances(PatientDistanceIndex), time, 
-              m_data.getDistance(m_routes[bestSync].getlastPatientDistanceIndex(), currentPatient.getDistancesIndex()));
-        } 
-        else if (currentPatient.getSync() == Sequential && currentPatient.hasNext()) {
-            //First sequential
-            patientsToServe.insert(patientsToServe.begin() + 0, currentPatient.getPatientAndNextService(time));
-            sort(patientsToServe.begin(), patientsToServe.end(), 
-                [] (Patient p1, Patient p2) { return p1.getWindowEndTime() < p2.getWindowEndTime(); });
-            m_prevServCaregiver[currentPatient.getID()] = bestRoute;
-        } 
-        else if (currentPatient.getSync() == Sequential && !currentPatient.hasNext()) {
-            //second sequential
-            if (time > currentPatient.getWindowEndTime()) {
-                //if second service arrive too late change time of the first service
-                m_routes[m_prevServCaregiver[currentPatient.getID()]].adaptTime(currentPatient.getID(), 
-                                                                                    time, m_data.getDistances());
+            if (currentPatient.getSync() == Simultaneous) {
+                time = time >= syncTime ? time : syncTime;
+                syncTime = time;
+            } 
+            else if (currentPatient.getSync() == Sequential && currentPatient.hasNext()) {
+                if (syncTime > time + syncPS.getMaxWait()) {
+                    time = syncTime - syncPS.getMaxWait();
+                }
+                if (syncTime < time + syncPS.getMinWait()) {
+                    syncTime = time + syncPS.getMinWait();
+                }
             }
-        }
+            m_routes[bestSync].addNode(syncPS, m_data.getNodeDistances(PatientDistanceIndex), syncTime, 
+                    m_data.getDistance(m_routes[bestSync].getlastPatientDistanceIndex(), syncPS.getDistancesIndex()));
+        } 
         m_routes[bestRoute].addNode(currentPatient, m_data.getNodeDistances(PatientDistanceIndex), time, 
             m_data.getDistance(m_routes[bestRoute].getlastPatientDistanceIndex(), currentPatient.getDistancesIndex()));
     }

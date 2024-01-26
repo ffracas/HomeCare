@@ -46,7 +46,8 @@ bool ValidatioNode::checkService(string t_service, int t_arrivalTime, int t_depa
                             return true;        
                         }
                     } else if (m_sync == Sequential) {
-                        if (m_services[SECOND].m_arrivalTime >= m_services[FIRST].m_arrivalTime + m_minWait) {
+                        if (m_services[SECOND].m_arrivalTime >= m_services[FIRST].m_arrivalTime + m_minWait &&
+                            m_services[SECOND].m_arrivalTime <= m_services[FIRST].m_arrivalTime + m_maxWait) {
                             return true;
                         }
                     }

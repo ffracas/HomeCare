@@ -1,6 +1,7 @@
 #operation files
 src/HomeCare
 src/I_soluzione.json
+src/validate
 geolacation/geo.py
 
 # Prerequisites

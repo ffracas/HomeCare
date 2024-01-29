@@ -115,8 +115,6 @@ int Route::readNodesFromJson (Json::Value t_patientsInJson, vector<Patient> t_pa
     const string SERVICE_FIELD      ("service");
     const string ARRIVAL_FIELD      ("arrival_time");
     const string DEPARTURE_FIELD    ("departure_time");
-    
-    m_nodes.clear();
 
     for (int i = 0; i < t_patientsInJson.size(); ++i) {
         string patientToSearch = t_patientsInJson[i][PATIENT_FIELD].asString();

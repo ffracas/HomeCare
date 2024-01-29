@@ -32,18 +32,20 @@ HCValidation::HCValidation(string t_dataFilePath, string t_solutionFilePath)
 
     for (const auto& routeData : root[ROUTE_FIELD]) {
         try{
-            if ( !root.isMember(CAREGIVER_FIELD)    || !root[CAREGIVER_FIELD].isString()||
-                    !root.isMember(PATIENTS_FIELD)  || !root[PATIENTS_FIELD].isArray()  ) {
+            if ( !routeData.isMember(CAREGIVER_FIELD)    || !routeData[CAREGIVER_FIELD].isString()) {
+                throw runtime_error("Errore nell'apertura del file soluzione."); 
+            }
+            if ( routeData.isMember(PATIENTS_FIELD) && !routeData[PATIENTS_FIELD].isArray()) {
                 throw runtime_error("Errore nell'apertura del file soluzione."); 
             }
             Caregiver caregiver = m_data.getCaregiver(routeData[CAREGIVER_FIELD].asString());
             Route route(caregiver);
-            if (!routeData[PATIENTS_FIELD].isArray()) {
-                throw runtime_error("Errore nel formato del file soluzione.");
+            if (routeData.isMember(PATIENTS_FIELD)) {
+                route.readNodesFromJson(routeData[PATIENTS_FIELD], m_data.getPatients(), 
+                                        m_data.getNodeDistances(caregiver.getDepotDistanceIndex()));
+                m_routes.push_back(route);
             }
-            route.readNodesFromJson(routeData[PATIENTS_FIELD], m_data.getPatients(), 
-                                    m_data.getNodeDistances(caregiver.getDepotDistanceIndex()));
-            m_routes.push_back(route);
+            cout<<route.getRouteToString()<<"\n---\n";
         } catch (const exception& e) {
             cerr << "Errore " << e.what();
         }
@@ -80,7 +82,7 @@ bool HCValidation::checkSolution() {
             if (i > 0) {
                 Node prev = route_nodes[i - 1];
                 if (prev.getDeparturTime() + m_data.getDistance(prev.getDistancesIndex(), node.getDistancesIndex()) 
-                        > node.getArrivalTime()) { return false; }
+                        >= node.getArrivalTime()) { return false; }
             }
         }
     }

@@ -45,7 +45,6 @@ HCValidation::HCValidation(string t_dataFilePath, string t_solutionFilePath)
                                         m_data.getNodeDistances(caregiver.getDepotDistanceIndex()));
                 m_routes.push_back(route);
             }
-            cout<<route.getRouteToString()<<"\n---\n";
         } catch (const exception& e) {
             cerr << "Errore " << e.what();
         }

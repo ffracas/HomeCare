@@ -82,12 +82,12 @@ bool HCValidation::checkSolution() {
             if (i > 0) {
                 Node prev = route_nodes[i - 1];
                 if (prev.getDeparturTime() + m_data.getDistance(prev.getDistancesIndex(), node.getDistancesIndex()) 
-                        >= node.getArrivalTime()) { return false; }
+                        > node.getArrivalTime()) { return false; }
             }
         }
     }
     for (const ValidatioNode& node : nodes) {
-        if (!node.isCompleted()) { return false; }
+        if (!node.isCompleted()) { cout<<node.getPatient();return false; }
     }
     return true;
 }

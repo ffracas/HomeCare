@@ -15,8 +15,7 @@ class HCSolution {
 private:
     HCData m_data;
     std::vector<Route> m_routes;
-    std::map<std::string, int> m_prevServCaregiver;
-
+    
     int m_maxTardiness;
     int m_maxIdleTime;
     int m_totalExtraTime;

@@ -26,9 +26,6 @@ HCSolution::HCSolution(string t_dataPath) : m_data(t_dataPath), m_maxTardiness (
 HCSolution::~HCSolution() {}
 
 int HCSolution::generateISolution() {
-    //reset dictionary of served Sequential client and caregiver
-    m_prevServCaregiver.clear();
-    
     //initialise vector of patient to serve
     vector<Patient> patientsToServe(m_data.getPatients());
     if (patientsToServe.size() < 1 || m_routes.size() < 1) {
@@ -100,9 +97,6 @@ int HCSolution::searchForRoute(Patient patient, int sync_index)  {
                 && m_routes[i].hasService(request)
                 && find(invalidCaregivers.begin(), invalidCaregivers.end(), m_routes[i].getCaregiver()) 
                     == invalidCaregivers.end()
-                && (m_prevServCaregiver.find(patient.getID()) == m_prevServCaregiver.end()
-                    || (m_prevServCaregiver.find(patient.getID()) != m_prevServCaregiver.end() 
-                        && m_prevServCaregiver[patient.getID()] != i))
                 ) {
             int cost = m_routes[i].getFreeTime() + 
                         m_data.getDistance(m_routes[i].getlastPatientDistanceIndex(), patient.getDistancesIndex());

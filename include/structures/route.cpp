@@ -71,7 +71,7 @@ Json::Value Route::getJSONRoute() const {
     const string  SERVICE_FIELD     ("service");
 
     //start from the first patient
-    for (int i = 1, j = 0; i < m_nodes.size() - 1; ++i, ++j) {
+    for (int i = 1, j = 0; i < m_nodes.size(); ++i, ++j) {
         route[j][ARRIVAL_FIELD  ] = m_nodes[i].getArrivalTime();
         route[j][DEPARTURE_FIELD] = m_nodes[i].getDeparturTime();
         route[j][PATIENT_FIELD  ] = m_nodes[i].getId();

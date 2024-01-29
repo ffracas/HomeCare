@@ -12,8 +12,8 @@ int main() {
     try {
         HCValidation validaiton("../resources/hr_input/495-rome-p240-d6-i0_1-c3-3.json", 
                                 "./I_soluzione.json");
-        if(validaiton.checkSolution()) { cout << "OK"; } 
-        else { cout<< "sticazzi"; }
+        if(validaiton.checkSolution()) { cout << "Soluzione valida"; } 
+        else { cout<< "Soluzione non valida"; }
     } catch (const exception& e) {
         cerr << "Errore " << e.what();
     }

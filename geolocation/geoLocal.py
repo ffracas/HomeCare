@@ -17,7 +17,7 @@ def getPan(conn) :
 #def getListOfPlacesToComplete(db_cursor) :
 #    return db_cursor.execute('SELECT * FROM addresses WHERE lat IS NULL OR long IS NULL')
 
-def googleMaps_LocatePlace (address: str):
+async def  googleMaps_LocatePlace (address: str):
     googlekey = "AIzaSyDab1KqlhwAEgwFP4FNrUMM1G3CNVpuBG8"
     params = {
         'address': address,
@@ -26,7 +26,7 @@ def googleMaps_LocatePlace (address: str):
     url = 'https://maps.googleapis.com/maps/api/geocode/json'
     # Esecuzione della richiesta GET all'API di Google Maps
     try:
-        response = requests.get(url, params=params)
+        response = await requests.get(url, params=params)
         data = response.json()
 
         # Verifica se la richiesta è andata a buon fine
@@ -35,6 +35,7 @@ def googleMaps_LocatePlace (address: str):
             location = data['results'][0]['geometry']['location']
             lat = location['lat']
             lng = location['lng']
+            print(lat, lng)
             return lat, lng
         else:
             print("Errore nella richiesta all'API di Google Maps:", data['status'])
@@ -57,8 +58,7 @@ def update_task(conn, task):
         geoCoord = (data['lat'], data['long'], data['patient'])
         cur.execute(sql, geoCoord)
         conn.commit()
-
-if __name__ == "__main__":
+async def main():
     connection = connect_db()
     placesToComplete = getPan(connection)       #getListOfPlacesToComplete(connection.cursor())
     #address = "Via dell'Università 50, Cesena, Italia"
@@ -66,17 +66,20 @@ if __name__ == "__main__":
         for index, row in placesToComplete.iterrows():
             address = "{}, {}, {}, {}, {}".format(row['number'], row['road'], row['city'], row['cap'], row['country'])
             lat, long = ArcGIS_LocatePlace(address)
-            googleMaps_LocatePlace(address)
+            await googleMaps_LocatePlace(address)
             row['lat'] = lat
             row['long'] = long
         
         update_task(connection, placesToComplete)
         
     #c = connection.cursor()
-    #print(c.execute("SELECT * FROM addresses").fetchall())
+    print(c.execute("SELECT * FROM addresses").fetchall())
 
     #end
     connection.close()
+
+if __name__ == "__main__":
+    main()
 
     
 

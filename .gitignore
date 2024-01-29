@@ -1,6 +1,7 @@
 #operation files
 src/HomeCare
 src/I_soluzione.json
+geolacation/geo.py
 
 # Prerequisites
 *.d

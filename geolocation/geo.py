@@ -54,15 +54,20 @@ def googleMaps_locatePlace (address: str):
         return None, None
     
 if __name__ == "__main__":
-    address = "50 via dell'università, Cesena, 47522, Italia"
-    
+    address = ["50 via dell'università, Cesena, 47522, Italia", "20 via dell'università, Cesena, 47522, Italia"]
+    results = []
     # Chiamata alla funzione di geocodifica di Google
-    lat, lng = openstreetmap_geocode(address) #googleMaps_locatePlace(address)
+    for add in address:
+        lat, lng = openstreetmap_geocode(add) #googleMaps_locatePlace(address)
+        results.append((lat, lng))
 
+
+    for data in results:
+        print(data)
     # Stampa delle coordinate geografiche ottenute
-    if lat is not None and lng is not None:
+    '''if lat is not None and lng is not None:
         print("Coordinate geografiche per l'indirizzo '{}':".format(address))
         print("Latitudine:", lat)
         print("Longitudine:", lng)
     else:
-        print("Impossibile geocodificare l'indirizzo:", address)
+        print("Impossibile geocodificare l'indirizzo:", address)'''

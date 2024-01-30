@@ -63,7 +63,7 @@ async def main():
     placesToComplete = getPan(connection)       #getListOfPlacesToComplete(connection.cursor())
     #address = "Via dell'Università 50, Cesena, Italia"
     if not placesToComplete.empty :
-        for index, row in placesToComplete.iterrows():
+        for _, row in placesToComplete.iterrows():
             address = "{}, {}, {}, {}, {}".format(row['number'], row['road'], row['city'], row['cap'], row['country'])
             lat, long = ArcGIS_LocatePlace(address)
             await googleMaps_LocatePlace(address)

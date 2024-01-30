@@ -18,17 +18,23 @@ Compile the Code:
     
 ``` 
 cd src
-g++ -std=c++11 main.cpp ../include/problemdef/problemdef.cpp ../include/params/params.cpp ../include/route/route.cpp ../include/arc/arc.cpp ../include/node/node.cpp -o HomeCare
+make
 ```
 
-Another option is:
+Compile the Code to validate a solution:
 ``` 
 cd src
-make
+make validation
 ```
 
 Run the Application:
 
 ```
 ./HomeCare
+```
+
+Run the Validation Application:
+
+```
+./Validate
 ```

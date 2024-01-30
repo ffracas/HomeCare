@@ -6,7 +6,7 @@ from geopy.geocoders import ArcGIS
 
 def connect_db() :
     try:
-        return sqlite3.connect('example.db')
+        return sqlite3.connect('unicdata.db')
     
     except sqlite3.Error as e:
         print("Errore durante la connessione al database:", e)    
@@ -58,7 +58,7 @@ def update_task(conn, task):
         geoCoord = (data['lat'], data['long'], data['patient'])
         cur.execute(sql, geoCoord)
         conn.commit()
-async def main():
+def main():
     connection = connect_db()
     placesToComplete = getPan(connection)       #getListOfPlacesToComplete(connection.cursor())
     #address = "Via dell'Università 50, Cesena, Italia"
@@ -66,13 +66,13 @@ async def main():
         for _, row in placesToComplete.iterrows():
             address = "{}, {}, {}, {}, {}".format(row['number'], row['road'], row['city'], row['cap'], row['country'])
             lat, long = ArcGIS_LocatePlace(address)
-            await googleMaps_LocatePlace(address)
+            #googleMaps_LocatePlace(address)
             row['lat'] = lat
             row['long'] = long
         
         update_task(connection, placesToComplete)
         
-    #c = connection.cursor()
+    c = connection.cursor()
     print(c.execute("SELECT * FROM addresses").fetchall())
 
     #end

@@ -14,7 +14,7 @@ HCData::HCData(string t_dataPath) {
     //reading JSON
     std::ifstream file(t_dataPath);
     if (!file.is_open()) {
-        throw std::runtime_error("Errore nell'apertura del file di configurazione del sistema.");
+        throw std::runtime_error("Errore nell'apertura del file di configurazione del sistema. Controllare Percorso.");
     }
     string content = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     file.close();  // Chiudi il file

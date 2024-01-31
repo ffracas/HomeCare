@@ -13,7 +13,7 @@ HCValidation::HCValidation(string t_dataFilePath, string t_solutionFilePath)
     //reading JSON
     ifstream file(t_solutionFilePath);
     if (!file.is_open()) {
-        throw runtime_error("Errore nell'apertura del file soluzione.");
+        throw runtime_error("Errore nell'apertura del file soluzione. Controllare il percorso.");
     }
     string content = string((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
     file.close();  // Chiudi il file

@@ -84,6 +84,17 @@ int Node::getDeparturTime() const { return m_departureTime; }
  */
 string Node::getService() const { return m_service; }
 
+string Node::getHash() const { 
+    stringstream ss;
+
+    ss << "id:" << m_id;
+    ss << ",ser:" << m_service;
+    ss << ",art:" << m_arrivalTime;
+    ss << ",dpt:" << m_departureTime;
+
+    return ss.str();
+}
+
 /**
  * Get a textual representation of the node.
  * 

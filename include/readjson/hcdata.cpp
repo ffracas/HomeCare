@@ -165,12 +165,19 @@ Caregiver HCData::getCaregiver(string t_caregiverID) const {
     for (const auto& caregiver : m_caregivers ){
         if (caregiver.getID() == t_caregiverID) { return caregiver; }
     }
-    throw std::runtime_error("Caregiven");
+    throw std::runtime_error("Caregiven not found.");
 }
 
 Patient HCData::getPatient(string t_patientId) const {
     for (const auto& patient : m_patients) {
         if (patient.getID() == t_patientId) { return patient; }
     }
-    throw std::runtime_error("Caregiven");
+    throw std::runtime_error("Patient not found.");
+}
+
+pair<int, Patient> HCData::getPatientAndIndex(string t_patientId) const {
+    for (int i = 0; i < m_patients.size(); ++i) {
+        if (m_patients[i].getID() == t_patientId) { return pair(i, m_patients[i]); }
+    }
+    throw std::runtime_error("Patient not found.");
 }

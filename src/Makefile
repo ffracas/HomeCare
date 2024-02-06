@@ -4,20 +4,36 @@ DFLAGS = -std=c++11 -Wall -g
 LIB = -ljsoncpp
 LIBDIR = ../include
 LDIRVR = ../include/vr
-	
-hc: main.cpp
-	rm -f ./HomeCare
-	$(CC) $(CFLAGS) main.cpp $(LIBDIR)/hc/hcvalidation.cpp $(LIBDIR)/structures/validationode.cpp $(LIBDIR)/structures/node.cpp $(LIBDIR)/structures/arc.cpp $(LIBDIR)/structures/route.cpp $(LIBDIR)/hc/hcsolution.cpp $(LIBDIR)/readjson/hcdata.cpp $(LIBDIR)/patient/patient.cpp $(LIBDIR)/service/service.cpp $(LIBDIR)/caregiver/caregiver.cpp $(LIBDIR)/depot/depot.cpp -o HomeCare $(LIB)
 
-validation: validation.cpp
-	rm -f ./Validate
-	$(CC) $(CFLAGS) validation.cpp $(LIBDIR)/hc/hcvalidation.cpp $(LIBDIR)/structures/validationode.cpp $(LIBDIR)/structures/node.cpp $(LIBDIR)/structures/arc.cpp $(LIBDIR)/structures/route.cpp $(LIBDIR)/hc/hcsolution.cpp $(LIBDIR)/readjson/hcdata.cpp $(LIBDIR)/patient/patient.cpp $(LIBDIR)/service/service.cpp $(LIBDIR)/caregiver/caregiver.cpp $(LIBDIR)/depot/depot.cpp -o Validate $(LIB)
+LIBSTR = $(LIBDIR)/structures/validationode.cpp \
+         $(LIBDIR)/structures/node.cpp \
+         $(LIBDIR)/structures/arc.cpp \
+         $(LIBDIR)/structures/route.cpp
 
-main: main.cpp
-	rm -f ./HomeCare
-	$(CC) $(CFLAGS) main.cpp $(LDIRVR)/problemdef/problemdef.cpp $(LDIRVR)/params/params.cpp $(LDIRVR)/route/route.cpp $(LDIRVR)/arc/arc.cpp $(LDIRVR)/node/node.cpp -o HomeCare $(LIB)
+LIBHCO = $(LIBDIR)/hc/hcvalidation.cpp \
+         $(LIBDIR)/hc/hcsolution.cpp \
+         $(LIBDIR)/readjson/hcdata.cpp
+
+LIBSER = $(LIBDIR)/patient/patient.cpp \
+         $(LIBDIR)/service/service.cpp \
+         $(LIBDIR)/caregiver/caregiver.cpp \
+         $(LIBDIR)/depot/depot.cpp
+
+LIBOPT = $(LIBDIR)/optimisation/hcoptimisation.cpp \
+		 $(LIBDIR)/optimisation/optimisation_structures/optimisationobject.cpp \
+         $(LIBDIR)/optimisation/optimisation_structures/infonode.cpp
+	   
+TARGETS = HomeCare Validate
+
+HomeCare: main.cpp
+	rm -f $@
+	$(CC) $(CFLAGS) $^ $(LIBSTR) $(LIBHCO) $(LIBSER) $(LIBOPT) -o $@ $(LIB)
+
+Validate: validation.cpp
+	rm -f $@
+	$(CC) $(CFLAGS) $^ $(LIBSTR) $(LIBHCO) $(LIBSER) -o $@ $(LIB)
 
 debug: main.cpp
-	rm -f ./HomeCare
-	$(CC) $(DFLAGS) main.cpp $(LDIRVR)/problemdef/problemdef.cpp $(LDIRVR)/params/params.cpp $(LDIRVR)/route/route.cpp $(LDIRVR)/arc/arc.cpp $(LDIRVR)/node/node.cpp -o HomeCare $(LIB)
+	$(CC) $(DFLAGS) $^ $(LIBSTR) $(LIBHCO) $(LIBSER) $(LIBOPT) -o HomeCare $(LIB)
+
 

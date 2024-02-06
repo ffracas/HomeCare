@@ -36,6 +36,7 @@ public:
     std::vector<Caregiver> getCaregivers() const;
     Caregiver getCaregiver(std::string) const noexcept (false);
     Patient getPatient(std::string) const noexcept (false);
+    std::pair<int, Patient> getPatientAndIndex(std::string) const noexcept (false);
 };
 
 }

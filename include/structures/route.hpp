@@ -43,15 +43,19 @@ class Route{
         std::vector<std::string> getAvilableServices() const;
         std::string getCaregiver() const;
         std::vector<Node> getNodes() const;
+        Node getNode(int) const noexcept (false);
+        int getNumNodes() const;
         int getMaxTardiness() const;
         int getMaxIdleTime() const;
         int getTotalTardiness() const;
         int getTotalWaitingTime() const;
         int getTravelTime() const;
         int getExtraTime() const;
+        std::string getHash() const;
         //solver
         int addNode(Patient, std::vector<int>, int, int); 
         //int addNodeBetween(Patient, std::vector<std::vector<int>>); //TODO
+        //int deleteNode();
         //toFileFormat
         std::string getRouteToString() const;
         Json::Value getJSONRoute() const;

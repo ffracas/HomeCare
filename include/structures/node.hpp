@@ -34,6 +34,7 @@ public:
     int getServiceTime() const;
     int getDistancesIndex() const;
     std::string getService() const;
+    std::string getHash() const;
     std::string toString() const;
     int getDeparturTime() const;
     int getArrivalTime() const;

@@ -81,23 +81,79 @@ Json::Value Route::getJSONRoute() const {
     return route;
 }
 
+/**
+ * Returns the list of available services for the route.
+ * @return The list of available services for the route.
+ */
 vector<string> Route::getAvilableServices() const { return m_caregiver.getServicesList(); }
 
+/**
+ * Returns the ID of the caregiver associated with the route.
+ * @return The ID of the caregiver associated with the route.
+ */
 string Route::getCaregiver() const { return m_caregiver.getID(); }
 
+/**
+ * Returns the number of nodes in the route.
+ * @return The number of nodes in the route.
+ */
+int Route::getNumNodes() const { return m_nodes.size(); }
+
+/**
+ * Returns the node at the specified position in the route.
+ * @param pos The position of the node.
+ * @return The node at the specified position in the route.
+ * @throws std::runtime_error if the route contains only one node.
+ */
+Node Route::getNode(int pos) const { 
+    int nNodes = m_nodes.size();
+    if (nNodes == 1 || pos >= nNodes) { throw std::runtime_error("Constraint on route selection."); }
+    if (pos != DEPOT) { return m_nodes[pos]; }
+    return m_nodes[pos + 1];
+}
+
+/**
+ * Returns the maximum tardiness for the route.
+ * @return The maximum tardiness for the route.
+ */
 int Route::getMaxTardiness() const { return m_maxTardiness; }
 
+/**
+ * Returns the maximum idle time for the route.
+ * @return The maximum idle time for the route.
+ */
 int Route::getMaxIdleTime() const { return m_maxIdleTime; }
 
+/**
+ * Returns the total tardiness for the route.
+ * @return The total tardiness for the route.
+ */
 int Route::getTotalTardiness() const { return m_totalTardiness; }
 
+/**
+ * Returns the total waiting time for the route.
+ * @return The total waiting time for the route.
+ */
 int Route::getTotalWaitingTime() const { return m_totalWaitingTime; }
 
+/**
+ * Returns the travel time for the route.
+ * @return The travel time for the route.
+ */
 int Route::getTravelTime() const { return m_travelTime; }
 
 int Route::getExtraTime() const { 
     int endTime = m_nodes[DEPOT].getArrivalTime() - m_caregiver.getShiftEndTime();
     return endTime > 0 ? endTime : 0;
+}
+
+string Route::getHash() const {
+    stringstream ss;
+    
+    ss << m_caregiver.getID() << "--";
+    for (const Node &node: m_nodes) { ss << node.getHash() << '-'; }
+    ss << "--";
+    return ss.str();
 }
 
 bool Route::isAvailable() const { return m_caregiver.isWorking(this -> getFreeTime()); }

@@ -7,13 +7,6 @@ using namespace Json;
 const int HCSolution::NO_INDEX = -1;
 const int HCSolution::MAX_INT = 2147483647;
 
-const double HCSolution::m_travelTimeWeight = 0.165;
-const double HCSolution::m_maxTardinessWeight = 0.165;
-const double HCSolution::m_tardinessWeight = 0.165;
-const double HCSolution::m_extraTimeWeight = 0.165;
-const double HCSolution::m_maxIdleTimeWeight = 0.165;
-const double HCSolution::m_totWaitingTimeWeight = 0.165;
-
 const string HCSolution::I_SOL_FILE("./I_soluzione.json");
 
 HCSolution::HCSolution(string t_dataPath) : m_data(t_dataPath), m_maxTardiness (0), m_maxIdleTime (0), 
@@ -115,9 +108,9 @@ int HCSolution::calculateArrivalTime(int route, int patient) {
 }
 
 double HCSolution::calculateCost() {
-    return m_maxIdleTimeWeight * m_maxIdleTime + m_maxTardinessWeight * m_maxTardiness 
-        + m_tardinessWeight * m_totalTardiness + m_totWaitingTimeWeight * m_totalWaitingTime  
-        + m_extraTimeWeight * m_totalExtraTime + m_travelTimeWeight * m_travelTime;
+    return m_data.MAX_IDLE_TIME_WEIGHT * m_maxIdleTime + m_data.MAX_TARDINESS_WEIGHT * m_maxTardiness 
+        + m_data.TARDINESS_WEIGHT * m_totalTardiness + m_data.TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime  
+        + m_data.EXTRA_TIME_WEIGHT * m_totalExtraTime + m_data.TRAVEL_TIME_WEIGHT * m_travelTime;
 }
 
 int HCSolution::writeSolutionOnFile(string outputFilePath) {

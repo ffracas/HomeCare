@@ -24,13 +24,6 @@ private:
     int m_travelTime;
     double m_solCost;
 
-    static const double m_travelTimeWeight;
-    static const double m_maxTardinessWeight;
-    static const double m_tardinessWeight;
-    static const double m_extraTimeWeight;
-    static const double m_maxIdleTimeWeight;
-    static const double m_totWaitingTimeWeight;
-
     static const std::string I_SOL_FILE;
 
     int searchForRoute(Patient, int = NO_INDEX);

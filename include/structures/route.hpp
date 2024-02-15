@@ -30,6 +30,8 @@ class Route{
         static const int DEPOT;
 
         void makeTimeRecalculation(int);
+        int addNode(Node, int, int, int);
+        void recalculateRoute(std::vector<std::vector<int>> distances);
 
     public:
         static const int EMPTY_ROUTE = -1;
@@ -43,7 +45,8 @@ class Route{
         std::vector<std::string> getAvilableServices() const;
         std::string getCaregiver() const;
         std::vector<Node> getNodes() const;
-        Node getNode(int) const noexcept (false);
+        Node getNodeToDestroy(int) const noexcept (false);
+        int getLastNode2DepotDistance() const;
         int getNumNodes() const;
         int getMaxTardiness() const;
         int getMaxIdleTime() const;
@@ -55,7 +58,7 @@ class Route{
         //solver
         int addNode(Patient, std::vector<int>, int, int); 
         //int addNodeBetween(Patient, std::vector<std::vector<int>>); //TODO
-        //int deleteNode();
+        Route deleteNode(int, std::vector<std::vector<int>> distances);
         //toFileFormat
         std::string getRouteToString() const;
         Json::Value getJSONRoute() const;

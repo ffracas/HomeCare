@@ -3,6 +3,13 @@
 using namespace homecare; 
 using namespace std;
 
+const double HCData::TRAVEL_TIME_WEIGHT = 0.165;
+const double HCData::MAX_TARDINESS_WEIGHT = 0.165;
+const double HCData::TARDINESS_WEIGHT = 0.165;
+const double HCData::EXTRA_TIME_WEIGHT = 0.165;
+const double HCData::MAX_IDLE_TIME_WEIGHT = 0.165;
+const double HCData::TOT_WAITING_TIME_WEIGHT = 0.165;
+
 HCData::HCData(string t_dataPath) {
     //set fields name
     const string DISTANCES_FIELD    ("distances");
@@ -175,9 +182,9 @@ Patient HCData::getPatient(string t_patientId) const {
     throw std::runtime_error("Patient not found.");
 }
 
-pair<int, Patient> HCData::getPatientAndIndex(string t_patientId) const {
+int HCData::getPatientPosition(string t_patientId) const {
     for (int i = 0; i < m_patients.size(); ++i) {
-        if (m_patients[i].getID() == t_patientId) { return pair(i, m_patients[i]); }
+        if (m_patients[i].getID() == t_patientId) { return i; }
     }
     throw std::runtime_error("Patient not found.");
 }

@@ -11,17 +11,20 @@ private:
     int m_patientIndex;
 
 public:
-    InfoNode(int t_route, int t_pos, int t_time, int t_index)
-        : m_route(t_route), m_position(t_pos), m_time(t_time), m_patientIndex(t_index) {}
+    static const int NOT_ASSIGED;
+    InfoNode(int, int, int, int);
+    InfoNode();
+    ~InfoNode();
     // Metodi getter
     int getRoute() const;
-    int getPosition() const;
+    int getPositionInRoute() const;
     int getTime() const;
     int getPatientIndex() const;
 
     // Metodi setter
-    void setInRoute(int, int);
+    void setInRoute(int, int, int);
     void setTime(int);
+    void destroy();
 };
     
 }

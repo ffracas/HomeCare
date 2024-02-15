@@ -19,11 +19,12 @@ private:
     int m_arrivalTime;
     int m_departureTime;
     bool m_isDepot;
+    bool m_interdependet;                           //booleano che attesta se il nodo è interdipendente            
     static const int ZERO;
     static const std::string NO_SERVICE;
 
 public:
-    Node(std::string, int, int, int, int = ZERO, std::string = NO_SERVICE);
+    Node(std::string, int, int, int, int = ZERO, std::string = NO_SERVICE, bool = false);
     Node(Caregiver);
     Node(Patient, int);
     ~Node();
@@ -38,6 +39,7 @@ public:
     std::string toString() const;
     int getDeparturTime() const;
     int getArrivalTime() const;
+    bool isInterdependent() const;
     //setter
     void setArrivalTime(int);
 };

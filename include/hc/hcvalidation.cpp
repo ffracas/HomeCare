@@ -68,20 +68,20 @@ bool HCValidation::checkSolution() {
         for (int i = 1; i < route_nodes.size(); ++i) {
             Node node(route_nodes[i]);
             //controlla se il servizio è disponibile per questo caregiver
-            if (find(services.begin(), services.end(), node.getService()) == services.end()) { return false; }
+            if (find(services.begin(), services.end(), node.getService()) == services.end()) { cout<<"1"; return false; }
             //controlla se il caregiver non è stato rifiutato dal paziente
             vector<string> refused = m_data.getPatient(node.getId()).getInvalidCaregivers();
-            if (find(refused.begin(), refused.end(), route.getCaregiver()) != refused.end()) { return false; }
+            if (find(refused.begin(), refused.end(), route.getCaregiver()) != refused.end()) { cout<<"2"; return false; }
             //controlla che il caregiver non sia già passato per il nodo e che il tempo sia in sincrono con altri servizi
             vector<ValidatioNode>::iterator service = find_if(nodes.begin(), nodes.end(), 
                 [node] (const ValidatioNode vnode) { return vnode.getPatient() == node.getId(); } ); 
-            if (service == nodes.end()) {  return false; }
+            if (service == nodes.end()) { cout<<"3"; return false; }
             if (service -> setTime(node.getService(), node.getArrivalTime(), node.getDeparturTime()) 
-                    != ValidatioNode::OK) { return false; }
+                    != ValidatioNode::OK) { cout<<"4"; return false; }
             if (i > 0) {
                 Node prev = route_nodes[i - 1];
                 if (prev.getDeparturTime() + m_data.getDistance(prev.getDistancesIndex(), node.getDistancesIndex()) 
-                        > node.getArrivalTime()) { return false; }
+                        > node.getArrivalTime()) { cout<<"5"; return false; }
             }
         }
     }

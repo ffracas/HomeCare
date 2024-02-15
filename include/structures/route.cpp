@@ -23,34 +23,95 @@ int Route::getFreeTime() const { return m_nodes[m_nodes.size() - 1].getDeparturT
 int Route::getlastPatientDistanceIndex() const { return m_nodes[m_nodes.size() - 1].getDistancesIndex(); }
 
 int Route::addNode(Patient t_newPatient, vector<int> t_arrDists, int t_estimatedArrivalTime, int t_last2newDistance) { 
+    return addNode(Node(t_newPatient, t_estimatedArrivalTime), t_arrDists[m_caregiver.getDepotDistanceIndex()], 
+        t_estimatedArrivalTime, t_last2newDistance);
+} 
+
+int Route::addNode(Node t_newNode, int t_new2DepotDistance, int t_estimatedArrivalTime, int t_last2newDistance) {
     //update cost data
     //sub distance of the last arc
     m_travelTime -= m_lastNode2DepotDistance - t_last2newDistance;
     //update waiting time
-    if (t_estimatedArrivalTime < t_newPatient.getWindowStartTime()){
-        int earliness = t_newPatient.getWindowStartTime() 
+    if (t_estimatedArrivalTime < t_newNode.getTimeWindowOpen()){
+        int earliness = t_newNode.getTimeWindowOpen()
                         - (m_nodes[m_nodes.size() - 1].getDeparturTime() + t_last2newDistance);
         m_totalWaitingTime += earliness;
         m_maxIdleTime = earliness > m_maxIdleTime ? earliness : m_maxIdleTime;
-        t_estimatedArrivalTime = t_newPatient.getWindowStartTime();
+        t_estimatedArrivalTime = t_newNode.getTimeWindowOpen();
     }
     //update tardiness
-    if (t_estimatedArrivalTime > t_newPatient.getWindowEndTime()) {
-        int tardiness = t_estimatedArrivalTime - t_newPatient.getWindowEndTime();
+    if (t_estimatedArrivalTime > t_newNode.getTimeWindowClose()) {
+        int tardiness = t_estimatedArrivalTime - t_newNode.getTimeWindowClose();
         m_totalTardiness += tardiness;
         m_maxTardiness = tardiness > m_maxTardiness ? tardiness : m_maxTardiness;
     }
     
     //add new node
-    m_nodes.push_back(Node(t_newPatient, t_estimatedArrivalTime));
-    m_lastNode2DepotDistance = t_arrDists[m_caregiver.getDepotDistanceIndex()];
+    t_newNode.setArrivalTime(t_estimatedArrivalTime);
+    m_nodes.push_back(t_newNode);
+    m_lastNode2DepotDistance = t_new2DepotDistance;
     m_nodes[DEPOT].setArrivalTime(m_nodes[m_nodes.size() - 1].getDeparturTime() + m_lastNode2DepotDistance);
 
     //update cost data (travel time)
     m_travelTime += m_lastNode2DepotDistance;
 
     return m_nodes.size() - 1;
-} 
+}
+
+Route Route::deleteNode(int node, vector<vector<int>> distances) {
+    int nNodes = m_nodes.size();
+    if (nNodes == 1 || node >= nNodes || node == DEPOT) { throw std::runtime_error("Constraint on node destruction."); }
+    m_nodes.erase(m_nodes.begin() + node);
+    recalculateRoute(distances);
+    return *this;
+}
+
+void Route::recalculateRoute(vector<vector<int>> distances) {
+    m_maxTardiness = 0;
+    m_maxIdleTime = 0;
+    m_totalTardiness = 0;
+    m_totalWaitingTime = 0;
+    m_travelTime = 0;
+    m_lastNode2DepotDistance = 0;
+    //initialize new route
+    Route newRoute(m_caregiver);
+    //independent node index and interdependet node index (first place is always depot)
+    int indepI = 1, interdepI = 1;
+    while (indepI < m_nodes.size() && interdepI < m_nodes.size()) {   
+        while (indepI < m_nodes.size() && m_nodes[indepI].isInterdependent()) { ++indepI; }
+        while (interdepI < m_nodes.size() && !m_nodes[interdepI].isInterdependent()) { ++interdepI; }
+        int newNodeIndex, new2DepotDistance;
+        int last2newDistance = distances[newRoute.getlastPatientDistanceIndex()][m_nodes[indepI].getDistancesIndex()];
+        
+        int hypotheticalRouteTime = newRoute.getFreeTime() + last2newDistance;
+        hypotheticalRouteTime = hypotheticalRouteTime > m_nodes[indepI].getTimeWindowOpen() ? 
+                                    hypotheticalRouteTime : m_nodes[indepI].getTimeWindowOpen();
+        m_nodes[indepI].setArrivalTime(hypotheticalRouteTime);
+        if (m_nodes[indepI].getDeparturTime() 
+                    + distances[m_nodes[indepI].getDistancesIndex()][m_nodes[interdepI].getDistancesIndex()]
+                <= m_nodes[interdepI].getArrivalTime()) {
+            new2DepotDistance = distances[m_nodes[indepI].getDistancesIndex()][m_caregiver.getDepotDistanceIndex()];
+            newNodeIndex  = indepI;
+            ++indepI;
+        }
+        else {
+            new2DepotDistance = distances[m_nodes[interdepI].getDistancesIndex()][m_caregiver.getDepotDistanceIndex()];
+            last2newDistance = distances[newRoute.getlastPatientDistanceIndex()][m_nodes[interdepI].getDistancesIndex()];
+            hypotheticalRouteTime = m_nodes[interdepI].getArrivalTime();
+            newNodeIndex = interdepI;
+            ++interdepI;
+        }
+        newRoute.addNode(m_nodes[newNodeIndex], new2DepotDistance, hypotheticalRouteTime, last2newDistance);
+    }
+    m_maxTardiness = newRoute.getMaxTardiness();
+    m_maxIdleTime = newRoute.getMaxIdleTime();
+    m_totalTardiness = newRoute.getTotalTardiness();
+    m_totalWaitingTime = newRoute.getTotalWaitingTime();
+    m_travelTime = newRoute.getTravelTime();
+    m_lastNode2DepotDistance = newRoute.getLastNode2DepotDistance();
+    m_nodes.clear();
+    copy(newRoute.getNodes().begin(), newRoute.getNodes().end(), m_nodes.begin());
+}
 
 string Route::getRouteToString() const {
     stringstream ss;
@@ -81,6 +142,8 @@ Json::Value Route::getJSONRoute() const {
     return route;
 }
 
+int Route::getLastNode2DepotDistance() const { return m_lastNode2DepotDistance; }
+
 /**
  * Returns the list of available services for the route.
  * @return The list of available services for the route.
@@ -105,11 +168,10 @@ int Route::getNumNodes() const { return m_nodes.size(); }
  * @return The node at the specified position in the route.
  * @throws std::runtime_error if the route contains only one node.
  */
-Node Route::getNode(int pos) const { 
+Node Route::getNodeToDestroy(int pos) const { 
     int nNodes = m_nodes.size();
-    if (nNodes == 1 || pos >= nNodes) { throw std::runtime_error("Constraint on route selection."); }
-    if (pos != DEPOT) { return m_nodes[pos]; }
-    return m_nodes[pos + 1];
+    if (nNodes == 1 || pos >= nNodes || pos == DEPOT) { throw std::runtime_error("Constraint on route selection."); }
+    return m_nodes[pos];
 }
 
 /**

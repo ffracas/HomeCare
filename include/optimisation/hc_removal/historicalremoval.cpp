@@ -3,6 +3,10 @@
 using namespace std;
 using namespace homecare;
 
-HistoricalRemoval::HistoricalRemoval(/* args */) {}
+HistoricalRemoval::HistoricalRemoval(ALNSOptimisation& t_ops) : NodeRemoval (t_ops) {}
 
 HistoricalRemoval::~HistoricalRemoval() {}
+
+void HistoricalRemoval::removeNodes(int) {
+    
+}

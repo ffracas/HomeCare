@@ -3,11 +3,20 @@
 using namespace homecare; 
 using namespace std;
 
-const double HCData::TRAVEL_TIME_WEIGHT = 0.165;
-const double HCData::MAX_TARDINESS_WEIGHT = 0.165;
-const double HCData::TARDINESS_WEIGHT = 0.165;
-const double HCData::EXTRA_TIME_WEIGHT = 0.165;
-const double HCData::MAX_IDLE_TIME_WEIGHT = 0.165;
+// Initilize static variables
+bool HCData::m_orderedPatientsList = false;
+std::vector<Patient>          HCData::m_patients;
+std::vector<std::vector<int>> HCData::m_distances;
+std::vector<Service>          HCData::m_services;
+std::vector<Depot>            HCData::m_depots;
+std::vector<Caregiver>        HCData::m_caregivers;
+
+// Initialize constants
+const double HCData::TRAVEL_TIME_WEIGHT      = 0.165;
+const double HCData::MAX_TARDINESS_WEIGHT    = 0.165;
+const double HCData::TARDINESS_WEIGHT        = 0.165;
+const double HCData::EXTRA_TIME_WEIGHT       = 0.165;
+const double HCData::MAX_IDLE_TIME_WEIGHT    = 0.165;
 const double HCData::TOT_WAITING_TIME_WEIGHT = 0.165;
 
 HCData::~HCData() {}

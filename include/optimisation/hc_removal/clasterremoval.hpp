@@ -7,9 +7,9 @@ namespace homecare {
 
 class ClasterRemoval : public NodeRemoval {
 private:
-    /* data */
+    
 public:
-    ClasterRemoval(/* args */);
+    ClasterRemoval(ALNSOptimisation&);
     ~ClasterRemoval();
     void removeNodes(int) override;
 };

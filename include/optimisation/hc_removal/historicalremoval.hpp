@@ -7,9 +7,9 @@ namespace homecare {
     
 class HistoricalRemoval : public NodeRemoval {
 private:
-    /* data */
+    
 public:
-    HistoricalRemoval(/* args */);
+    HistoricalRemoval(ALNSOptimisation&);
     ~HistoricalRemoval();
     void removeNodes(int) override;
 };

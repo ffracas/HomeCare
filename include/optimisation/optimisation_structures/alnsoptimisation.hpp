@@ -13,12 +13,6 @@
 
 namespace homecare {
 
-struct CostCoord {
-    double cost;
-    int n_route; 
-    int n_node;
-};
-
 class ALNSOptimisation {
 private:
     double m_currentCost;

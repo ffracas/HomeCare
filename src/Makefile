@@ -20,8 +20,15 @@ LIBSER = $(LIBDIR)/patient/patient.cpp \
          $(LIBDIR)/depot/depot.cpp
 
 LIBOPT = $(LIBDIR)/optimisation/hcoptimisation.cpp \
-		 $(LIBDIR)/optimisation/optimisation_structures/optimisationobject.cpp \
-         $(LIBDIR)/optimisation/optimisation_structures/infonode.cpp
+		 $(LIBDIR)/optimisation/optimisation_structures/alnsoptimisation.cpp \
+         $(LIBDIR)/optimisation/optimisation_structures/infonode.cpp \
+         $(LIBDIR)/optimisation/optimisation_structures/costcoord.cpp \
+         $(LIBDIR)/optimisation/hc_removal/noderemoval.cpp \
+         $(LIBDIR)/optimisation/hc_removal/randomremoval.cpp \
+         $(LIBDIR)/optimisation/hc_removal/worstremoval.cpp \
+         $(LIBDIR)/optimisation/hc_removal/relatedremoval.cpp \
+         $(LIBDIR)/optimisation/hc_removal/clasterremoval.cpp \
+         $(LIBDIR)/optimisation/hc_removal/historicalremoval.cpp \
 	   
 TARGETS = HomeCare Validate
 

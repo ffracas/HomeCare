@@ -3,9 +3,9 @@
 using namespace std;
 using namespace homecare;
 
-RelatedRemoval::RelatedRemoval(ALNSOptimisation& t_removalOps, double t_related, 
+RelatedRemoval::RelatedRemoval(ALNSOptimisation& t_ops, double t_related, 
         double t_distanceWeight, double t_windowWeight, double t_serviceWeight)
-        : NodeRemoval (t_removalOps), m_related (t_related), 
+        : NodeRemoval (t_ops), m_related (t_related), 
         m_distanceWeight (t_distanceWeight), m_windowWeight (t_windowWeight), m_serviceWeight (t_serviceWeight) {}
 
 RelatedRemoval::~RelatedRemoval() {}

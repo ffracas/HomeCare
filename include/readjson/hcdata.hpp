@@ -17,12 +17,12 @@ namespace homecare {
 
 class HCData {
 private:
-    bool m_orderedPatientsList;
-    std::vector<Patient> m_patients;
-    std::vector<std::vector<int>> m_distances;
-    std::vector<Service> m_services;
-    std::vector<Depot> m_depots;
-    std::vector<Caregiver> m_caregivers;
+    static bool m_orderedPatientsList;
+    static std::vector<Patient> m_patients;
+    static std::vector<std::vector<int>> m_distances;
+    static std::vector<Service> m_services;
+    static std::vector<Depot> m_depots;
+    static std::vector<Caregiver> m_caregivers;
 
 public:
     static const double TRAVEL_TIME_WEIGHT;
@@ -32,18 +32,18 @@ public:
     static const double MAX_IDLE_TIME_WEIGHT;
     static const double TOT_WAITING_TIME_WEIGHT;
 
-    HCData(std::string) noexcept (false);
     ~HCData();
-    std::vector<Patient> getPatients();
-    std::vector<std::vector<int>> getDistances() const;
-    std::vector<int> getNodeDistances(int) noexcept (false);
-    int getDistance(int, int) noexcept(false);
-    std::vector<Service> getServices() const;
-    std::vector<Depot> getDepots() const;
-    std::vector<Caregiver> getCaregivers() const;
-    Caregiver getCaregiver(std::string) const noexcept (false);
-    Patient getPatient(std::string) const noexcept (false);
-    int getPatientPosition(std::string) const noexcept (false);
+    static void setData(std::string) noexcept (false);
+    static std::vector<Patient> getPatients();
+    static std::vector<std::vector<int>> getDistances();
+    static std::vector<int> getNodeDistances(int) noexcept (false);
+    static int getDistance(int, int) noexcept(false);
+    static std::vector<Service> getServices();
+    static std::vector<Depot> getDepots();
+    static std::vector<Caregiver> getCaregivers();
+    static Caregiver getCaregiver(std::string) noexcept (false);
+    static Patient getPatient(std::string) noexcept (false);
+    static int getPatientPosition(std::string) noexcept (false);
 };
 
 }

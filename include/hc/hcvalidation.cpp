@@ -3,8 +3,9 @@
 using namespace std;
 using namespace homecare;
 
-HCValidation::HCValidation(string t_dataFilePath, string t_solutionFilePath) 
-        : m_data(t_dataFilePath) {
+HCValidation::HCValidation(string t_dataFilePath, string t_solutionFilePath) {
+    HCData::setData(t_dataFilePath);
+    
     //set fields name
     const string ROUTE_FIELD    ("routes");
     const string CAREGIVER_FIELD("caregiver_id");
@@ -38,11 +39,11 @@ HCValidation::HCValidation(string t_dataFilePath, string t_solutionFilePath)
             if ( routeData.isMember(PATIENTS_FIELD) && !routeData[PATIENTS_FIELD].isArray()) {
                 throw runtime_error("Errore nell'apertura del file soluzione."); 
             }
-            Caregiver caregiver = m_data.getCaregiver(routeData[CAREGIVER_FIELD].asString());
+            Caregiver caregiver = HCData::getCaregiver(routeData[CAREGIVER_FIELD].asString());
             Route route(caregiver);
             if (routeData.isMember(PATIENTS_FIELD)) {
-                route.readNodesFromJson(routeData[PATIENTS_FIELD], m_data.getPatients(), 
-                                        m_data.getNodeDistances(caregiver.getDepotDistanceIndex()));
+                route.readNodesFromJson(routeData[PATIENTS_FIELD], HCData::getPatients(), 
+                                        HCData::getNodeDistances(caregiver.getDepotDistanceIndex()));
                 m_routes.push_back(route);
             }
         } catch (const exception& e) {
@@ -53,13 +54,13 @@ HCValidation::HCValidation(string t_dataFilePath, string t_solutionFilePath)
     cout << checkSolution();
 }
 
-HCValidation::HCValidation(HCData t_data, std::vector<Route> t_routes) : m_data (t_data), m_routes (t_routes) {}
+HCValidation::HCValidation(std::vector<Route> t_routes) : m_routes (t_routes) {}
 
 HCValidation::~HCValidation() {}
 
 bool HCValidation::checkSolution() {
     vector<ValidatioNode> nodes;
-    for (const Patient& patient : m_data.getPatients()) {
+    for (const Patient& patient : HCData::getPatients()) {
         nodes.push_back(ValidatioNode(patient));
     }
     for (const Route& route : m_routes) {
@@ -70,7 +71,7 @@ bool HCValidation::checkSolution() {
             //controlla se il servizio è disponibile per questo caregiver
             if (find(services.begin(), services.end(), node.getService()) == services.end()) { cout<<"1"; return false; }
             //controlla se il caregiver non è stato rifiutato dal paziente
-            vector<string> refused = m_data.getPatient(node.getId()).getInvalidCaregivers();
+            vector<string> refused = HCData::getPatient(node.getId()).getInvalidCaregivers();
             if (find(refused.begin(), refused.end(), route.getCaregiver()) != refused.end()) { cout<<"2"; return false; }
             //controlla che il caregiver non sia già passato per il nodo e che il tempo sia in sincrono con altri servizi
             vector<ValidatioNode>::iterator service = find_if(nodes.begin(), nodes.end(), 
@@ -80,7 +81,7 @@ bool HCValidation::checkSolution() {
                     != ValidatioNode::OK) { cout<<"4"; return false; }
             if (i > 0) {
                 Node prev = route_nodes[i - 1];
-                if (prev.getDeparturTime() + m_data.getDistance(prev.getDistancesIndex(), node.getDistancesIndex()) 
+                if (prev.getDeparturTime() + HCData::getDistance(prev.getDistancesIndex(), node.getDistancesIndex()) 
                         > node.getArrivalTime()) { cout<<"5"; return false; }
             }
         }

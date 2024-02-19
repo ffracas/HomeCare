@@ -15,12 +15,11 @@ namespace homecare {
 class HCValidation
 {
 private:
-    HCData m_data;
     std::vector<Route> m_routes;
 
 public:
     HCValidation(std::string, std::string) noexcept (false);
-    HCValidation(HCData, std::vector<Route>);
+    HCValidation(std::vector<Route>);
     ~HCValidation();
     bool checkSolution();
 };

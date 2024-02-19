@@ -13,7 +13,6 @@ namespace homecare {
 class HCSolution {
 
 private:
-    HCData m_data;
     std::vector<Route> m_routes;
     
     int m_maxTardiness;
@@ -35,9 +34,10 @@ public:
     static const int NO_INDEX;
     static const int MAX_INT;
 
-    HCSolution(std::string);
+    HCSolution();
     ~HCSolution();
     int generateISolution() noexcept (false);
+    int optimizeSolution() noexcept (false);
 };
 
 }

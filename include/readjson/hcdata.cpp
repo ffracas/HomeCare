@@ -10,7 +10,9 @@ const double HCData::EXTRA_TIME_WEIGHT = 0.165;
 const double HCData::MAX_IDLE_TIME_WEIGHT = 0.165;
 const double HCData::TOT_WAITING_TIME_WEIGHT = 0.165;
 
-HCData::HCData(string t_dataPath) {
+HCData::~HCData() {}
+
+void HCData::setData(string t_dataPath) {
     //set fields name
     const string DISTANCES_FIELD    ("distances");
     const string PATIENTS_FIELD     ("patients");
@@ -88,8 +90,6 @@ HCData::HCData(string t_dataPath) {
 
 }
 
-HCData::~HCData() {}
-
 /**
  * Getter for the patient carrier with patients sorted in expiry order.
  *
@@ -107,9 +107,9 @@ vector<Patient> HCData::getPatients() {
 /**
  * Getter for the distances matrix.
  *
- * @return A const of values of the distances matrix.
+ * @return The values of the distances matrix.
  */
-vector<vector<int>> HCData::getDistances() const { return m_distances; }
+vector<vector<int>> HCData::getDistances() { return m_distances; }
 
 /**
  * @brief Get the distances from the specified node to all other nodes.
@@ -136,7 +136,7 @@ vector<int> HCData::getNodeDistances(int t_node) noexcept(false) {
  * 
  * @param t_departure The index of the departure node.
  * @param t_arrival The index of the arrival node.
- * @return const int The value of the distance value between the specified nodes.
+ * @return int The value of the distance value between the specified nodes.
  * @throws std::out_of_range If the specified indices are out of bounds.
  */
 int HCData::getDistance(int t_departure, int t_arrival) { 
@@ -150,39 +150,39 @@ int HCData::getDistance(int t_departure, int t_arrival) {
 /**
  * Getter for the services vector.
  *
- * @return A const of vector of services.
+ * @return A vector of services.
  */
-vector<Service> HCData::getServices() const { return m_services;}
+vector<Service> HCData::getServices() { return m_services;}
 
 /**
  * Getter for the depots vector.
  *
- * @return A const of vector of depots.
+ * @return A vector of depots.
  */
-vector<Depot> HCData::getDepots() const { return m_depots; }
+vector<Depot> HCData::getDepots() { return m_depots; }
 
 /**
  * Getter for the caregivers vector.
  *
- * @return A const of vector of caregivers.
+ * @return A vector of caregivers.
  */
-vector<Caregiver> HCData::getCaregivers() const { return m_caregivers; }
+vector<Caregiver> HCData::getCaregivers() { return m_caregivers; }
 
-Caregiver HCData::getCaregiver(string t_caregiverID) const {
+Caregiver HCData::getCaregiver(string t_caregiverID) {
     for (const auto& caregiver : m_caregivers ){
         if (caregiver.getID() == t_caregiverID) { return caregiver; }
     }
     throw std::runtime_error("Caregiven not found.");
 }
 
-Patient HCData::getPatient(string t_patientId) const {
+Patient HCData::getPatient(string t_patientId) {
     for (const auto& patient : m_patients) {
         if (patient.getID() == t_patientId) { return patient; }
     }
     throw std::runtime_error("Patient not found.");
 }
 
-int HCData::getPatientPosition(string t_patientId) const {
+int HCData::getPatientPosition(string t_patientId) {
     for (int i = 0; i < m_patients.size(); ++i) {
         if (m_patients[i].getID() == t_patientId) { return i; }
     }

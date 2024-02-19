@@ -13,7 +13,8 @@ int main(int argc, char** argv) {
     pd.generateFirstSolution();*/
     try {
         string input(argc == 2 ? argv[1] : "../resources/hr_input/000-macerata-p220-d13-i0.27-pt0.76-0.02-0.22-c5-6-4-2.json");
-        HCSolution el(input);
+        HCData::setData(input);
+        HCSolution el;
         el.generateISolution();
     } catch (const exception& e) {
         cerr << "Errore " << e.what();

@@ -177,6 +177,17 @@ vector<Depot> HCData::getDepots() { return m_depots; }
  */
 vector<Caregiver> HCData::getCaregivers() { return m_caregivers; }
 
+vector<string> HCData::getCaregiversForService(string service) {
+    vector<string> cfs;
+    for (const Caregiver& caregiver : m_caregivers) {
+        const vector<string>& services = caregiver.getServicesList();
+        if(find(services.begin(), services.end(), service) != services.end()) {
+            cfs.push_back(caregiver.getID());
+        }
+    }
+    return cfs;
+}
+
 Caregiver HCData::getCaregiver(string t_caregiverID) {
     for (const auto& caregiver : m_caregivers ){
         if (caregiver.getID() == t_caregiverID) { return caregiver; }

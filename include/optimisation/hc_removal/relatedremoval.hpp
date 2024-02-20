@@ -7,19 +7,19 @@ namespace homecare {
 
 class RelatedRemoval : public NodeRemoval {
 private:
-    const double m_related;                                             //parametro related removal
-    const double m_distanceWeight;                                      //parametro related removal
-    const double m_windowWeight;                                        //parametro related removal
-    const double m_serviceWeight;                                       //parametro related removal
+    static const double m_related;                                             //parametro related removal
+    static const double m_distanceWeight;                                      //parametro related removal
+    static const double m_windowWeight;                                        //parametro related removal
+    static const double m_serviceWeight;                                       //parametro related removal
 
-    double calculateSimilarity(int, int, int, bool, int, int, int) const;
-    void findMinMaxRelatetion(int&, int&, int&, int&, int&, int, int) const;
     std::pair<int, int> getRandomNode(std::vector<std::pair<int, int>>) noexcept (false);
+    static int calculateSharedCaregivers(std::string, std::string, int&, int&);
     
 public:
-    RelatedRemoval(ALNSOptimisation&, double, double, double, double);
+    RelatedRemoval(ALNSOptimisation&);
     ~RelatedRemoval();
     void removeNodes(int) override;
+    static double calculateSimilarity(int, int, int, std::string, std::string);
 };
 
 }

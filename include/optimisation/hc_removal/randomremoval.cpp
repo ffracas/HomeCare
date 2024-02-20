@@ -11,7 +11,7 @@ void RandomRemoval::removeNodes(int t_elementsToDestroy) {
     //potrebbe servire reset lista percorsi operazionale
     int i = 0;
     while (i < t_elementsToDestroy) {
-        int n_route = rand() % m_removalOps.getNumberOfRoutes();
-        i += m_removalOps.destroy(n_route, rand() % m_removalOps.getNumberOfNodesInRoute(n_route));
+        int n_route = chooseRandomRoute();
+        i += m_removalOps.destroy(n_route, chooseRandomNode(n_route));
     }
 }

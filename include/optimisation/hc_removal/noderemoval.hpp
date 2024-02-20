@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <cmath>
+#include <random>
 
 #include "../../structures/route.hpp"
 #include "../optimisation_structures/alnsoptimisation.hpp"
@@ -15,6 +16,10 @@ namespace homecare {
 class NodeRemoval {
 protected:
     ALNSOptimisation& m_removalOps;
+
+    int chooseRandomRoute();
+    int chooseRandomNode(int);
+
 public:
     NodeRemoval(ALNSOptimisation&);
     virtual ~NodeRemoval() {}

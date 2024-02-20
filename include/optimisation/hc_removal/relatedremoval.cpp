@@ -3,37 +3,49 @@
 using namespace std;
 using namespace homecare;
 
-RelatedRemoval::RelatedRemoval(ALNSOptimisation& t_ops, double t_related, 
-        double t_distanceWeight, double t_windowWeight, double t_serviceWeight)
-        : NodeRemoval (t_ops), m_related (t_related), 
-        m_distanceWeight (t_distanceWeight), m_windowWeight (t_windowWeight), m_serviceWeight (t_serviceWeight) {}
+const double RelatedRemoval::m_related = 5.0;
+const double RelatedRemoval::m_distanceWeight = 5.0;
+const double RelatedRemoval::m_windowWeight = 5.0;
+const double RelatedRemoval::m_serviceWeight = 5.0;
+
+RelatedRemoval::RelatedRemoval(ALNSOptimisation& t_ops)
+        : NodeRemoval (t_ops) {}
 
 RelatedRemoval::~RelatedRemoval() {}
 
-double RelatedRemoval::calculateSimilarity(int distance, int difOpenWin, int difCloseWin, bool service, 
-            int maxDist, int difTWO, int difTWC) const {
-    double s = service ? 0 : m_serviceWeight;
-    return (m_distanceWeight * distance) / maxDist 
-            + m_windowWeight * (double(difOpenWin) / difTWO + double(difCloseWin) / difTWC)
-            + s;
+int RelatedRemoval::calculateSharedCaregivers(string service_i, string service_j, int& n_i, int& n_j) {
+    vector<string> caregiver_i = HCData::getCaregiversForService(service_i);
+    vector<string> caregiver_j = HCData::getCaregiversForService(service_j);
+    n_i = caregiver_i.size();
+    n_j = caregiver_j.size();
+    int count = 0;
+    for (int i = 0; i < n_i; ++i) {
+        for (int j = 0; j < n_j; ++j) {
+            if (caregiver_i[i] == caregiver_j[j]) { ++count; }
+        }
+    }
+    return count; 
 }
 
-void RelatedRemoval::findMinMaxRelatetion(int& maxDist, int& minTWO, 
-        int& maxTWO, int& minTWC, int& maxTWC, int n_route, int seedDistIndex) const {
-    for (int i = 0; i < m_removalOps.getNumberOfNodesInRoute(n_route); ++i) {
-        Node n = m_removalOps.getNodeInRoute(n_route, i);
-        //controllo distanze
-        int distance = HCData::getDistance(seedDistIndex, n.getDistancesIndex());
-        maxDist = distance > maxDist ? distance : maxDist;
-
-        //controllo finestra aperta
-        if (n.getTimeWindowOpen() < minTWO) { minTWO = n.getTimeWindowOpen(); }
-        else if (n.getTimeWindowOpen() > maxTWO) { maxTWO = n.getTimeWindowOpen(); }
-
-        //controllo finestra chiusa
-        if (n.getTimeWindowClose() < minTWC) { minTWC = n.getTimeWindowClose(); }
-        else if (n.getTimeWindowClose() > maxTWC) { maxTWC = n.getTimeWindowClose(); }
-    }
+/**
+ * Static method that calculates the similarity between two services based on distance, 
+ * time window differences, and the number of shared caregivers normalised.
+ * 
+ * @param distance The distance between the services.
+ * @param difOpenWin The difference in the opening time window.
+ * @param difCloseWin The difference in the closing time window.
+ * @param service_i The first service.
+ * @param service_j The second service.
+ * @return The similarity score between the services.
+ */
+double RelatedRemoval::calculateSimilarity(int distance, int difOpenWin, int difCloseWin, 
+        string service_i, string service_j) {
+    int caregivers_i = 0, caregivers_j = 0;
+    int sharedCaregivers = calculateSharedCaregivers(service_i, service_j, caregivers_i, caregivers_j);
+    int caregiversDenominator = caregivers_i > caregivers_j ? caregivers_j : caregivers_i;
+    return (m_distanceWeight * distance)
+            + m_windowWeight * (difOpenWin + difCloseWin)
+            + m_serviceWeight * abs(1.0 - (double(sharedCaregivers) / caregiversDenominator));
 }
 
 pair<int, int> RelatedRemoval::getRandomNode(vector<pair<int, int>> list) {
@@ -45,13 +57,9 @@ pair<int, int> RelatedRemoval::getRandomNode(vector<pair<int, int>> list) {
 
 void RelatedRemoval::removeNodes(int elementsToDestroy) {
     //resetOperation();
-    int n_route = rand() % m_removalOps.getNumberOfRoutes();
-    int n_pos   = rand() % m_removalOps.getNumberOfNodesInRoute(n_route);
+    int n_route = chooseRandomRoute();
+    int n_pos   = chooseRandomNode(n_route);
     Node seed   = m_removalOps.getNodeInRoute(n_route, n_pos);
-    int maxDist = 0;                                                    //min Distance fissato a 0 (nodo stesso)
-    int minTWO  = seed.getTimeWindowOpen() , maxTWO = minTWO;
-    int minTWC  = seed.getTimeWindowClose(), maxTWC = minTWC;
-    findMinMaxRelatetion(maxDist, minTWO, maxTWO, minTWC, maxTWC, n_route, seed.getDistancesIndex());
 
     vector<CostCoord> similarityRank;
     vector<pair<int, int>> nodesToRemove;
@@ -67,8 +75,8 @@ void RelatedRemoval::removeNodes(int elementsToDestroy) {
                     int distance    = HCData::getDistance(seed.getDistancesIndex(), p.getDistancesIndex());
                     int difOpenWin  = abs(p.getTimeWindowOpen() - seed.getTimeWindowOpen());
                     int difCloseWin = abs(p.getTimeWindowClose()   - seed.getTimeWindowClose()); 
-                    double similarity = calculateSimilarity(distance, difOpenWin, difCloseWin, 
-                            seed.getService() == p.getService(), maxDist, minTWO - maxTWO, minTWC - maxTWC);
+                    double similarity = 
+                            calculateSimilarity(distance, difOpenWin, difCloseWin, seed.getService(), p.getService());
                     similarityRank.push_back(CostCoord(similarity, i, j));
                     sort(similarityRank.begin(), similarityRank.end(), [] (CostCoord cc1, CostCoord cc2) { 
                                                                     return cc1.getCost() < cc2.getCost();

@@ -41,6 +41,7 @@ public:
     static std::vector<Service> getServices();
     static std::vector<Depot> getDepots();
     static std::vector<Caregiver> getCaregivers();
+    static std::vector<std::string> getCaregiversForService(std::string);
     static Caregiver getCaregiver(std::string) noexcept (false);
     static Patient getPatient(std::string) noexcept (false);
     static int getPatientPosition(std::string) noexcept (false);

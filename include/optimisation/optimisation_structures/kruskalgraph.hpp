@@ -20,7 +20,7 @@ private:
 public:
   KruskalGraph(int);
   void addWeightedEdge(int, int, int);
-  int find_set(int);
+  int findSet(int);
   void mergeSet(int, int);
   void generateKruskalTree();
   void print();

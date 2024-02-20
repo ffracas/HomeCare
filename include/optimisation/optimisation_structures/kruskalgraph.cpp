@@ -19,7 +19,7 @@ void KruskalGraph::addWeightedEdge(int u, int v, int w) {
     G.push_back(make_pair(w, edge(u, v)));
 }
 
-int KruskalGraph::find_set(int i) {
+int KruskalGraph::findSet(int i) {
     int representative = i;
     // If i is not the parent of itself then i is not the representative of his set, search for parent
     while (representative != parent[representative]) {
@@ -37,8 +37,8 @@ void KruskalGraph::generateKruskalTree() {
     int i, uRep, vRep;
     sort(G.begin(), G.end());  // increasing weight
     for (i = 0; i < G.size(); i++) {
-        uRep = find_set(G[i].second.first);
-        vRep = find_set(G[i].second.second);
+        uRep = findSet(G[i].second.first);
+        vRep = findSet(G[i].second.second);
         if (uRep != vRep) {
         T.push_back(G[i]);  // add to tree
         mergeSet(uRep, vRep);

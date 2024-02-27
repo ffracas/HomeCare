@@ -16,7 +16,7 @@ const string Node::NO_SERVICE = "";
  * @param t_duration: Duration of the service at the node.
  * @param t_service: Type of service associated with the node.
  */
-Node::Node(string t_id, int t_openTimeWindow, int t_closeTimeWindow, 
+Node::Node(string t_id, int t_openTimeWindow, int t_closeTimeWindow,
             int t_distanceIndex, int t_duration, string t_service, bool t_interdepend) 
         : m_id (t_id), m_timeWindowOpen (t_openTimeWindow), m_timeWindowClose (t_closeTimeWindow),
         m_distanceIndex (t_distanceIndex), m_duration (t_duration), m_service (t_service), 
@@ -119,4 +119,8 @@ string Node::toString() const {
 void Node::setArrivalTime(int t_arrivalTime) { 
     m_arrivalTime = t_arrivalTime; 
     if (!m_isDepot) { m_departureTime = m_arrivalTime + m_duration; }
+}
+
+int Node::getDelayTime() const {
+    return max(m_timeWindowOpen, m_arrivalTime);
 }

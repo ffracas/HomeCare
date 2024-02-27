@@ -2,7 +2,7 @@
 
 using namespace homecare;
 
-const int InfoNode::NOT_ASSIGED = -1;
+const int InfoNode::NOT_ASSIGNED = -1;
 
 /**
  * @brief Constructor for InfoNode object.
@@ -19,7 +19,7 @@ InfoNode::InfoNode(int t_route, int t_pos, int t_time, int t_index)
  * @brief Constructor for InfoNode object.
  */ 
 InfoNode::InfoNode()
-    : m_route(NOT_ASSIGED), m_position(NOT_ASSIGED), m_time(NOT_ASSIGED), m_patientIndex(NOT_ASSIGED) {}
+    : m_route(NOT_ASSIGNED), m_position(NOT_ASSIGNED), m_time(NOT_ASSIGNED), m_patientIndex(NOT_ASSIGNED) {}
 
 /**
  * @brief Destructor for InfoNode object.
@@ -81,7 +81,14 @@ void InfoNode::setTime(int time) { m_time = time; }
  * Resets route, position, and time to NOT_ASSIGNED constant.
  */
 void InfoNode::destroy() {
-    m_route = NOT_ASSIGED;
-    m_position = NOT_ASSIGED;
-    m_time = NOT_ASSIGED;
+    m_route = NOT_ASSIGNED;
+    m_position = NOT_ASSIGNED;
+    m_time = NOT_ASSIGNED;
 }
+
+/**
+ * @brief Method that informs whether the node is assigned or not.
+ * 
+ * @return true if the node is assigned else false
+*/
+bool InfoNode::isAssigned() { return m_route != NOT_ASSIGNED && m_position != NOT_ASSIGNED && m_time != NOT_ASSIGNED; }

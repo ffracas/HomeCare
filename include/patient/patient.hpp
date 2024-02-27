@@ -44,7 +44,7 @@ public:
     Service getCurrentService() const;
     Service getNextService() const;
     Patient getPatientAndNextService(int = 0) const noexcept (false);
-    bool hasNext() const;
+    bool hasNextService() const;
 };
 
 }

@@ -11,4 +11,21 @@ HCOptimisation::HCOptimisation(std::vector<Route> t_routes, double t_cost)
 
 HCOptimisation::~HCOptimisation() {}
 
-
+void HCOptimisation::optimise() {
+    RandomRemoval rr(m_ops);
+    GreedyRepair  gr(m_ops); 
+    try{
+        rr.removeNodes(ELEMENT_TO_DESTROY);
+    } catch(exception e) {
+        cout << "No best";
+    }
+    try {
+        gr.repairNodes();
+    }catch(exception e) {
+        cout << "No best";
+    }
+       
+    for (const Route& r : m_ops.getRoutes()) {
+        cout << r.getRouteToString() << "\n ----------------------------- \n";
+    }
+}

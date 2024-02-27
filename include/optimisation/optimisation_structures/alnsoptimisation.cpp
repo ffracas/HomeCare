@@ -3,6 +3,8 @@
 using namespace std;
 using namespace homecare;
 
+const double ALNSOptimisation::MAX_DOUBLE = 1.79769313486231570e+308;
+
 ALNSOptimisation::ALNSOptimisation(vector<Route> t_routes, double t_cost) 
         : m_currentCost (t_cost), m_routes (t_routes), m_nodeToRelocate (), 
         m_mapOfPatient (), m_solutionsDump() {
@@ -11,10 +13,11 @@ ALNSOptimisation::ALNSOptimisation(vector<Route> t_routes, double t_cost)
     m_solutionsDump.emplace(solHash, t_routes);
     m_solutionsRank.push_back(pair<double, string> (t_cost, solHash));
     for (int i = 0; i < t_routes.size(); ++i) {
-        for (int j = 1; j < t_routes[i].getNumNodes(); ++j) {
+        for (int j = t_routes[i].getNumNodes() - 1; j > 0; --j) {
             Node n = t_routes[i].getNodeToDestroy(j);
+            //set variation time
             int pos = HCData::getPatientPosition(n.getId());
-            m_mapOfPatient[n.getId()].emplace(n.getService(), InfoNode(i, j, n.getArrivalTime(), pos));
+            m_mapOfPatient[n.getId()].insertService(n.getService(), InfoNode(i, j, n.getArrivalTime(), pos));
         }
     }
 }
@@ -26,7 +29,6 @@ void ALNSOptimisation::resetOperation() {
     m_routes.clear();
 
     // copy the solution from m_solutionsDump[m_currentSol] in m_routes
-    m_routes.reserve(m_solutionsDump[m_currentSol].size());
     for (const auto& route : m_solutionsDump[m_currentSol]) {
         m_routes.push_back(route);
     }
@@ -61,23 +63,74 @@ int ALNSOptimisation::destroy(int n_route, int n_node) { return destroy(n_route,
  */
 int ALNSOptimisation::destroy(int n_route, int n_node, vector<Route>& t_routes, bool onOperational) {
     // Ensure n_node is valid
-    if (n_node == 0) { n_node++; }
+    if (n_node < 1) { throw runtime_error("node not valid"); }
     // Get the patient ID to relocate
     string patient = t_routes[n_route].getNodeToDestroy(n_node).getId();
     m_nodeToRelocate.push_back(patient);
     // Iterate over services associated with the patient
-    for (auto& service : m_mapOfPatient[patient]) {
+    vector<InfoNode> services(m_mapOfPatient[patient].getAllService());
+    for (InfoNode service : services) {
+        if(!service.isAssigned()) { return 0; }
         // Remove from routes
-        n_route = service.second.getRoute();
+        n_route = service.getRoute();
+        t_routes[n_route].deleteNode(service.getPositionInRoute());
         if(onOperational) {
-            updateMapOfPatient(t_routes[n_route].deleteNode(service.second.getPositionInRoute(),
-                                HCData::getDistances()), n_route);
+            // Destroy the service reference
+            updateMapOfPatient(t_routes[n_route], n_route);
+            m_currentCost = calculateCost(m_routes);
         }
-        // Destroy the service reference
-        service.second.destroy();
     }
+    m_mapOfPatient[patient].destroyAll();
     // Return the number of destroyed node
     return m_mapOfPatient[patient].size();
+}
+
+double ALNSOptimisation::repair(vector<Route>& routes, Patient patient, int n_route) {
+    return repair(routes, Node(patient, 0), n_route).getCost();
+}
+
+CostCoord ALNSOptimisation::repair(Node patient, int route) {
+    return repair(m_routes, patient, route, true);
+}
+
+CostCoord ALNSOptimisation::repair(vector<Route>& routes, Node patient, int route, bool onOperational) {
+    const CostCoord NO_REPAIR(MAX_DOUBLE, -1, -1);
+    // Verifica dei parametri da inserire
+    auto p = m_mapOfPatient.find(patient.getId());
+    if (p == m_mapOfPatient.end()) { return NO_REPAIR; }
+    if (!m_mapOfPatient[patient.getId()].isPresent(patient.getService())) { return NO_REPAIR; }
+
+    if (route >= routes.size()) { return NO_REPAIR; }
+    int pos = routes[route].addNodeBeetween(patient);
+    if (pos < 1) { return NO_REPAIR; }
+    if (onOperational) {
+        updateMapOfPatient(routes[route], route);
+    }
+    // calculate Cost and return Cost and coordinate
+    return CostCoord(calculateCost(routes), route, pos);
+}
+
+bool ALNSOptimisation::repairDouble(Patient patient, int n_route) {
+    Node n1(patient, 0);
+    tuple<Node, vector<Node>, vector<Node>> data(m_routes[n_route].addNodeInRoute(patient, *this));
+}
+
+void ALNSOptimisation::saveSol(const vector<Route>& routes) {
+    m_routes.clear();
+    m_routes.insert(m_routes.begin(), routes.begin(), routes.end());
+    //aggiorna mappa
+    updateMapOfPatient();
+
+    double cost = calculateCost(m_routes);
+    string hash = ALNSOptimisation::makeHash(m_routes);
+    //salva soluzione
+    m_solutionsDump.emplace(hash, m_routes);
+    //classifica soluzioni
+    m_solutionsRank.push_back(make_pair(cost, hash));
+    sort(m_solutionsRank.begin(), m_solutionsRank.end(), 
+            [] (pair<double, string> e1, pair<double, string> e2) { return e1.first < e2.first; });
+    m_currentSol = m_solutionsRank[0].second;
+    m_currentCost = m_solutionsRank[0].first;
 }
 
 /**
@@ -93,7 +146,10 @@ int ALNSOptimisation::getNumberOfRoutes() const { return m_routes.size(); }
  * @param route The index of the route.
  * @return The number of nodes in the specified route.
  */
-int ALNSOptimisation::getNumberOfNodesInRoute(int route) const { return m_routes[route].getNumNodes(); }
+int ALNSOptimisation::getNumberOfNodesInRoute(int route) const { 
+    if (route >= m_routes.size()) { return -1; }
+    return m_routes[route].getNumNodes(); 
+}
 
 /**
  * Updates the map of patients based on the given route and route index.
@@ -102,11 +158,16 @@ int ALNSOptimisation::getNumberOfNodesInRoute(int route) const { return m_routes
  * @param route The route to update the map of patients with.
  * @param n_route The index of the route.
  */
-void ALNSOptimisation::updateMapOfPatient(Route route, int n_route) {
+void ALNSOptimisation::updateMapOfPatient(const Route& route, int n_route) {
     for (int j = 1; j < route.getNumNodes(); ++j) {
         const Node& n = route.getNodeToDestroy(j);
-        InfoNode& infoNode = m_mapOfPatient[n.getId()][n.getService()];
-        infoNode.setInRoute(n_route, j, n.getArrivalTime());
+        m_mapOfPatient[n.getId()].getInfoForService(n.getService()).setInRoute(n_route, j, n.getArrivalTime());
+    }
+}
+
+void ALNSOptimisation::updateMapOfPatient() {
+    for (int i = 0; i < m_routes.size(); ++i) {
+        updateMapOfPatient(m_routes[i], i);
     }
 }
 
@@ -178,5 +239,26 @@ Node ALNSOptimisation::getNodeInRoute(int n_route, int n_node) const {
     return m_routes[n_route].getNodeToDestroy(n_node); 
 }
 
-
+/**
+ * Retrieves the routes stored in the ALNSOptimisation object.
+ * @return A vector of Route objects representing the routes.
+ */
 vector<Route> ALNSOptimisation::getRoutes() const  { return m_routes; }
+
+/**
+ * Checks if there are nodes to repair.
+ * 
+ * @return True if there are nodes to repair, false otherwise.
+ */
+bool ALNSOptimisation::hasNodeToRepair() const { return !m_nodeToRelocate.empty(); }
+
+string ALNSOptimisation::popNodeToRepair() {
+    std::string node;
+
+    if (!m_nodeToRelocate.empty()) {
+        node = m_nodeToRelocate[0];
+        m_nodeToRelocate.erase(m_nodeToRelocate.begin());
+    }
+
+    return node;
+}

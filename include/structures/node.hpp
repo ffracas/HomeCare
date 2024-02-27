@@ -19,7 +19,7 @@ private:
     int m_arrivalTime;
     int m_departureTime;
     bool m_isDepot;
-    bool m_interdependet;                           //booleano che attesta se il nodo è interdipendente            
+    bool m_interdependet;                           //booleano che attesta se il nodo è interdipendente  
     static const int ZERO;
     static const std::string NO_SERVICE;
 
@@ -39,9 +39,12 @@ public:
     std::string toString() const;
     int getDeparturTime() const;
     int getArrivalTime() const;
+    int getDelayTime() const;
     bool isInterdependent() const;
     //setter
     void setArrivalTime(int);
+    // s
+    int compareArrivalTime(int);
 };
     
 } // namespace homecare

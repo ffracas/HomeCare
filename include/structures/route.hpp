@@ -6,10 +6,11 @@
 #include <string>
 #include <json/json.h>
 
-#include "arc.hpp"
 #include "node.hpp"
+#include "../readjson/hcdata.hpp"
 #include "../patient/patient.hpp"
 #include "../caregiver/caregiver.hpp"
+#include "../optimisation/optimisation_structures/alnsoptimisation.hpp"
 
 namespace homecare {
 
@@ -31,7 +32,8 @@ class Route{
 
         void makeTimeRecalculation(int);
         int addNode(Node, int, int, int);
-        void recalculateRoute(std::vector<std::vector<int>> distances);
+        void recalculateRoute(const int = 1);
+        std::vector<Node>::iterator nextNode(std::vector<Node>::iterator, bool);
 
     public:
         static const int EMPTY_ROUTE = -1;
@@ -39,9 +41,9 @@ class Route{
 
         Route(Caregiver);
         ~Route();
-        //getter
+        // getter
         int getFreeTime() const;
-        int getlastPatientDistanceIndex() const;
+        int getLastPatientDistanceIndex() const;
         std::vector<std::string> getAvilableServices() const;
         std::string getCaregiver() const;
         std::vector<Node> getNodes() const;
@@ -54,19 +56,24 @@ class Route{
         int getTotalWaitingTime() const;
         int getTravelTime() const;
         int getExtraTime() const;
+        int getDeltaTime() const;
         std::string getHash() const;
         //solver
-        int addNode(Patient, std::vector<int>, int, int); 
-        //int addNodeBetween(Patient, std::vector<std::vector<int>>); //TODO
-        Route deleteNode(int, std::vector<std::vector<int>> distances);
-        //toFileFormat
+        int addNode(Patient, int);
+        int addNode(Node, int); 
+        int addNodeBeetween(Node);
+        int addNodeBeetween(Node, int, int); ////////////////////////////////////////////////////
+        int findSuitablePosition(Node) const;
+        Route deleteNode(int);
+        tuple<Node, vector<Node>, vector<Node>> addNodeInRoute(Patient, ALNSOptimisation&);
+        // toFileFormat
         std::string getRouteToString() const;
         Json::Value getJSONRoute() const;
-        //checker
+        // checker
         bool isAvailable() const;
         bool hasService(std::string) const;
         //reader
-        int readNodesFromJson(Json::Value, std::vector<Patient>,std::vector<int>) noexcept (false);
+        int readNodesFromJson(Json::Value, std::vector<Patient>, std::vector<int>) noexcept (false);
 };
 
 }

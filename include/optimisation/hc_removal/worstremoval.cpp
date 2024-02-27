@@ -25,6 +25,7 @@ void WorstRemoval::removeNodes(int elementsToDestroy) {
             }
         }
         int pos = floor(pow(m_removalOps.generateRandom(), p_worst) * worstList.size());
-        n_des += m_removalOps.destroy(worstList[pos].getRouteNumber(), worstList[pos].getNodePosition());
+        m_removalOps.destroy(worstList[pos].getRouteNumber(), worstList[pos].getNodePosition());
+        n_des ++;
     }
 }

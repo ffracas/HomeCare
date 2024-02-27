@@ -7,6 +7,7 @@
 #include "../readjson/hcdata.hpp"
 #include "../structures/route.hpp"
 #include "hcvalidation.hpp"
+#include "../optimisation/hcoptimisation.hpp"
 
 namespace homecare {
 

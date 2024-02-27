@@ -14,7 +14,7 @@ ValidatioNode::ValidatioNode(Patient t_patient) : m_patientID (t_patient.getID()
     m_services.push_back(ServiceInfo(t_patient.getCurrentService().getService(), 
         t_patient.getCurrentService().getDuration(), t_patient.getWindowStartTime(), t_patient.getWindowEndTime())); 
     if (t_patient.getSync() != NoSync) {
-        Patient patient = t_patient.hasNext() ? t_patient.getPatientAndNextService() : t_patient;
+        Patient patient = t_patient.hasNextService() ? t_patient.getPatientAndNextService() : t_patient;
         m_services.push_back(ServiceInfo(patient.getCurrentService().getService(), 
             patient.getCurrentService().getDuration(), patient.getWindowStartTime(), patient.getWindowEndTime()));
     }

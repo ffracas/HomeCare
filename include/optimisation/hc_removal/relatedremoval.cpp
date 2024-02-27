@@ -9,7 +9,7 @@ const double RelatedRemoval::m_windowWeight = 5.0;
 const double RelatedRemoval::m_serviceWeight = 5.0;
 
 RelatedRemoval::RelatedRemoval(ALNSOptimisation& t_ops)
-        : NodeRemoval (t_ops) {}
+        : NodeRemoval (t_ops, 5) {}
 
 RelatedRemoval::~RelatedRemoval() {}
 
@@ -59,6 +59,7 @@ void RelatedRemoval::removeNodes(int elementsToDestroy) {
     //resetOperation();
     int n_route = chooseRandomRoute();
     int n_pos   = chooseRandomNode(n_route);
+    if (n_pos == NO_INDEX) { return; }
     Node seed   = m_removalOps.getNodeInRoute(n_route, n_pos);
 
     vector<CostCoord> similarityRank;

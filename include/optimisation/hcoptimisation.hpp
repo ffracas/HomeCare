@@ -8,6 +8,12 @@
 #include "../readjson/hcdata.hpp"
 #include "../structures/route.hpp"
 #include "./optimisation_structures/alnsoptimisation.hpp"
+#include "hc_removal/randomremoval.hpp"
+#include "hc_removal/worstremoval.hpp"
+#include "hc_removal/relatedremoval.hpp"
+#include "hc_removal/clusterremoval.hpp"
+#include "hc_repair/greedyrepair.hpp"
+
 
 namespace homecare {
 

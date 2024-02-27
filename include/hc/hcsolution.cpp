@@ -42,7 +42,7 @@ int HCSolution::generateISolution() {
                 time = time >= syncTime ? time : syncTime;
                 syncTime = time;
             } 
-            else if (currentPatient.getSync() == Sequential && currentPatient.hasNext()) {
+            else if (currentPatient.getSync() == Sequential && currentPatient.hasNextService()) {
                 if (syncTime > time + syncPS.getMaxWait()) {
                     time = syncTime - syncPS.getMaxWait();
                 }
@@ -50,11 +50,9 @@ int HCSolution::generateISolution() {
                     syncTime = time + syncPS.getMinWait();
                 }
             }
-            m_routes[bestSync].addNode(syncPS, HCData::getNodeDistances(PatientDistanceIndex), syncTime, 
-                    HCData::getDistance(m_routes[bestSync].getlastPatientDistanceIndex(), syncPS.getDistancesIndex()));
+            m_routes[bestSync].addNode(syncPS, syncTime);
         } 
-        m_routes[bestRoute].addNode(currentPatient, HCData::getNodeDistances(PatientDistanceIndex), time, 
-            HCData::getDistance(m_routes[bestRoute].getlastPatientDistanceIndex(), currentPatient.getDistancesIndex()));
+        m_routes[bestRoute].addNode(currentPatient, time);
     }
 
     for (Route route : m_routes) {
@@ -75,13 +73,20 @@ int HCSolution::generateISolution() {
 
     //write json
     writeSolutionOnFile(I_SOL_FILE);
-
+    
     return 0;
 }
 
 int HCSolution::optimizeSolution() {
-    cout << "optimization TODO";
-    return 0;
+    HCOptimisation(m_routes, calculateCost()).optimise();
+    //solution validation 
+    HCValidation val(m_routes);
+    cout << val.checkSolution() << "\n";
+
+    //calculate cost
+    m_solCost = calculateCost();
+    cout << m_solCost << "\n";
+    return m_solCost;
 }
 
 int HCSolution::searchForRoute(Patient patient, int sync_index)  {
@@ -97,7 +102,7 @@ int HCSolution::searchForRoute(Patient patient, int sync_index)  {
                     == invalidCaregivers.end()
                 ) {
             int cost = m_routes[i].getFreeTime() + 
-                        HCData::getDistance(m_routes[i].getlastPatientDistanceIndex(), patient.getDistancesIndex());
+                        HCData::getDistance(m_routes[i].getLastPatientDistanceIndex(), patient.getDistancesIndex());
             if (cost < bestCost) {
                 bestCost = cost;
                 bestRoute = i;
@@ -109,7 +114,7 @@ int HCSolution::searchForRoute(Patient patient, int sync_index)  {
 
 int HCSolution::calculateArrivalTime(int route, int patient) {
     return m_routes[route].getFreeTime() + 
-                HCData::getDistance(m_routes[route].getlastPatientDistanceIndex(), patient);
+                HCData::getDistance(m_routes[route].getLastPatientDistanceIndex(), patient);
 }
 
 double HCSolution::calculateCost() {

@@ -14,14 +14,19 @@
 namespace homecare {
     
 class NodeRemoval {
+private:
+    static const int MIN_ROUTE_LENGTH;
+
 protected:
     ALNSOptimisation& m_removalOps;
+    const int MIN_N_NODES;
+    static const int NO_INDEX;
 
     int chooseRandomRoute();
     int chooseRandomNode(int);
 
 public:
-    NodeRemoval(ALNSOptimisation&);
+    NodeRemoval(ALNSOptimisation&, int = 2);
     virtual ~NodeRemoval() {}
     virtual void removeNodes(int) = 0;
 };

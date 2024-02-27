@@ -6,7 +6,6 @@
 
 #include "../readjson/hcdata.hpp"
 #include "../structures/route.hpp"
-#include "../structures/arc.hpp"
 #include "../structures/node.hpp"
 #include "../structures/validationode.hpp"
 

@@ -11,7 +11,7 @@ private:
     int m_patientIndex;
 
 public:
-    static const int NOT_ASSIGED;
+    static const int NOT_ASSIGNED;
     InfoNode(int, int, int, int);
     InfoNode();
     ~InfoNode();
@@ -25,6 +25,9 @@ public:
     void setInRoute(int, int, int);
     void setTime(int);
     void destroy();
+
+    // 
+    bool isAssigned();
 };
     
 }

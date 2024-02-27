@@ -182,7 +182,7 @@ Service Patient::getNextService() const {
     if (m_sync == NoSync) {
         throw std::runtime_error("Errore! Non è possibile attivare il prossimo servizio per questo paziente");
     }
-    vector<Service> next(hasNext() ? m_services.begin() + 1 : m_services.begin(), m_services.end());
+    vector<Service> next(hasNextService() ? m_services.begin() + 1 : m_services.begin(), m_services.end());
     return next[0]; 
 }
 
@@ -190,14 +190,14 @@ Patient Patient::getPatientAndNextService(int t_time) const {
     if (m_sync == NoSync) {
         throw std::runtime_error("Errore! Non è possibile attivare il prossimo servizio per questo paziente");
     }
-    if (m_sync == Simultaneous && !hasNext()) { return *this; }
+    if (m_sync == Simultaneous && !hasNextService()) { return *this; }
     t_time = t_time > m_timeWindowOpen ? t_time : m_timeWindowOpen;
-    vector<Service> next(hasNext() ? m_services.begin() + 1 : m_services.begin(), m_services.end());
+    vector<Service> next(hasNextService() ? m_services.begin() + 1 : m_services.begin(), m_services.end());
     return Patient(m_id, m_x, m_y, t_time + m_minWait, t_time + m_maxWait, m_distanceIndex,
             m_invalidCaregivers, next, m_sync, m_minWait, m_maxWait);
 }
 
-bool Patient::hasNext() const {
+bool Patient::hasNextService() const {
     if (m_sync == NoSync || m_services.size() <= 1) { return false; }
     return true; 
 }

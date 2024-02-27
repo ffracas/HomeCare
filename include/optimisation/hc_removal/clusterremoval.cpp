@@ -3,32 +3,24 @@
 using namespace std;
 using namespace homecare;
 
-const int ClusterRemoval::MIN_N_NODES = 3;
-
-ClusterRemoval::ClusterRemoval(ALNSOptimisation& t_ops) : NodeRemoval (t_ops) {}
+ClusterRemoval::ClusterRemoval(ALNSOptimisation& t_ops, int t_minNodesN) 
+        : NodeRemoval (t_ops, t_minNodesN) {}
 
 ClusterRemoval::~ClusterRemoval() {}
 
 void ClusterRemoval::removeNodes(int elementsToDestroy) {
     vector<pair<int, int>> nodesToRemove;
-    bool stop = false;
-    while (nodesToRemove.size() < elementsToDestroy && !stop) {
-        // Select random node
-        int n_route = chooseRandomRoute();
-        int i = 0;
-        int max_iter = m_removalOps.getNumberOfRoutes();
-        while (m_removalOps.getNumberOfNodesInRoute(n_route) > MIN_N_NODES && !stop) {
-            if (i >= max_iter) { stop = true; }
-            ++ n_route;
-            ++ i;
+    // Select random node
+    int n_route = chooseRandomRoute();
+    while (n_route != NO_INDEX) {
+        KruskalGraph edges(m_removalOps.getNumberOfNodesInRoute(n_route));
+        generateGraph(n_route, edges);
+        for(const int& node : edges.getKruskalRank(elementsToDestroy - nodesToRemove.size())) {
+            nodesToRemove.push_back(make_pair(n_route, node));
         }
-        if (!stop){
-            KruskalGraph edges(m_removalOps.getNumberOfNodesInRoute(n_route));
-            generateGraph(n_route, edges);
-            for(const int& node : edges.getKruskalRank(elementsToDestroy)) {
-                nodesToRemove.push_back(make_pair(n_route, node));
-            }
-        }
+        if (nodesToRemove.size() < elementsToDestroy) 
+        {   n_route = chooseRandomRoute(); }
+        else { n_route = NO_INDEX; }
     }
     for (const pair<int, int> & node : nodesToRemove) {
         m_removalOps.destroy(node.first, node.second);

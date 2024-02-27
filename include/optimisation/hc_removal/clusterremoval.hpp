@@ -11,10 +11,8 @@ namespace homecare {
 typedef std::pair<int, int> iPair; 
 
 class ClusterRemoval : public NodeRemoval {
-private:
-    static const int MIN_N_NODES;
 public:
-    ClusterRemoval(ALNSOptimisation&);
+    ClusterRemoval(ALNSOptimisation&, int);
     ~ClusterRemoval();
     void removeNodes(int) override;
     void generateGraph(int, KruskalGraph &);

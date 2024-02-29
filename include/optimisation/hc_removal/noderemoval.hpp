@@ -22,8 +22,8 @@ protected:
     const int MIN_N_NODES;
     static const int NO_INDEX;
 
-    int chooseRandomRoute();
-    int chooseRandomNode(int);
+    int chooseRandomRoute(RoutesOpt&);
+    int chooseRandomNode(RoutesOpt&, int);
 
 public:
     NodeRemoval(ALNSOptimisation&, int = 2);

@@ -201,3 +201,7 @@ bool Patient::hasNextService() const {
     if (m_sync == NoSync || m_services.size() <= 1) { return false; }
     return true; 
 }
+
+bool Patient::isFirstService(string service) const {
+    return m_services[0].getService() == service;
+}

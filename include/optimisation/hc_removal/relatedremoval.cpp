@@ -57,10 +57,11 @@ pair<int, int> RelatedRemoval::getRandomNode(vector<pair<int, int>> list) {
 
 void RelatedRemoval::removeNodes(int elementsToDestroy) {
     //resetOperation();
-    int n_route = chooseRandomRoute();
-    int n_pos   = chooseRandomNode(n_route);
+    RoutesOpt routes(m_removalOps.getCurrentSol());
+    int n_route = chooseRandomRoute(routes);
+    int n_pos   = chooseRandomNode(routes, n_route);
     if (n_pos == NO_INDEX) { return; }
-    Node seed   = m_removalOps.getNodeInRoute(n_route, n_pos);
+    Node seed = routes.getNodeInRoute(n_route, n_pos);
 
     vector<CostCoord> similarityRank;
     vector<pair<int, int>> nodesToRemove;
@@ -68,11 +69,11 @@ void RelatedRemoval::removeNodes(int elementsToDestroy) {
     while (nodesToRemove.size() < elementsToDestroy) {
         similarityRank.clear();
         pair<int, int> coord = getRandomNode(nodesToRemove);
-        seed = m_removalOps.getNodeInRoute(coord.first, coord.second);
+        seed = routes.getNodeInRoute(coord.first, coord.second);
         for (int i = 0; i < m_removalOps.getNumberOfRoutes(); ++i) {
-            for (int j = 1; j < m_removalOps.getNumberOfNodesInRoute(i); ++j) {
+            for (int j = 1; j < routes.getNumberOfNodesInRoute(i); ++j) {
                 if (i != n_route && j != n_pos) {
-                    Node p = m_removalOps.getNodeInRoute(i, j);
+                    Node p = routes.getNodeInRoute(i, j);
                     int distance    = HCData::getDistance(seed.getDistancesIndex(), p.getDistancesIndex());
                     int difOpenWin  = abs(p.getTimeWindowOpen() - seed.getTimeWindowOpen());
                     int difCloseWin = abs(p.getTimeWindowClose()   - seed.getTimeWindowClose()); 
@@ -87,8 +88,9 @@ void RelatedRemoval::removeNodes(int elementsToDestroy) {
         }
         int pos = floor(pow(m_removalOps.generateRandom(), m_related) * similarityRank.size());
         nodesToRemove.push_back({similarityRank[pos].getRouteNumber(), similarityRank[pos].getNodePosition()});
-    }
-    for (const pair<int, int>& coord : nodesToRemove) {
-        m_removalOps.destroy(coord.first, coord.second);
+        RoutesOpt newRoutes(m_removalOps.destroy(routes, n_route, pos));
+        if (!newRoutes.isEmpty()) {
+            routes = newRoutes;
+        }
     }
 }

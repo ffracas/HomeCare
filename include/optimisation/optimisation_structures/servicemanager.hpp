@@ -20,8 +20,10 @@ public:
     InfoNode getInfoForService(std::string);
     std::vector<InfoNode> getAllService() const;
     int size();
-    bool isPresent(std::string);
+    bool isPresent(std::string) const;
     void destroyAll();
+    InfoNode getOtherServiceInfo(std::string) const;
+    InfoNode update(std::string, int, int, int);                 //nuovo infonode di other service
 };
 
 }

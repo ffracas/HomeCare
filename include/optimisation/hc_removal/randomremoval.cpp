@@ -11,15 +11,18 @@ RandomRemoval::~RandomRemoval() {}
 void RandomRemoval::removeNodes(int t_elementsToDestroy) {
     //potrebbe servire reset lista percorsi operazionale
     int i = 0;
-    int n_route = chooseRandomRoute();
+    RoutesOpt routes(m_removalOps.getCurrentSol());
+    int n_route = chooseRandomRoute(routes);
     while (n_route != NO_INDEX) {
-        int pos = chooseRandomNode(n_route);
+        int pos = chooseRandomNode(routes, n_route);
         if (pos != NO_INDEX && n_route != NO_INDEX) { 
-            if (m_removalOps.destroy(n_route, pos) > 0) {
+            RoutesOpt newRoutes(m_removalOps.destroy(routes, n_route, pos));
+            if (!newRoutes.isEmpty()) {
                 i ++;
+                routes = newRoutes;
             }
         }
-        if (i < t_elementsToDestroy) { n_route = chooseRandomRoute(); }
+        if (i < t_elementsToDestroy) { n_route = chooseRandomRoute(routes); }
         else { n_route = NO_INDEX; }
     }
 }

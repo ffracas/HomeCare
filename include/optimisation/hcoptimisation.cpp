@@ -7,7 +7,9 @@ const int HCOptimisation::ELEMENT_TO_DESTROY = 7;
 const int HCOptimisation::PERIOD = 10;
 
 HCOptimisation::HCOptimisation(std::vector<Route> t_routes, double t_cost) 
-        : m_initial (t_routes), m_ops(t_routes, t_cost) {}
+        : m_initial (t_routes) {
+            m_ops.setISol(t_routes, t_cost);
+        }
 
 HCOptimisation::~HCOptimisation() {}
 
@@ -25,7 +27,7 @@ void HCOptimisation::optimise() {
         cout << "No best";
     }
        
-    for (const Route& r : m_ops.getRoutes()) {
+    for (const Route& r : m_ops.getCurrentSol().getRoutes()) {
         cout << r.getRouteToString() << "\n ----------------------------- \n";
     }
 }

@@ -202,6 +202,13 @@ Patient HCData::getPatient(string t_patientId) {
     throw std::runtime_error("Patient not found.");
 }
 
+Patient HCData::getPatient(int pIndex) {
+    if (pIndex < 0 || pIndex >= m_patients.size()) {
+        throw std::runtime_error("Patient not found.");
+    }
+    return m_patients[pIndex];
+}
+
 int HCData::getPatientPosition(string t_patientId) {
     for (int i = 0; i < m_patients.size(); ++i) {
         if (m_patients[i].getID() == t_patientId) { return i; }

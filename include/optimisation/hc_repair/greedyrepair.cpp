@@ -3,77 +3,66 @@
 using namespace std;
 using namespace homecare;
 
-GreedyRepair::GreedyRepair(ALNSOptimisation& t_repairOps) : NodeRepair(t_repairOps) {}
+GreedyRepair::GreedyRepair(ALNSOptimisation &t_repairOps) : NodeRepair(t_repairOps) {}
 
 GreedyRepair::~GreedyRepair() {}
 
-int GreedyRepair::repairNodes() {
-    while (m_repairOps.hasNodeToRepair()) {
-        // Best 
+int GreedyRepair::repairNodes()
+{
+    while (m_repairOps.hasNodeToRepair())
+    {
+        // Best
         double bestCost = ALNSOptimisation::MAX_DOUBLE;
-        vector<Route>* bestRoute;
+        RoutesOpt *bestRoute;
         // find patient
-        Patient patient(HCData::getPatient( m_repairOps.popNodeToRepair()));
+        Patient patient(HCData::getPatient(m_repairOps.popNodeToRepair()));
+        RoutesOpt routesToTest(m_repairOps.getCurrentSol());
         // indipendet service
-        if (!patient.hasNextService()) {
-            for (int i = 0; i < m_repairOps.getNumberOfRoutes(); ++i) {
-                vector<Route> routes(m_repairOps.getRoutes());
-                if (routes[i].hasService(patient.getCurrentService().getService())) {
-                    double valutation = m_repairOps.repair(routes, patient, i);
-                    if (valutation < bestCost) {
-                        bestCost = valutation;
-                        bestRoute = &routes;
+        if (!patient.hasNextService())
+        {
+            for (int i = 0; i < routesToTest.getNumberOfRoutes(); ++i)
+            {
+                if (routesToTest.isServiceAvailableInRoute(patient.getCurrentService().getService(), i))
+                {
+                    RoutesOpt newRoutes (m_repairOps.repairSingle(routesToTest, patient, i));
+                    if (!newRoutes.isEmpty())
+                    {
+                        double cost = m_repairOps.calculateCost(newRoutes.getRoutes());
+                        if (cost < bestCost)
+                        {
+                            bestCost = cost;
+                            bestRoute = &newRoutes;
+                        }
                     }
                 }
             }
-            if (bestCost == ALNSOptimisation::MAX_DOUBLE) { return 0; }
-            m_repairOps.saveSol(*bestRoute);
         }
         // iterdependent service
-        else {
-            CostCoord bestSync(ALNSOptimisation::MAX_DOUBLE, NOT_ASSIGNED, NOT_ASSIGNED);
-            int syncTime = 0;
-            for (int i = 0; i < m_repairOps.getNumberOfRoutes(); ++i) {
-                vector<Route> routes(m_repairOps.getRoutes());
-                m_repairOps.repairDouble(patient);
-
-
-
-
-                if (routes[i].hasService(patient.getCurrentService().getService())) {
-                    CostCoord first(m_repairOps.repair(routes, patient, i));
-                    time = routes[first.getRouteNumber()].getNodes()[best.getNodePosition()].getArrivalTime();
-                    for (int j = 0; j < m_repairOps.getNumberOfRoutes(); ++j) {
-                        vector<Route> routesToSync(routes);
-                        if (routesToSync[j].hasService(patient.getCurrentService().getService())
-                            && j != i) {
-                        CostCoord second(m_repairOps.repair(routesToSync, patient.getPatientAndNextService(), j));
-                            if (second.getCost() < bestSync.getCost()) {
-                                best = first;
-                                bestSync = second;
-                                time = routesToSync[best.getRouteNumber()]
-                                            .getNodes()[best.getNodePosition()].getArrivalTime() 
-                                        + patient.getMaxWait()
-                                        < routesToSync[bestSync.getRouteNumber()]
-                                            .getNodes()[bestSync.getNodePosition()].getArrivalTime() 
-                                        ? routesToSync[bestSync.getRouteNumber()]
-                                            .getNodes()[bestSync.getNodePosition()].getArrivalTime() 
-                                          - patient.getMaxWait()
-                                        : routesToSync[best.getRouteNumber()]
-                                            .getNodes()[best.getNodePosition()].getArrivalTime();
-                                syncTime = routesToSync[bestSync.getRouteNumber()]
-                                        .getNodes()[bestSync.getNodePosition()].getArrivalTime();
+        else
+        {
+            for (int i = 0; i < routesToTest.getNumberOfRoutes(); ++i)
+            {
+                for (int j = 0; j < routesToTest.getNumberOfRoutes(); ++j)
+                {
+                    if (i != j && routesToTest.isServiceAvailableInRoute(patient.getCurrentService().getService(), i) 
+                    && routesToTest.isServiceAvailableInRoute(patient.getNextService().getService(), j))
+                    {
+                        RoutesOpt newRoutes (m_repairOps.repairDouble(routesToTest, patient, i, j));
+                        if (!newRoutes.isEmpty())
+                        {
+                            double cost = m_repairOps.calculateCost(newRoutes.getRoutes());
+                            if (cost < bestCost)
+                            {
+                                bestCost = cost;
+                                bestRoute = &newRoutes;
                             }
                         }
                     }
                 }
             }
-            if (best.getCost() == ALNSOptimisation::MAX_DOUBLE && bestSync.getCost() == ALNSOptimisation::MAX_DOUBLE) { 
-                return 0; 
-            }
-            m_repairOps.repair(Node(patient, time), best.getRouteNumber(), best.getNodePosition());
-            m_repairOps.repair(Node(patient.getPatientAndNextService(time), syncTime), 
-                                bestSync.getRouteNumber(), bestSync.getNodePosition());
+        }
+        if (bestCost != ALNSOptimisation::MAX_DOUBLE) {
+            m_repairOps.saveRepair(*bestRoute);
         }
     }
     return 1;

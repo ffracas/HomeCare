@@ -1,4 +1,5 @@
 #include "route.hpp"
+#include "../optimisation/optimisation_structures/routesopt.hpp"
 
 using namespace std;
 using namespace homecare;
@@ -27,6 +28,7 @@ int Route::addNode(Patient t_newPatient, int t_estimatedArrivalTime)
 {
     return addNode(Node(t_newPatient, t_estimatedArrivalTime), t_estimatedArrivalTime);
 }
+
 
 /**
  * Adds a new node to the route and updates route statistics.
@@ -71,7 +73,7 @@ int Route::addNode(Node t_newNode, int t_estimatedArrivalTime)
     return m_nodes.size() - 1;
 }
 
-Route Route::deleteNode(int node)
+Route Route::deleteNode(int node, RoutesOpt& blackops)
 {
     int nNodes = m_nodes.size();
     if (nNodes == 1 || node >= nNodes || node == DEPOT)
@@ -79,11 +81,12 @@ Route Route::deleteNode(int node)
         throw std::runtime_error("Constraint on node destruction.");
     }
     m_nodes.erase(m_nodes.begin() + node);
-    recalculateRoute();
+    //recalculateRoute();
+    m_nodes = mergeLists(vector<Node>(), m_nodes, blackops);
     return *this;
 }
 
-void Route::recalculateRoute(int initIndex)
+/*void Route::recalculateRoute(int initIndex)
 {
     Route newRoute(m_caregiver); // Initialize new route
     // Copia i nodi dal primo fino a initIndex - 1 nel nuovo percorso
@@ -160,11 +163,11 @@ void Route::recalculateRoute(int initIndex)
     // Clear current nodes and copy new nodes
     m_nodes.clear();
     m_nodes.insert(m_nodes.begin(), newRoute.getNodes().begin(), newRoute.getNodes().end());
-}
+}*/
 
-vector<Node>::iterator Route::nextNode(vector<Node>::iterator start, bool interdependent)
+vector<Node>::iterator Route::nextNode(vector<Node>& list, vector<Node>::iterator start, bool interdependent)
 {
-    while (start != m_nodes.end())
+    while (start != list.end())
     {
         if ((interdependent && start->isInterdependent()) || (!interdependent && !start->isInterdependent()))
         {
@@ -172,9 +175,9 @@ vector<Node>::iterator Route::nextNode(vector<Node>::iterator start, bool interd
         }
         ++start;
     }
-    return m_nodes.end(); // Non trovato
+    return list.end(); // Non trovato
 }
-
+/*
 int Route::findSuitablePosition(Node newNode) const
 {
     string service = newNode.getService();
@@ -203,7 +206,7 @@ int Route::addNodeBeetween(Node newNode)
 {
     int position = findSuitablePosition(newNode);
     m_nodes.insert(m_nodes.begin() + position, newNode);
-    recalculateRoute();
+    //recalculateRoute();
     if (m_nodes[position].getId() == newNode.getId())
     {
         return position;
@@ -222,20 +225,31 @@ int Route::addNodeBeetween(Node newNode)
         return -1;
     }
 }
+*/
+std::vector<Node> Route::difference(const std::vector<Node>& vec1, const std::vector<Node>& vec2) {
+    std::vector<Node> result;
+    for (Node node : vec1) {
+        // Se l'elemento di vec1 non è presente in vec2, aggiungilo al risultato
+        if (std::find_if(vec2.begin(), vec2.end(), [&node](const Node& n) { return n.getId() == node.getId(); }) 
+            == vec2.end()) {
+                result.push_back(node);
+        }
+    }
+    return result;
+}
 
-tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, ALNSOptimisation &blackops)
-{
-    vector<Node> first, second;
-    first.push_back(*m_nodes.begin());
+tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, RoutesOpt& blackops) {
+    vector<Node> first, second, local(m_nodes);
+    first.push_back(*local.begin());
     Node newNode(patient, 0);
-    vector<Node>::iterator indepI = nextNode(m_nodes.begin() + 1, false);
-    vector<Node>::iterator interdepI = nextNode(m_nodes.begin() + 1, true);
+    vector<Node>::iterator indepI = nextNode(local, local.begin() + 1, false);
+    vector<Node>::iterator interdepI = nextNode(local, local.begin() + 1, true);
 
-    while (interdepI != m_nodes.end() && indepI != m_nodes.end())
-    {
+    while (interdepI != local.end() && indepI != local.end()) {
         Node last = first.back();
         int time = last.getDeparturTime();
 
+        Node *toIns;
         bool isNewN = false;
         // prevision time for new node
         int prevNew = time + HCData::getDistance(last.getDistancesIndex(), patient.getDistancesIndex());
@@ -245,8 +259,12 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, A
         Node indNode(*indepI);
         indNode.setArrivalTime(prevInd);
         // next Node is the new one or the old one
-        if (prevNew <= prevInd) {
+        if (newNode.getDeparturTime() <= indNode.getDeparturTime()) {
             isNewN = true;
+            toIns  = &newNode;
+        }
+        else {
+            toIns = &indNode;
         }
         // compare with interdependent node time
         int prevNewToSync = toIns -> getDeparturTime() 
@@ -256,60 +274,130 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, A
         if (prevNewToSync >= syncWin.first && prevNewToSync <= syncWin.second) {
             // trovato il posto del nuovo nodo nella lista 
             if (isNewN) {
-                int n_el = first.size();
-                std::copy(m_nodes.begin() + n_el, m_nodes.end(), second.begin());
+                second = difference(local, first);
                 return make_tuple(newNode, first, second);
             }
             // trovato il posto del vecchio nodo nella lista 
             else {
-                indepI = nextNode(++indepI, false);
+                indepI = nextNode(local, ++indepI, false);
                 first.push_back(*toIns);
                 // inserisce il nodo interdipendente
                 interdepI -> setArrivalTime(prevNewToSync);
                 first.push_back(*interdepI);
                 blackops.updateSyncServiceTime(interdepI->getId(), interdepI->getService(), prevNewToSync);
-                interdepI = nextNode(++interdepI, true);
+                interdepI = nextNode(local, ++interdepI, true);
             }
-        } // altrimenti SE il tempo è oltre metti prima il sincrono
+        } // altrimenti SE il tempo è oltre il vincolo di dipendenza metti prima il sincrono
         else if (prevNewToSync > syncWin.second) {
-            interdepI->setArrivalTime(syncWin.first);
+            // inserisce il nodo interdipendente
+            interdepI -> setArrivalTime(syncWin.first);
             first.push_back(*interdepI);
-            blackops.updateSyncServiceTime(interdepI->getId(), interdepI->getService(), syncWin.first);
-            interdepI = nextNode(++interdepI, true);
+            blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), syncWin.first);
+            interdepI = nextNode(local, ++interdepI, true);
             // trovato il posto del nuovo nodo nella lista 
             if (isNewN) {
-                int n_el = first.size();
-                std::copy(m_nodes.begin() + n_el, m_nodes.end(), second.begin());
+                second = difference(local, first);
                 return make_tuple(newNode, first, second);
             }
-
-        }
-
-        /*if (prevNew >= patient.getWindowStartTime()) {
-            // departure time from newNode
-            int prevNewToSync = prevNew + patient.getCurrentService().getDuration()
-                                // distance newNode - next interdep
-                                + HCData::getDistance(patient.getDistancesIndex(), interdepI->getDistancesIndex());
-            pair<int, int> syncWin = blackops.getSyncServiceWindow(interdepI->getId(), interdepI->getService());
-            if (prevNewToSync >= syncWin.first && prevNewToSync <= syncWin.second) {
-                first.push_back(Node(patient, prevNew));
-                interdepI->setArrivalTime(prevNewToSync);
-                first.push_back(*interdepI);
-                blackops.updateSyncServiceTime(interdepI->getId(), interdepI->getService(), prevNewToSync);
-            }
+            // trovato il posto del vecchio nodo nella lista 
             else {
-                int newTime = interdepI->getDeparturTime() + HCData::getDistance(interdepI->getDistancesIndex(), patient.getDistancesIndex());
-                first.push_back(*interdepI);
-                first.push_back(Node(patient, newTime));
+                indepI = nextNode(local, ++indepI, false);
+                first.push_back(*toIns);
             }
-        }*/
+        } // altrimenti il nodo interdipendente può aspettare
+        else {
+            // trovato il posto del nuovo nodo nella lista 
+            if (isNewN) {
+                second = difference(local, first);
+                return make_tuple(newNode, first, second);
+            }
+            // trovato il posto del vecchio nodo nella lista 
+            else {
+                indepI = nextNode(local, ++indepI, false);
+                first.push_back(*toIns);
+            }
+        }
     }
-    while (interdepI == m_nodes.end() && indepI != m_nodes.end())
-    {
+    while (interdepI == local.end() && indepI != local.end()) {
+        Node last = first.back();
+        int time = last.getDeparturTime();
+
+        // prevision time for new node
+        int prevNew = time + HCData::getDistance(last.getDistancesIndex(), patient.getDistancesIndex());
+        newNode.setArrivalTime(prevNew);
+        // prevision time for independent
+        int prevInd = time + HCData::getDistance(last.getDistancesIndex(), indepI->getDistancesIndex());
+        Node indNode(*indepI);
+        indNode.setArrivalTime(prevInd);
+        // next Node is the new one or the old one
+        if (prevNew <= prevInd) {
+            second = difference(local, first);
+            return make_tuple(newNode, first, second);
+        }
+        else {
+            first.push_back(*indepI);
+            indepI = nextNode(local, ++indepI, false);
+        }
     }
-    while (interdepI != m_nodes.end() && indepI == m_nodes.end())
-    {
+    while (interdepI != local.end() && indepI == local.end()){
+        Node last = first.back();
+        int time = last.getDeparturTime();
+        // prevision time for new node
+        int prevNew = time + HCData::getDistance(last.getDistancesIndex(), patient.getDistancesIndex());
+        newNode.setArrivalTime(prevNew);
+        // compare with interdependent node time
+        int prevNewToSync = newNode.getDeparturTime() 
+                        + HCData::getDistance(newNode.getDistancesIndex(), interdepI -> getDistancesIndex());
+        pair<int, int> syncWin = blackops.getSyncServiceWindow(interdepI->getId(), interdepI->getService());
+        // è possibile infilare il servizio prima di quello sincrono senza scombinare l'altra route?
+        if (prevNewToSync <= syncWin.second) {
+            // trovato il posto del nuovo nodo nella lista 
+            second = difference(local, first);
+            return make_tuple(newNode, first, second);
+        }// altrimenti SE il tempo è oltre il vincolo di dipendenza metti prima il sincrono
+        else {
+            // inserisce il nodo interdipendente
+            interdepI -> setArrivalTime(syncWin.first);
+            first.push_back(*interdepI);
+            blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), syncWin.first);
+            interdepI = nextNode(local, ++interdepI, true);
+            // trovato il posto del nuovo nodo nella lista 
+            second = difference(local, first);
+            return make_tuple(newNode, first, second);
+        } 
     }
+    return make_tuple(newNode, first, second);
+}
+
+vector<Node> Route::mergeLists(vector<Node> first, vector<Node> second, RoutesOpt& blackops) {
+    vector<Node>::iterator indepI = nextNode(second, second.begin(), false);
+    vector<Node>::iterator interdepI = nextNode(second, second.begin(), true);
+
+    while(indepI != second.end() && interdepI != second.end()) {
+        Node last = first.back();
+        int time = last.getDeparturTime();
+        // prevision time for independent
+        int prevInd = time + HCData::getDistance(last.getDistancesIndex(), indepI->getDistancesIndex());
+        indepI->setArrivalTime(prevInd);
+        // compare with interdependent node time
+        int prevNewToSync = indepI->getDeparturTime() 
+                        + HCData::getDistance(indepI->getDistancesIndex(), interdepI -> getDistancesIndex());
+        pair<int, int> syncWin = blackops.getSyncServiceWindow(interdepI->getId(), interdepI->getService());
+        // se ci entra 
+        if (prevNewToSync <= syncWin.second) {
+            // trovato il posto del vecchio nodo nella lista 
+            first.push_back(*indepI);
+            indepI = nextNode(second, ++indepI, false);
+        } // altrimenti il tempo è oltre il vincolo di dipendenza metti prima il sincrono
+        else {
+            // inserisce il nodo interdipendente
+            interdepI -> setArrivalTime(syncWin.first);
+            first.push_back(*interdepI);
+            blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), syncWin.first);
+            interdepI = nextNode(second, ++interdepI, true);
+        }
+    }
+    return first;
 }
 
 int Route::getLastNode2DepotDistance() const { return m_lastNode2DepotDistance; }
@@ -405,6 +493,12 @@ bool Route::hasService(string request) const
     return find(availableServices.begin(), availableServices.end(), request) != availableServices.end();
 }
 
+void Route::updateRoute(vector<Node>& newRoute) {
+    m_nodes.clear();
+    m_nodes = newRoute;
+    //ricalcola costo route TODO
+}
+
 vector<Node> Route::getNodes() const { return m_nodes; }
 
 int Route::readNodesFromJson(Json::Value t_patientsInJson, vector<Patient> t_patients, vector<int> t_depotDistances)
@@ -475,4 +569,34 @@ Json::Value Route::getJSONRoute() const
     }
 
     return route;
+}
+
+bool Route::validityControl(int node_pos) const {
+    return node_pos <= DEPOT || node_pos >= m_nodes.size();
+}
+
+int Route::getNoChangeWindowCloseTime(int n_node) const {
+    if (validityControl(n_node)) {
+        throw std::runtime_error("Constraint on route selection.");
+    }
+    if (n_node == m_nodes.size() - 1) {
+        return max(m_nodes[n_node].getArrivalTime(), m_nodes[n_node].getTimeWindowClose());
+    }
+    return max(m_nodes[n_node + 1].getArrivalTime(), m_nodes[n_node + 1].getTimeWindowOpen());
+}
+
+int Route::getNoChangeWindowOpenTime(int n_node) const {
+    if (validityControl(n_node)) {
+        throw std::runtime_error("Constraint on route selection.");
+    }
+    int time = max(m_nodes[n_node].getArrivalTime(), m_nodes[n_node].getTimeWindowOpen());
+    int time2 = getNoChangeWindowCloseTime(n_node);
+    return time > time2 ? time2 : time;
+}
+
+void Route::updateNodeTime(int n_node, int arrival) {
+    if (validityControl(n_node)) {
+        throw std::runtime_error("Constraint on route selection.");
+    }
+    m_nodes[n_node].setArrivalTime(arrival);
 }

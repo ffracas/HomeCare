@@ -21,10 +21,28 @@ vector<InfoNode>  ServiceManager::getAllService() const {
 
 int ServiceManager::size() { return m_services.size(); }
 
-bool ServiceManager::isPresent(string service) { return m_services.find(service) != m_services.end(); }
+bool ServiceManager::isPresent(string service) const { return m_services.find(service) != m_services.end(); }
 
 void ServiceManager::destroyAll() {
     for (auto& service : m_services) {
         service.second.destroy();
     }
 }
+
+InfoNode ServiceManager::getOtherServiceInfo(string service) const {
+    for (auto it = m_services.begin(); it != m_services.end(); ++it ) {
+        if (it->first != service) {
+            return it -> second;
+        }
+    }
+}
+
+InfoNode ServiceManager::update(string service, int time, int openWin, int closeWin) {
+    if (m_services[service].getTime() > closeWin) {
+        m_services[service].setTime(closeWin);
+    }
+    else if (m_services[service].getTime() < openWin) {
+        m_services[service].setTime(openWin);
+    }
+    return m_services[service];
+} 

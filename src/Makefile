@@ -22,6 +22,7 @@ LIBOPT = $(LIBDIR)/optimisation/hcoptimisation.cpp \
 		 $(LIBDIR)/optimisation/optimisation_structures/alnsoptimisation.cpp \
          $(LIBDIR)/optimisation/optimisation_structures/infonode.cpp \
          $(LIBDIR)/optimisation/optimisation_structures/servicemanager.cpp \
+         $(LIBDIR)/optimisation/optimisation_structures/routesopt.cpp \
          $(LIBDIR)/optimisation/optimisation_structures/costcoord.cpp \
          $(LIBDIR)/optimisation/optimisation_structures/kruskalgraph.cpp \
          $(LIBDIR)/optimisation/hc_removal/noderemoval.cpp \

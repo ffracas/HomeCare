@@ -35,6 +35,7 @@ InfoNode ServiceManager::getOtherServiceInfo(string service) const {
             return it -> second;
         }
     }
+    throw runtime_error("[service manager] Service not found");
 }
 
 InfoNode ServiceManager::update(string service, int time, int openWin, int closeWin) {

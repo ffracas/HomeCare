@@ -22,7 +22,7 @@ public:
     int size();
     bool isPresent(std::string) const;
     void destroyAll();
-    InfoNode getOtherServiceInfo(std::string) const;
+    InfoNode getOtherServiceInfo(std::string) const noexcept (false); 
     InfoNode update(std::string, int, int, int);                 //nuovo infonode di other service
 };
 

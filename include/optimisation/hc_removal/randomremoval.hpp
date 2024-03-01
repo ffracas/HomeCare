@@ -7,7 +7,7 @@ namespace homecare {
     
 class RandomRemoval : public NodeRemoval {
 public:
-    RandomRemoval(ALNSOptimisation&);
+    RandomRemoval();
     ~RandomRemoval();
     void removeNodes(int) override; 
 };

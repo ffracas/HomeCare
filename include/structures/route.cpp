@@ -86,85 +86,6 @@ Route Route::deleteNode(int node, RoutesOpt& blackops)
     return *this;
 }
 
-/*void Route::recalculateRoute(int initIndex)
-{
-    Route newRoute(m_caregiver); // Initialize new route
-    // Copia i nodi dal primo fino a initIndex - 1 nel nuovo percorso
-    for (int i = 1; i < initIndex; ++i)
-    {
-        newRoute.addNode(m_nodes[i],
-                         HCData::getDistance(m_nodes[i].getDistancesIndex(), m_caregiver.getDepotDistanceIndex()),
-                         m_nodes[i].getArrivalTime(),
-                         HCData::getDistance(newRoute.getLastNode2DepotDistance(),
-                                             m_nodes[i].getDistancesIndex()));
-    }
-
-    // set iterator for different services
-    vector<Node>::iterator indepI = nextNode(m_nodes.begin() + initIndex, false);
-    vector<Node>::iterator interdepI = nextNode(m_nodes.begin() + initIndex, true);
-
-    while (indepI != m_nodes.end() || interdepI != m_nodes.end())
-    {
-        vector<Node>::iterator newNode;
-        int last2newDistance;
-        int hypotheticalRouteTime = 0;
-
-        if (indepI == m_nodes.end())
-        {
-            hypotheticalRouteTime = interdepI->getArrivalTime();
-            newNode = interdepI;
-            interdepI = nextNode(++interdepI, true);
-        }
-        else
-        {
-            last2newDistance = HCData::getDistance(newRoute.getLastPatientDistanceIndex(),
-                                                   indepI->getDistancesIndex());
-            hypotheticalRouteTime = newRoute.getFreeTime() + last2newDistance;
-            hypotheticalRouteTime = max(hypotheticalRouteTime, indepI->getTimeWindowOpen());
-            indepI->setArrivalTime(hypotheticalRouteTime);
-            if (interdepI == m_nodes.end())
-            {
-                newNode = indepI;
-                indepI = nextNode(++indepI, false);
-            }
-            else
-            {
-                if (indepI->getDeparturTime() + HCData::getDistance(indepI->getDistancesIndex(),
-                                                                    interdepI->getDistancesIndex()) <=
-                    interdepI->getArrivalTime())
-                {
-                    newNode = indepI;
-                    indepI = nextNode(++indepI, false);
-                }
-                else
-                {
-                    hypotheticalRouteTime = interdepI->getArrivalTime();
-                    newNode = interdepI;
-                    interdepI = nextNode(++interdepI, true);
-                }
-            }
-        }
-        last2newDistance = HCData::getDistance(newRoute.getLastPatientDistanceIndex(),
-                                               newNode->getDistancesIndex());
-        newRoute.addNode(*newNode,
-                         HCData::getDistance(newNode->getDistancesIndex(),
-                                             m_caregiver.getDepotDistanceIndex()),
-                         hypotheticalRouteTime, last2newDistance);
-    }
-
-    // Update the current route with the new route's data
-    m_maxTardiness = newRoute.getMaxTardiness();
-    m_maxIdleTime = newRoute.getMaxIdleTime();
-    m_totalTardiness = newRoute.getTotalTardiness();
-    m_totalWaitingTime = newRoute.getTotalWaitingTime();
-    m_travelTime = newRoute.getTravelTime();
-    m_lastNode2DepotDistance = newRoute.getLastNode2DepotDistance();
-
-    // Clear current nodes and copy new nodes
-    m_nodes.clear();
-    m_nodes.insert(m_nodes.begin(), newRoute.getNodes().begin(), newRoute.getNodes().end());
-}*/
-
 vector<Node>::iterator Route::nextNode(vector<Node>& list, vector<Node>::iterator start, bool interdependent)
 {
     while (start != list.end())
@@ -177,55 +98,7 @@ vector<Node>::iterator Route::nextNode(vector<Node>& list, vector<Node>::iterato
     }
     return list.end(); // Non trovato
 }
-/*
-int Route::findSuitablePosition(Node newNode) const
-{
-    string service = newNode.getService();
-    if (!hasService(service))
-    {
-        return -1;
-    }
-    int time;
-    for (int i = 0; i < m_nodes.size(); ++i)
-    {
-        time = m_nodes[i].getDeparturTime() + HCData::getDistance(m_nodes[i].getDistancesIndex(), newNode.getDistancesIndex());
-        if (time <= newNode.getTimeWindowClose() && time >= newNode.getTimeWindowOpen())
-        {
-            return i + 1;
-        }
-        if (time > newNode.getTimeWindowClose())
-        {
-            time = m_nodes[i - 1].getDeparturTime() + HCData::getDistance(m_nodes[i - 1].getDistancesIndex(), newNode.getDistancesIndex());
-            return i;
-        }
-    }
-    return m_nodes.size();
-}
 
-int Route::addNodeBeetween(Node newNode)
-{
-    int position = findSuitablePosition(newNode);
-    m_nodes.insert(m_nodes.begin() + position, newNode);
-    //recalculateRoute();
-    if (m_nodes[position].getId() == newNode.getId())
-    {
-        return position;
-    }
-    else
-    {
-        auto it = find_if(m_nodes.begin(), m_nodes.end(),
-                          [newNode](const Node &n)
-                          { return newNode.getId() == n.getId(); });
-        // If element was found
-        if (it != m_nodes.end())
-        {
-            // calculating the index
-            return distance(m_nodes.begin(), it);
-        }
-        return -1;
-    }
-}
-*/
 std::vector<Node> Route::difference(const std::vector<Node>& vec1, const std::vector<Node>& vec2) {
     std::vector<Node> result;
     for (Node node : vec1) {
@@ -370,8 +243,14 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
 }
 
 vector<Node> Route::mergeLists(vector<Node> first, vector<Node> second, RoutesOpt& blackops) {
-    vector<Node>::iterator indepI = nextNode(second, second.begin(), false);
-    vector<Node>::iterator interdepI = nextNode(second, second.begin(), true);
+    // se first è vuoto inserisce il primo di second (che dovrebbe essere depot)
+    int begin = 0;
+    if (first.empty()) {
+        first.push_back(second[0]);
+        begin++;
+    }
+    vector<Node>::iterator indepI = nextNode(second, second.begin() + begin, false);
+    vector<Node>::iterator interdepI = nextNode(second, second.begin() + begin, true);
 
     while(indepI != second.end() && interdepI != second.end()) {
         Node last = first.back();
@@ -396,6 +275,20 @@ vector<Node> Route::mergeLists(vector<Node> first, vector<Node> second, RoutesOp
             blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), syncWin.first);
             interdepI = nextNode(second, ++interdepI, true);
         }
+    }
+    while (interdepI == second.end() && indepI != second.end()) {
+        Node last = first.back();
+        int time = last.getDeparturTime() + HCData::getDistance(last.getDistancesIndex(), indepI->getDistancesIndex());
+        indepI->setArrivalTime(time);
+        first.push_back(*indepI);
+        indepI = nextNode(second, ++indepI, false);
+    }
+    while (interdepI != second.end() && indepI == second.end()){
+        Node last = first.back();
+        int time = last.getDeparturTime()+HCData::getDistance(last.getDistancesIndex(), interdepI->getDistancesIndex());
+        interdepI -> setArrivalTime(time);
+        first.push_back(*interdepI);
+        interdepI = nextNode(second, ++interdepI, true);
     }
     return first;
 }

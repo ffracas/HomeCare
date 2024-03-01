@@ -9,7 +9,7 @@ class WorstRemoval : public NodeRemoval {
 private:
     const double p_worst;                                               //parametro worst removal
 public:
-    WorstRemoval(ALNSOptimisation&, double);
+    WorstRemoval(double);
     ~WorstRemoval();
     void removeNodes(int) override;
 };

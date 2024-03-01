@@ -8,8 +8,8 @@ const double RelatedRemoval::m_distanceWeight = 5.0;
 const double RelatedRemoval::m_windowWeight = 5.0;
 const double RelatedRemoval::m_serviceWeight = 5.0;
 
-RelatedRemoval::RelatedRemoval(ALNSOptimisation& t_ops)
-        : NodeRemoval (t_ops, 5) {}
+RelatedRemoval::RelatedRemoval()
+        : NodeRemoval (5) {}
 
 RelatedRemoval::~RelatedRemoval() {}
 
@@ -57,7 +57,7 @@ pair<int, int> RelatedRemoval::getRandomNode(vector<pair<int, int>> list) {
 
 void RelatedRemoval::removeNodes(int elementsToDestroy) {
     //resetOperation();
-    RoutesOpt routes(m_removalOps.getCurrentSol());
+    RoutesOpt routes(ALNSOptimisation::getCurrentSol());
     int n_route = chooseRandomRoute(routes);
     int n_pos   = chooseRandomNode(routes, n_route);
     if (n_pos == NO_INDEX) { return; }
@@ -70,7 +70,7 @@ void RelatedRemoval::removeNodes(int elementsToDestroy) {
         similarityRank.clear();
         pair<int, int> coord = getRandomNode(nodesToRemove);
         seed = routes.getNodeInRoute(coord.first, coord.second);
-        for (int i = 0; i < m_removalOps.getNumberOfRoutes(); ++i) {
+        for (int i = 0; i < ALNSOptimisation::getNumberOfRoutes(); ++i) {
             for (int j = 1; j < routes.getNumberOfNodesInRoute(i); ++j) {
                 if (i != n_route && j != n_pos) {
                     Node p = routes.getNodeInRoute(i, j);
@@ -86,9 +86,9 @@ void RelatedRemoval::removeNodes(int elementsToDestroy) {
                 }
             }
         }
-        int pos = floor(pow(m_removalOps.generateRandom(), m_related) * similarityRank.size());
+        int pos = floor(pow(ALNSOptimisation::generateRandom(), m_related) * similarityRank.size());
         nodesToRemove.push_back({similarityRank[pos].getRouteNumber(), similarityRank[pos].getNodePosition()});
-        RoutesOpt newRoutes(m_removalOps.destroy(routes, n_route, pos));
+        RoutesOpt newRoutes(ALNSOptimisation::destroy(routes, n_route, pos));
         if (!newRoutes.isEmpty()) {
             routes = newRoutes;
         }

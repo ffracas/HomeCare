@@ -3,20 +3,19 @@
 using namespace std;
 using namespace homecare;
 
-RandomRemoval::RandomRemoval(ALNSOptimisation& t_ops) 
-        : NodeRemoval(t_ops) {}
+RandomRemoval::RandomRemoval() : NodeRemoval() {}
 
 RandomRemoval::~RandomRemoval() {}
 
 void RandomRemoval::removeNodes(int t_elementsToDestroy) {
     //potrebbe servire reset lista percorsi operazionale
     int i = 0;
-    RoutesOpt routes(m_removalOps.getCurrentSol());
+    RoutesOpt routes(ALNSOptimisation::getCurrentSol());
     int n_route = chooseRandomRoute(routes);
     while (n_route != NO_INDEX) {
         int pos = chooseRandomNode(routes, n_route);
         if (pos != NO_INDEX && n_route != NO_INDEX) { 
-            RoutesOpt newRoutes(m_removalOps.destroy(routes, n_route, pos));
+            RoutesOpt newRoutes(ALNSOptimisation::destroy(routes, n_route, pos));
             if (!newRoutes.isEmpty()) {
                 i ++;
                 routes = newRoutes;

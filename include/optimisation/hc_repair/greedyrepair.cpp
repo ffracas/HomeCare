@@ -3,20 +3,20 @@
 using namespace std;
 using namespace homecare;
 
-GreedyRepair::GreedyRepair(ALNSOptimisation &t_repairOps) : NodeRepair(t_repairOps) {}
+GreedyRepair::GreedyRepair() {}
 
 GreedyRepair::~GreedyRepair() {}
 
 int GreedyRepair::repairNodes()
 {
-    while (m_repairOps.hasNodeToRepair())
+    while (ALNSOptimisation::hasNodeToRepair())
     {
         // Best
         double bestCost = ALNSOptimisation::MAX_DOUBLE;
         RoutesOpt *bestRoute;
         // find patient
-        Patient patient(HCData::getPatient(m_repairOps.popNodeToRepair()));
-        RoutesOpt routesToTest(m_repairOps.getCurrentSol());
+        Patient patient(HCData::getPatient(ALNSOptimisation::popNodeToRepair()));
+        RoutesOpt routesToTest(ALNSOptimisation::getCurrentSol());
         // indipendet service
         if (!patient.hasNextService())
         {
@@ -24,10 +24,10 @@ int GreedyRepair::repairNodes()
             {
                 if (routesToTest.isServiceAvailableInRoute(patient.getCurrentService().getService(), i))
                 {
-                    RoutesOpt newRoutes (m_repairOps.repairSingle(routesToTest, patient, i));
+                    RoutesOpt newRoutes (ALNSOptimisation::repairSingle(routesToTest, patient, i));
                     if (!newRoutes.isEmpty())
                     {
-                        double cost = m_repairOps.calculateCost(newRoutes.getRoutes());
+                        double cost = ALNSOptimisation::calculateCost(newRoutes.getRoutes());
                         if (cost < bestCost)
                         {
                             bestCost = cost;
@@ -47,10 +47,10 @@ int GreedyRepair::repairNodes()
                     if (i != j && routesToTest.isServiceAvailableInRoute(patient.getCurrentService().getService(), i) 
                     && routesToTest.isServiceAvailableInRoute(patient.getNextService().getService(), j))
                     {
-                        RoutesOpt newRoutes (m_repairOps.repairDouble(routesToTest, patient, i, j));
+                        RoutesOpt newRoutes (ALNSOptimisation::repairDouble(routesToTest, patient, i, j));
                         if (!newRoutes.isEmpty())
                         {
-                            double cost = m_repairOps.calculateCost(newRoutes.getRoutes());
+                            double cost = ALNSOptimisation::calculateCost(newRoutes.getRoutes());
                             if (cost < bestCost)
                             {
                                 bestCost = cost;
@@ -62,7 +62,7 @@ int GreedyRepair::repairNodes()
             }
         }
         if (bestCost != ALNSOptimisation::MAX_DOUBLE) {
-            m_repairOps.saveRepair(*bestRoute);
+            ALNSOptimisation::saveRepair((*bestRoute));
         }
     }
     return 1;

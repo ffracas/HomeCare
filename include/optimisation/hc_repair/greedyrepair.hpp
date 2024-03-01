@@ -9,7 +9,7 @@ class GreedyRepair : public NodeRepair {
 private:
     
 public:
-    GreedyRepair(ALNSOptimisation&);
+    GreedyRepair();
     ~GreedyRepair();
     int repairNodes() override;
 };

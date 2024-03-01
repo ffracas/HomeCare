@@ -12,7 +12,7 @@ typedef std::pair<int, int> iPair;
 
 class ClusterRemoval : public NodeRemoval {
 public:
-    ClusterRemoval(ALNSOptimisation&, int);
+    ClusterRemoval(int);
     ~ClusterRemoval();
     void removeNodes(int) override;
     void generateGraph(RoutesOpt&, int, KruskalGraph &);

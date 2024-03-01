@@ -3,15 +3,15 @@
 using namespace std;
 using namespace homecare;
 
-ClusterRemoval::ClusterRemoval(ALNSOptimisation& t_ops, int t_minNodesN) 
-        : NodeRemoval (t_ops, t_minNodesN) {}
+ClusterRemoval::ClusterRemoval(int t_minNodesN) 
+        : NodeRemoval (t_minNodesN) {}
 
 ClusterRemoval::~ClusterRemoval() {}
 
 void ClusterRemoval::removeNodes(int elementsToDestroy) {
     vector<pair<int, int>> nodesToRemove;
     // Select random node
-    RoutesOpt routes(m_removalOps.getCurrentSol());
+    RoutesOpt routes(ALNSOptimisation::getCurrentSol());
     int n_route = chooseRandomRoute(routes);
     while (n_route != NO_INDEX) {
         KruskalGraph edges(routes.getNumberOfNodesInRoute(n_route));
@@ -24,7 +24,7 @@ void ClusterRemoval::removeNodes(int elementsToDestroy) {
         else { n_route = NO_INDEX; }
     }
     for (const pair<int, int> & node : nodesToRemove) {
-        RoutesOpt newRoutes = m_removalOps.destroy(routes, node.first, node.second);
+        RoutesOpt newRoutes = ALNSOptimisation::destroy(routes, node.first, node.second);
         if (!newRoutes.isEmpty()) {
             routes = newRoutes;
         }

@@ -10,11 +10,10 @@ namespace homecare {
 
 class NodeRepair {
 protected:
-    ALNSOptimisation& m_repairOps;
     const static int NOT_ASSIGNED;
 
 public:
-    NodeRepair(ALNSOptimisation&);
+    NodeRepair();
     ~NodeRepair();
     virtual int repairNodes() = 0;
 };

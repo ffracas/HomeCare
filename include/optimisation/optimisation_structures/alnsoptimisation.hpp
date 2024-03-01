@@ -37,8 +37,8 @@ public:
     static RoutesOpt repairDouble(RoutesOpt, Patient, int, int);
     static RoutesOpt repairSingle(RoutesOpt, Patient, int);
     /**/
-    void saveDestruction(RoutesOpt&, int, int);
-    void saveRepair(RoutesOpt&);
+    static void saveDestruction(RoutesOpt&, int, int);
+    static void saveRepair(RoutesOpt&);
     /**/
     static double calculateCost(const std::vector<Route>&);
     static int getNumberOfRoutes();
@@ -54,17 +54,6 @@ public:
 
     /*other utilities*/
     static double generateRandom();                                 // Random generator
-    
-    /*DA RIVEDERE O ELIMINARE*/
-    /*int destroy(int, int, std::vector<Route>&, bool = false);            //ritorna il numero di elementi distrutti
-    //int destroy(int, int);
-    //double repair(std::vector<Route>&, Patient, int);
-    //CostCoord repair(Node, int); 
-    //CostCoord repair(std::vector<Route>&, Node, int, bool = false);*/
-    //static bool isServiceAvailableInRoute(RoutesOpt&, std::string, int);
-    //static int getNumberOfRoutes(RoutesOpt&);
-    //static int getNumberOfNodesInRoute(RoutesOpt&, int) noexcept (false);
-    //static Node getNodeInRoute(RoutesOpt&, int, int) noexcept (false);
 };
 
 }

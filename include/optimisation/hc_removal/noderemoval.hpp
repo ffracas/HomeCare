@@ -18,7 +18,6 @@ private:
     static const int MIN_ROUTE_LENGTH;
 
 protected:
-    ALNSOptimisation& m_removalOps;
     const int MIN_N_NODES;
     static const int NO_INDEX;
 
@@ -26,7 +25,7 @@ protected:
     int chooseRandomNode(RoutesOpt&, int);
 
 public:
-    NodeRemoval(ALNSOptimisation&, int = 2);
+    NodeRemoval(int = 2);
     virtual ~NodeRemoval() {}
     virtual void removeNodes(int) = 0;
 };

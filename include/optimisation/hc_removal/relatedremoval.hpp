@@ -16,7 +16,7 @@ private:
     static int calculateSharedCaregivers(std::string, std::string, int&, int&);
     
 public:
-    RelatedRemoval(ALNSOptimisation&);
+    RelatedRemoval();
     ~RelatedRemoval();
     void removeNodes(int) override;
     static double calculateSimilarity(int, int, int, std::string, std::string);

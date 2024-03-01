@@ -46,6 +46,7 @@ public:
     Patient getPatientAndNextService(int = 0) const noexcept (false);
     bool hasNextService() const;
     bool isFirstService(std::string) const;
+    bool isCaregiverValid(std::string) const;
 };
 
 }

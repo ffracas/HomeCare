@@ -37,6 +37,7 @@ private:
     static std::vector<Node>::iterator nextNode(std::vector<Node>&, std::vector<Node>::iterator, bool);
     std::vector<Node> difference(const std::vector<Node>&, const std::vector<Node>&);
     bool validityControl(int) const;
+    void exploreData();
 
 public:
     static const int EMPTY_ROUTE = -1;

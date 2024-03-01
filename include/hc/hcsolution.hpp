@@ -37,8 +37,9 @@ public:
 
     HCSolution();
     ~HCSolution();
-    int generateISolution() noexcept (false);
-    int optimizeSolution() noexcept (false);
+    int generateISolution() noexcept(false);
+    void updateCostData();
+    int optimizeSolution() noexcept(false);
 };
 
 }

@@ -33,6 +33,15 @@ vector<Route> RoutesOpt::getRoutes() const {
     return m_routes;
 }
 
+string RoutesOpt::getRouteCaregiver(int n_route) const {
+    if (n_route >= 0 && n_route < m_routes.size()) {
+        return m_routes[n_route].getCaregiver();
+    } else {
+        throw runtime_error("[RoutesOpt] c");
+    }
+    return "";
+}
+
 /**
  * Retrieves the node in the specified route at the specified position.
  * Throws a runtime_error if the route index is out of bounds or the node index is negative.

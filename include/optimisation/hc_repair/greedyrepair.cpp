@@ -9,14 +9,15 @@ GreedyRepair::~GreedyRepair() {}
 
 int GreedyRepair::repairNodes()
 {
+    RoutesOpt routesToTest(ALNSOptimisation::getCurrentSol());
+    // Best
+    double bestCost = ALNSOptimisation::MAX_DOUBLE;
+    RoutesOpt bestRoute;
     while (ALNSOptimisation::hasNodeToRepair())
     {
-        // Best
-        double bestCost = ALNSOptimisation::MAX_DOUBLE;
-        RoutesOpt *bestRoute;
+        bestCost = ALNSOptimisation::MAX_DOUBLE;
         // find patient
         Patient patient(HCData::getPatient(ALNSOptimisation::popNodeToRepair()));
-        RoutesOpt routesToTest(ALNSOptimisation::getCurrentSol());
         // indipendet service
         if (!patient.hasNextService())
         {
@@ -31,11 +32,15 @@ int GreedyRepair::repairNodes()
                         if (cost < bestCost)
                         {
                             bestCost = cost;
-                            bestRoute = &newRoutes;
+                            bestRoute = newRoutes;
                         }
                     }
                 }
             }
+            if (bestCost != ALNSOptimisation::MAX_DOUBLE) {
+                routesToTest = bestRoute;
+            }
+            else { throw runtime_error("fallimento nel cercare soluzione"); }
         }
         // iterdependent service
         else
@@ -45,7 +50,9 @@ int GreedyRepair::repairNodes()
                 for (int j = 0; j < routesToTest.getNumberOfRoutes(); ++j)
                 {
                     if (i != j && routesToTest.isServiceAvailableInRoute(patient.getCurrentService().getService(), i) 
-                    && routesToTest.isServiceAvailableInRoute(patient.getNextService().getService(), j))
+                    && routesToTest.isServiceAvailableInRoute(patient.getNextService().getService(), j)
+                    && patient.isCaregiverValid(routesToTest.getRouteCaregiver(i))
+                    && patient.isCaregiverValid(routesToTest.getRouteCaregiver(j)))
                     {
                         RoutesOpt newRoutes (ALNSOptimisation::repairDouble(routesToTest, patient, i, j));
                         if (!newRoutes.isEmpty())
@@ -54,16 +61,18 @@ int GreedyRepair::repairNodes()
                             if (cost < bestCost)
                             {
                                 bestCost = cost;
-                                bestRoute = &newRoutes;
+                                bestRoute = newRoutes;
                             }
                         }
                     }
                 }
             }
-        }
-        if (bestCost != ALNSOptimisation::MAX_DOUBLE) {
-            ALNSOptimisation::saveRepair((*bestRoute));
+            if (bestCost != ALNSOptimisation::MAX_DOUBLE) {
+                routesToTest = bestRoute;
+            }
+            else { throw runtime_error("fallimento nel cercare soluzione"); }
         }
     }
+    ALNSOptimisation::saveRepair(routesToTest);
     return 1;
 }

@@ -46,6 +46,7 @@ public:
     static void resetOperation();
     static std::string makeHash(const std::vector<Route>);
     static RoutesOpt getCurrentSol();
+    static RoutesOpt getBestSol();
     static double getCurrentCost();
 
     /*Node to repiar*/

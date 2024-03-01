@@ -1,6 +1,8 @@
 #ifndef NODEREPAIR_HPP
 #define NODEREPAIR_HPP
 
+#include <sstream>
+
 #include "../optimisation_structures/alnsoptimisation.hpp"
 #include "../optimisation_structures/infonode.hpp"
 #include "../optimisation_structures/costcoord.hpp"

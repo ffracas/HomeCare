@@ -55,17 +55,10 @@ int HCSolution::generateISolution() {
         m_routes[bestRoute].addNode(currentPatient, time);
     }
 
-    for (Route route : m_routes) {
-        m_maxIdleTime = route.getMaxIdleTime() > m_maxIdleTime ? route.getMaxIdleTime() : m_maxIdleTime;
-        m_maxTardiness = route.getMaxTardiness() > m_maxTardiness ? route.getMaxTardiness() : m_maxTardiness;
-        m_totalTardiness += route.getTotalTardiness();
-        m_totalWaitingTime += route.getTotalWaitingTime();
-        m_travelTime += route.getTravelTime();
-        m_totalExtraTime += route.getExtraTime();
-    }
+    updateCostData();
     //solution validation 
     HCValidation val(m_routes);
-    cout << val.checkSolution() << "\n";
+    cout << "\n"<<val.checkSolution() << "\n";
 
     //calculate cost
     m_solCost = calculateCost();
@@ -77,8 +70,29 @@ int HCSolution::generateISolution() {
     return 0;
 }
 
+void homecare::HCSolution::updateCostData()
+{
+    m_maxIdleTime      = 0;
+    m_maxTardiness     = 0;
+    m_totalTardiness   = 0;
+    m_totalWaitingTime = 0; 
+    m_travelTime       = 0;   
+    m_totalExtraTime   = 0;
+
+    for (Route route : m_routes)
+    {
+        m_maxIdleTime = route.getMaxIdleTime() > m_maxIdleTime ? route.getMaxIdleTime() : m_maxIdleTime;
+        m_maxTardiness = route.getMaxTardiness() > m_maxTardiness ? route.getMaxTardiness() : m_maxTardiness;
+        m_totalTardiness += route.getTotalTardiness();
+        m_totalWaitingTime += route.getTotalWaitingTime();
+        m_travelTime += route.getTravelTime();
+        m_totalExtraTime += route.getExtraTime();
+    }
+}
+
 int HCSolution::optimizeSolution() {
-    HCOptimisation(m_routes, calculateCost()).optimise();
+    m_routes = HCOptimisation(m_routes, calculateCost()).optimise();
+    updateCostData();
     //solution validation 
     HCValidation val(m_routes);
     cout << val.checkSolution() << "\n";
@@ -86,6 +100,8 @@ int HCSolution::optimizeSolution() {
     //calculate cost
     m_solCost = calculateCost();
     cout << m_solCost << "\n";
+    //write json
+    writeSolutionOnFile("salcazzi.json");
     return m_solCost;
 }
 

@@ -26,6 +26,7 @@ public:
     
     std::vector<Route> getRoutes() const;
     Node getNodeInRoute(int, int) noexcept (false);
+    std::string getRouteCaregiver(int) const noexcept (false);
     int getNumberOfRoutes() const;
     int getNumberOfNodesInRoute(int) const noexcept (false);
 

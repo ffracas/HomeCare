@@ -28,7 +28,7 @@ private:
 public:
     HCOptimisation(std::vector<Route>, double);
     ~HCOptimisation();
-    void optimise();
+    std::vector<Route> optimise();
 };
 
 }

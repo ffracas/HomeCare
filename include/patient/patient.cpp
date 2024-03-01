@@ -205,3 +205,7 @@ bool Patient::hasNextService() const {
 bool Patient::isFirstService(string service) const {
     return m_services[0].getService() == service;
 }
+
+ bool Patient::isCaregiverValid(string service) const {
+    return find(m_invalidCaregivers.begin(), m_invalidCaregivers.end(), service) == m_invalidCaregivers.end();
+ }

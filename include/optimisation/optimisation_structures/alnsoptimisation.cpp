@@ -20,7 +20,7 @@ void ALNSOptimisation::setISol(vector<Route> routes, double cost) {
     //fill dump
     m_solutionsDump.emplace(solHash, routes);
     //init rank
-    m_solutionsRank.push_back(pair<double, string> (cost, solHash));
+    m_solutionsRank.push_back(make_pair(cost, solHash));
     //init list and map
     RoutesOpt Isol(routes);
     m_ops = Isol;
@@ -34,11 +34,12 @@ RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node)
     try {
         if (routes.getNumberOfRoutes() < n_route || n_route < 0) { return RoutesOpt(); }
         if (pos_node > routes.getNumberOfNodesInRoute(n_route) || pos_node < 1) { return RoutesOpt(); }
+        m_nodeToRelocate.push_back(routes.getNodeInRoute(n_route, pos_node).getId());
         Route newRoute (routes.getRoutes()[n_route].deleteNode(pos_node, routes));
         return routes.replaceRoute(newRoute, n_route);
     }
     catch (exception e) {
-        cout<<"Error in destroy node";
+        cerr<<"Error in destroy node";
     }
     return RoutesOpt();
 }
@@ -46,16 +47,15 @@ RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////         REPAIR
 
-RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patient, int first_route) {
+RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patient, int n_route) {
     Node n1(patient, 0);
     vector<Route> routes(routesToRepair.getRoutes());
-    tuple<Node, vector<Node>, vector<Node>> data1(routes[first_route].addNodeInRoute(patient, routesToRepair));
+    tuple<Node, vector<Node>, vector<Node>> data1(routes[n_route].addNodeInRoute(patient, routesToRepair));
     Node node1(std::get<0>(data1));
-    vector<Node> *first1  = &std::get<1>(data1);
-    vector<Node> *second1 = &std::get<2>(data1);   
-    vector<Node> route1(Route::mergeLists(*first1, *second1, routesToRepair)); 
-    routes[first_route].updateRoute(route1);
-
+    vector<Node> first (std::get<1>(data1));
+    vector<Node> second (std::get<2>(data1));   
+    vector<Node> route(Route::mergeLists(first, second, routesToRepair)); 
+    routes[n_route].updateRoute(route);
     RoutesOpt repaired(routes);
     return repaired;
 }
@@ -169,6 +169,12 @@ string ALNSOptimisation::popNodeToRepair() {
 ////////////////////////////////////////////////////////////////////////////////////////// OTHER UTILITY
 
 RoutesOpt ALNSOptimisation::getCurrentSol() { return m_ops; }
+
+RoutesOpt ALNSOptimisation::getBestSol() { 
+    string bestHash = m_solutionsRank[0].second;
+    RoutesOpt routes(m_solutionsDump[bestHash]);
+    return routes; 
+}
 
 double ALNSOptimisation::getCurrentCost() { return m_currentCost; }
 

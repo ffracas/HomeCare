@@ -83,6 +83,7 @@ Route Route::deleteNode(int node, RoutesOpt& blackops)
     m_nodes.erase(m_nodes.begin() + node);
     //recalculateRoute();
     m_nodes = mergeLists(vector<Node>(), m_nodes, blackops);
+    exploreData();
     return *this;
 }
 
@@ -389,6 +390,7 @@ bool Route::hasService(string request) const
 void Route::updateRoute(vector<Node>& newRoute) {
     m_nodes.clear();
     m_nodes = newRoute;
+    exploreData();
     //ricalcola costo route TODO
 }
 
@@ -492,4 +494,32 @@ void Route::updateNodeTime(int n_node, int arrival) {
         throw std::runtime_error("Constraint on route selection.");
     }
     m_nodes[n_node].setArrivalTime(arrival);
+}
+
+void Route::exploreData() {
+    //reset params
+    m_maxTardiness = 0;
+    m_maxIdleTime = 0;
+    m_totalTardiness = 0;
+    m_totalWaitingTime = 0;
+    m_travelTime = 0;
+
+    for (vector<Node>::iterator i = m_nodes.begin() + 1; i != m_nodes.end(); ++i) {
+        
+        m_travelTime += HCData::getDistance((i-1)->getDistancesIndex(), i->getDistancesIndex());
+        if (i->getArrivalTime() < i->getTimeWindowOpen()) {
+            int waiting = i->getTimeWindowOpen() - i->getArrivalTime();
+            m_totalWaitingTime += waiting;
+            if (waiting > m_maxIdleTime) {
+                m_maxIdleTime = waiting;
+            }
+        }
+        else if (i->getArrivalTime() > i->getTimeWindowClose()) {
+            int tardiness = i->getArrivalTime() - i->getTimeWindowClose();
+            m_totalTardiness += tardiness;
+            if (tardiness > m_maxTardiness) {
+                m_maxTardiness = tardiness;
+            }
+        }
+    }
 }

@@ -50,12 +50,15 @@ RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node)
 RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patient, int n_route) {
     Node n1(patient, 0);
     vector<Route> routes(routesToRepair.getRoutes());
-    tuple<Node, vector<Node>, vector<Node>> data1(routes[n_route].addNodeInRoute(patient, routesToRepair));
-    Node node1(std::get<0>(data1));
-    vector<Node> first (std::get<1>(data1));
-    vector<Node> second (std::get<2>(data1));   
-    vector<Node> route(Route::mergeLists(first, second, routesToRepair)); 
-    routes[n_route].updateRoute(route);
+    tuple<Node, vector<Node>, vector<Node>> data(routes[n_route].addNodeInRoute(patient, routesToRepair));
+    Node node(std::get<0>(data));
+    vector<Node> first (std::get<1>(data));
+    node.setArrivalTime(first.back().getDeparturTime() 
+                        + HCData::getDistance(first.back().getDistancesIndex(), node.getDistancesIndex()));
+    first.push_back(node);
+    vector<Node> second (std::get<2>(data));   
+    vector<Node> completed (Route::mergeLists(first, second, routesToRepair)); 
+    routes[n_route].updateRoute(completed);
     RoutesOpt repaired(routes);
     return repaired;
 }

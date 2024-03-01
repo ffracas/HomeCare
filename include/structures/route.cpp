@@ -124,7 +124,7 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
         int time = last.getDeparturTime();
 
         Node *toIns;
-        bool isNewN = false;
+        bool isNewTurn = false;
         // prevision time for new node
         int prevNew = time + HCData::getDistance(last.getDistancesIndex(), patient.getDistancesIndex());
         newNode.setArrivalTime(prevNew);
@@ -132,56 +132,53 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
         int prevInd = time + HCData::getDistance(last.getDistancesIndex(), indepI->getDistancesIndex());
         Node indNode(*indepI);
         indNode.setArrivalTime(prevInd);
+
+        // compare with interdependent node time
+        int prevNewToSync = newNode.getDeparturTime() + 
+                            HCData::getDistance(newNode.getDistancesIndex(), interdepI -> getDistancesIndex());
+        int prevIndToSync = indepI->getDeparturTime() + 
+                            HCData::getDistance(indepI->getDistancesIndex(), interdepI -> getDistancesIndex());
+        int prevToIns;
         // next Node is the new one or the old one
-        if (newNode.getDeparturTime() <= indNode.getDeparturTime()) {
-            isNewN = true;
+        if (prevNewToSync <= prevIndToSync) {
+            isNewTurn = true;
             toIns  = &newNode;
+            prevToIns = prevNewToSync; 
         }
         else {
             toIns = &indNode;
+            prevToIns = prevIndToSync;
         }
-        // compare with interdependent node time
-        int prevNewToSync = toIns -> getDeparturTime() 
-                        + HCData::getDistance(toIns->getDistancesIndex(), interdepI -> getDistancesIndex());
+        
         pair<int, int> syncWin = blackops.getSyncServiceWindow(interdepI->getId(), interdepI->getService());
         // è possibile infilare il servizio prima di quello sincrono senza scombinare l'altra route?
-        if (prevNewToSync >= syncWin.first && prevNewToSync <= syncWin.second) {
+        if (prevToIns >= syncWin.first && prevToIns <= syncWin.second) {
             // trovato il posto del nuovo nodo nella lista 
-            if (isNewN) {
+            if (isNewTurn) {
                 second = difference(local, first);
                 return make_tuple(newNode, first, second);
             }
             // trovato il posto del vecchio nodo nella lista 
             else {
+                first.push_back(*indepI);
                 indepI = nextNode(local, ++indepI, false);
-                first.push_back(*toIns);
                 // inserisce il nodo interdipendente
-                interdepI -> setArrivalTime(prevNewToSync);
+                interdepI -> setArrivalTime(prevToIns);
                 first.push_back(*interdepI);
-                blackops.updateSyncServiceTime(interdepI->getId(), interdepI->getService(), prevNewToSync);
+                blackops.updateSyncServiceTime(interdepI->getId(), interdepI->getService(), prevToIns);
                 interdepI = nextNode(local, ++interdepI, true);
             }
         } // altrimenti SE il tempo è oltre il vincolo di dipendenza metti prima il sincrono
-        else if (prevNewToSync > syncWin.second) {
+        else if (prevToIns > syncWin.second) {
             // inserisce il nodo interdipendente
             interdepI -> setArrivalTime(syncWin.first);
             first.push_back(*interdepI);
             blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), syncWin.first);
             interdepI = nextNode(local, ++interdepI, true);
-            // trovato il posto del nuovo nodo nella lista 
-            if (isNewN) {
-                second = difference(local, first);
-                return make_tuple(newNode, first, second);
-            }
-            // trovato il posto del vecchio nodo nella lista 
-            else {
-                indepI = nextNode(local, ++indepI, false);
-                first.push_back(*toIns);
-            }
         } // altrimenti il nodo interdipendente può aspettare
         else {
             // trovato il posto del nuovo nodo nella lista 
-            if (isNewN) {
+            if (isNewTurn) {
                 second = difference(local, first);
                 return make_tuple(newNode, first, second);
             }
@@ -231,13 +228,10 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
         }// altrimenti SE il tempo è oltre il vincolo di dipendenza metti prima il sincrono
         else {
             // inserisce il nodo interdipendente
-            interdepI -> setArrivalTime(syncWin.first);
+            //interdepI -> setArrivalTime(syncWin.first);
             first.push_back(*interdepI);
             blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), syncWin.first);
             interdepI = nextNode(local, ++interdepI, true);
-            // trovato il posto del nuovo nodo nella lista 
-            second = difference(local, first);
-            return make_tuple(newNode, first, second);
         } 
     }
     return make_tuple(newNode, first, second);
@@ -271,9 +265,9 @@ vector<Node> Route::mergeLists(vector<Node> first, vector<Node> second, RoutesOp
         } // altrimenti il tempo è oltre il vincolo di dipendenza metti prima il sincrono
         else {
             // inserisce il nodo interdipendente
-            interdepI -> setArrivalTime(syncWin.first);
+            //interdepI -> setArrivalTime(prevNewToSync);
+            blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), interdepI->getArrivalTime());
             first.push_back(*interdepI);
-            blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), syncWin.first);
             interdepI = nextNode(second, ++interdepI, true);
         }
     }

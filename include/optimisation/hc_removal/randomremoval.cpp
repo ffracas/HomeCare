@@ -19,6 +19,7 @@ void RandomRemoval::removeNodes(int t_elementsToDestroy) {
             if (!newRoutes.isEmpty()) {
                 i ++;
                 routes = newRoutes;
+                ALNSOptimisation::saveDestruction(routes, n_route, pos);
             }
         }
         if (i < t_elementsToDestroy) { n_route = chooseRandomRoute(routes); }

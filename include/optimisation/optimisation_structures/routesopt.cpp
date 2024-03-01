@@ -39,7 +39,6 @@ string RoutesOpt::getRouteCaregiver(int n_route) const {
     } else {
         throw runtime_error("[RoutesOpt] c");
     }
-    return "";
 }
 
 /**
@@ -106,9 +105,18 @@ void RoutesOpt::destroyReferencesForPatient(string patient) {
                                                                          
 pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service) {
     InfoNode otherNode(m_mapOfPatient[patient].getOtherServiceInfo(service));
-    int late = m_routes[otherNode.getRoute()].getNoChangeWindowCloseTime(otherNode.getPositionInRoute());
-    int soon = m_routes[otherNode.getRoute()].getNoChangeWindowOpenTime(otherNode.getPositionInRoute());
-    Patient p = HCData::getPatient(otherNode.getPatientIndex());
+    Patient p = !otherNode.isAssigned()? HCData::getPatient(patient) : HCData::getPatient(otherNode.getPatientIndex());
+    int late;
+    int soon;
+    if (!otherNode.isAssigned()){
+        late = p.getWindowEndTime();
+        soon = p.getWindowStartTime();
+    }
+    else {
+        late = m_routes[otherNode.getRoute()].getNoChangeWindowCloseTime(otherNode.getPositionInRoute());
+        soon = m_routes[otherNode.getRoute()].getNoChangeWindowOpenTime(otherNode.getPositionInRoute());
+    }
+    
     if (p.isFirstService(service)){
         return make_pair(max(soon - p.getMaxWait(), 0), late - p.getMinWait());
     }
@@ -119,6 +127,7 @@ pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service) {
 
 void RoutesOpt::updateSyncServiceTime(string patient, string service, int time) { 
     InfoNode otherNode(m_mapOfPatient[patient].getOtherServiceInfo(service));
+    if (!otherNode.isAssigned()) { return; }
     Patient p = HCData::getPatient(otherNode.getPatientIndex());
     if (p.isFirstService(service)) {
         otherNode = m_mapOfPatient[patient].update(service, time, time + p.getMinWait(), time + p.getMaxWait());

@@ -32,14 +32,31 @@ int ALNSOptimisation::getNumberOfRoutes() { return m_ops.getNumberOfRoutes(); }
 
 RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node) {
     try {
-        if (routes.getNumberOfRoutes() < n_route || n_route < 0) { return RoutesOpt(); }
-        if (pos_node > routes.getNumberOfNodesInRoute(n_route) || pos_node < 1) { return RoutesOpt(); }
-        m_nodeToRelocate.push_back(routes.getNodeInRoute(n_route, pos_node).getId());
-        Route newRoute (routes.getRoutes()[n_route].deleteNode(pos_node, routes));
-        return routes.replaceRoute(newRoute, n_route);
+        if (routes.getNumberOfRoutes() <= n_route || n_route < 0) { 
+            return RoutesOpt(); 
+        }
+        if (pos_node >= routes.getNumberOfNodesInRoute(n_route) || pos_node < 1) { 
+            return RoutesOpt(); 
+        }
+        // save a copy of the node
+        Node deletedOne (routes.getNodeInRoute(n_route, pos_node));
+        // delete the node
+        Route newRoute (routes.getRoute(n_route).deleteNode(pos_node, routes, n_route));
+        routes = routes.replaceRoute(newRoute, n_route);
+        // search for interdependet node
+        if (deletedOne.isInterdependent()) {
+            InfoNode otherNode = routes.getInterdependetInfo(deletedOne.getId(), deletedOne.getService(), n_route)
+                                        .second;
+            Route interdepRoute (routes.getRoutes()[otherNode.getRoute()]
+                                        .deleteNode(otherNode.getPositionInRoute(), routes, otherNode.getRoute()));
+            routes = routes.replaceRoute(interdepRoute, otherNode.getRoute());
+        }
+        // return result
+        return routes;
     }
     catch (exception e) {
-        cerr<<"Error in destroy node";
+        cerr << "Error in destroy node: " << e.what() << '\n';
+        exit(1); // Termina l'esecuzione del programma
     }
     return RoutesOpt();
 }
@@ -50,14 +67,14 @@ RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node)
 RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patient, int n_route) {
     Node n1(patient, 0);
     vector<Route> routes(routesToRepair.getRoutes());
-    tuple<Node, vector<Node>, vector<Node>> data(routes[n_route].addNodeInRoute(patient, routesToRepair));
+    tuple<Node, vector<Node>, vector<Node>> data(routes[n_route].addNodeInRoute(patient, routesToRepair, n_route));
     Node node(std::get<0>(data));
     vector<Node> first (std::get<1>(data));
     node.setArrivalTime(first.back().getDeparturTime() 
                         + HCData::getDistance(first.back().getDistancesIndex(), node.getDistancesIndex()));
     first.push_back(node);
     vector<Node> second (std::get<2>(data));   
-    vector<Node> completed (Route::mergeLists(first, second, routesToRepair)); 
+    vector<Node> completed (Route::mergeLists(first, second, routesToRepair, n_route)); 
     routes[n_route].updateRoute(completed);
     RoutesOpt repaired(routes);
     return repaired;
@@ -69,12 +86,14 @@ RoutesOpt ALNSOptimisation::repairDouble(RoutesOpt routesToRepair, Patient patie
                                             int first_route, int second_route) {
     Node n1(patient, 0);
     vector<Route> routes(routesToRepair.getRoutes());
-    tuple<Node, vector<Node>, vector<Node>> data1(routes[first_route].addNodeInRoute(patient, routesToRepair));
+    tuple<Node, vector<Node>, vector<Node>> data1(routes[first_route]
+                                                .addNodeInRoute(patient, routesToRepair, first_route));
     Node node1(std::get<0>(data1));
     vector<Node> *first1  = &std::get<1>(data1);
     vector<Node> *second1 = &std::get<2>(data1);
     tuple<Node, vector<Node>, vector<Node>> data2(routes[second_route]
-                                    .addNodeInRoute(patient.getPatientAndNextService(node1.getArrivalTime()), routesToRepair));
+                                        .addNodeInRoute(patient.getPatientAndNextService(node1.getArrivalTime()),       
+                                                                                    routesToRepair, second_route));
     Node node2(std::get<0>(data2));
     vector<Node> *first2  = &std::get<1>(data2);
     vector<Node> *second2 = &std::get<2>(data2);
@@ -88,8 +107,8 @@ RoutesOpt ALNSOptimisation::repairDouble(RoutesOpt routesToRepair, Patient patie
     //inserisci i dati
     first1 -> push_back(node1);
     first2 -> push_back(node2);
-    vector<Node> route1(Route::mergeLists(*first1, *second1, routesToRepair));
-    vector<Node> route2(Route::mergeLists(*first2, *second2, routesToRepair));
+    vector<Node> route1(Route::mergeLists(*first1, *second1, routesToRepair, first_route));
+    vector<Node> route2(Route::mergeLists(*first2, *second2, routesToRepair, second_route));
     routes[first_route].updateRoute(route1);
     routes[second_route].updateRoute(route2);
     
@@ -159,19 +178,17 @@ double ALNSOptimisation::calculateCost(const vector<Route>& t_routes) {
 bool ALNSOptimisation::hasNodeToRepair() { return !m_nodeToRelocate.empty(); }
 
 string ALNSOptimisation::popNodeToRepair() {
-    std::string node;
-
     if (!m_nodeToRelocate.empty()) {
-        node = m_nodeToRelocate[0];
+        string node(m_nodeToRelocate[0]);
         m_nodeToRelocate.erase(m_nodeToRelocate.begin());
-    }
-
-    return node;
+        return node;
+    } 
+    throw runtime_error("Node to relocate is empty");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////// OTHER UTILITY
 
-RoutesOpt ALNSOptimisation::getCurrentSol() { return m_ops; }
+RoutesOpt ALNSOptimisation::getCurrentSchedule() { return m_ops; }
 
 RoutesOpt ALNSOptimisation::getBestSol() { 
     string bestHash = m_solutionsRank[0].second;
@@ -205,4 +222,12 @@ string ALNSOptimisation::makeHash(vector<Route> t_routes) {
     stringstream hash;
     for (Route const & route : t_routes) { hash << route.getHash(); }
     return hash.str();
+}
+
+//////////////////////////////////////////////////////////////////////////////  Cancella 
+void ALNSOptimisation::printNodeToRelocate() {
+    for (string s : m_nodeToRelocate) {
+        cout<<s<<"--";
+    }
+    cout<<endl;
 }

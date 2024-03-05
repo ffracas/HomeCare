@@ -21,23 +21,27 @@ RoutesOpt::~RoutesOpt() {}
 
 RoutesOpt RoutesOpt::replaceRoute(Route& route, int n_route) {
     if (n_route >= 0 && n_route < m_routes.size()) {
-        Route newRoute(route);
-        m_routes[n_route] = newRoute;
+        m_routes[n_route] = route;
+        RoutesOpt newRoutesOpt(m_routes);
+        return newRoutesOpt;
     } else {
-        throw runtime_error("[RoutesOpt]");
+        throw std::out_of_range("[RoutesOpt]");
     }
-    return *this;
 }
 
 vector<Route> RoutesOpt::getRoutes() const {
     return m_routes;
 }
 
+Route RoutesOpt::getRoute(int n_route) const {
+    return m_routes[n_route];
+}
+
 string RoutesOpt::getRouteCaregiver(int n_route) const {
     if (n_route >= 0 && n_route < m_routes.size()) {
         return m_routes[n_route].getCaregiver();
     } else {
-        throw runtime_error("[RoutesOpt] c");
+        throw std::out_of_range("[RoutesOpt] c");
     }
 }
 
@@ -52,7 +56,7 @@ string RoutesOpt::getRouteCaregiver(int n_route) const {
  */
 Node RoutesOpt::getNodeInRoute(int n_route, int n_node) { 
     if (n_route < 0 || n_route >= m_routes.size()) { 
-        throw runtime_error("Errore nella scelta del nodo"); 
+        throw std::out_of_range("Errore nella scelta del nodo"); 
     }
     return m_routes[n_route].getNodeToDestroy(n_node); 
 }
@@ -71,7 +75,7 @@ int RoutesOpt::getNumberOfRoutes() const { return m_routes.size(); }
  * @return The number of nodes in the specified route.
  */
 int RoutesOpt::getNumberOfNodesInRoute(int route) const { 
-    if (route >= m_routes.size() || route < 0) { throw runtime_error("No route"); }
+    if (route >= m_routes.size() || route < 0) { throw std::out_of_range("No route"); }
     return m_routes[route].getNumNodes();
 }
 
@@ -91,7 +95,7 @@ int RoutesOpt::getNPatientServices(string patient) const {
 }
 
 bool RoutesOpt::isServiceAvailableInRoute(string service, int route) const {
-    if (route >= m_routes.size() || route < 0) { throw runtime_error("No route"); }
+    if (route >= m_routes.size() || route < 0) { throw std::out_of_range("No route"); }
     return m_routes[route].hasService(service); 
 }
 
@@ -103,9 +107,9 @@ void RoutesOpt::destroyReferencesForPatient(string patient) {
     m_mapOfPatient.at(patient).destroyAll();
 }
                                                                          
-pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service) {
-    InfoNode otherNode(m_mapOfPatient[patient].getOtherServiceInfo(service));
-    Patient p = !otherNode.isAssigned()? HCData::getPatient(patient) : HCData::getPatient(otherNode.getPatientIndex());
+pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service, int currentRoute) {
+    InfoNode otherNode(m_mapOfPatient[patient].getOtherServiceInfo(service, currentRoute).second);
+    Patient p = HCData::getPatient(otherNode.getPatientIndex());
     int late;
     int soon;
     if (!otherNode.isAssigned()){
@@ -113,10 +117,13 @@ pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service) {
         soon = p.getWindowStartTime();
     }
     else {
+        try{
         late = m_routes[otherNode.getRoute()].getNoChangeWindowCloseTime(otherNode.getPositionInRoute());
         soon = m_routes[otherNode.getRoute()].getNoChangeWindowOpenTime(otherNode.getPositionInRoute());
+        } catch(exception e) {
+            cerr<<"dio cane impiastricato"<<e.what();
+        }
     }
-    
     if (p.isFirstService(service)){
         return make_pair(max(soon - p.getMaxWait(), 0), late - p.getMinWait());
     }
@@ -125,15 +132,23 @@ pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service) {
     }
 }
 
-void RoutesOpt::updateSyncServiceTime(string patient, string service, int time) { 
-    InfoNode otherNode(m_mapOfPatient[patient].getOtherServiceInfo(service));
-    if (!otherNode.isAssigned()) { return; }
-    Patient p = HCData::getPatient(otherNode.getPatientIndex());
+void RoutesOpt::updateSyncServiceTime(string patient, string service, int time, int currentRoute) { 
+    
+    pair<string, InfoNode> otherNode(m_mapOfPatient[patient].getOtherServiceInfo(service, currentRoute));
+    if (!otherNode.second.isAssigned()) { return; }
+    Patient p = HCData::getPatient(otherNode.second.getPatientIndex());
     if (p.isFirstService(service)) {
-        otherNode = m_mapOfPatient[patient].update(service, time, time + p.getMinWait(), time + p.getMaxWait());
+        otherNode = m_mapOfPatient[patient]
+                    .update(otherNode.first, otherNode.second.getRoute(), time + p.getMinWait(), time + p.getMaxWait());
     }
     else {
-        otherNode = m_mapOfPatient[patient].update(service, time, time - p.getMaxWait(), time - p.getMinWait());
+        otherNode = m_mapOfPatient[patient]
+                    .update(otherNode.first, otherNode.second.getRoute(), time - p.getMaxWait(), time - p.getMinWait());
     }
-    m_routes[otherNode.getRoute()].updateNodeTime(otherNode.getPositionInRoute(), otherNode.getTime());
+    m_routes[otherNode.second.getRoute()]
+            .updateNodeTime(otherNode.second.getPositionInRoute(), otherNode.second.getTime());
 }
+
+pair<string, InfoNode> RoutesOpt::getInterdependetInfo(string patient, string service, int currentRoute) {
+    return m_mapOfPatient[patient].getOtherServiceInfo(service, currentRoute);
+}   

@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -12,18 +13,18 @@ namespace homecare {
 
 class ServiceManager {
 private:
-    std::map<std::string, InfoNode> m_services;
+    std::vector<std::pair<std::string, InfoNode>> m_services;
 public:
     ServiceManager();
     ~ServiceManager();
     void insertService(std::string, InfoNode);
-    InfoNode getInfoForService(std::string);
+    //InfoNode getInfoForService(std::string);
     std::vector<InfoNode> getAllService() const;
     int size();
     bool isPresent(std::string) const;
     void destroyAll();
-    InfoNode getOtherServiceInfo(std::string) const noexcept (false); 
-    InfoNode update(std::string, int, int, int);                 //nuovo infonode di other service
+    std::pair<std::string, InfoNode> getOtherServiceInfo(std::string, int) const noexcept (false); 
+    std::pair<std::string, InfoNode> update(std::string, int, int, int) noexcept(false);               
 };
 
 }

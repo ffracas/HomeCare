@@ -73,16 +73,16 @@ int Route::addNode(Node t_newNode, int t_estimatedArrivalTime)
     return m_nodes.size() - 1;
 }
 
-Route Route::deleteNode(int node, RoutesOpt& blackops)
+Route Route::deleteNode(int node, RoutesOpt& blackops, int routeIndex)
 {
     int nNodes = m_nodes.size();
-    if (nNodes == 1 || node >= nNodes || node == DEPOT)
-    {
+    if (nNodes <= 1 || node >= nNodes){
         throw std::runtime_error("Constraint on node destruction.");
     }
     m_nodes.erase(m_nodes.begin() + node);
     //recalculateRoute();
-    m_nodes = mergeLists(vector<Node>(), m_nodes, blackops);
+    vector<Node> newList;
+    m_nodes = mergeLists(newList, m_nodes, blackops, routeIndex);
     exploreData();
     return *this;
 }
@@ -112,7 +112,7 @@ std::vector<Node> Route::difference(const std::vector<Node>& vec1, const std::ve
     return result;
 }
 
-tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, RoutesOpt& blackops) {
+tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, RoutesOpt& blackops, int routeIndex) {
     vector<Node> first, second, local(m_nodes);
     first.push_back(*local.begin());
     Node newNode(patient, 0);
@@ -150,7 +150,7 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
             prevToIns = prevIndToSync;
         }
         
-        pair<int, int> syncWin = blackops.getSyncServiceWindow(interdepI->getId(), interdepI->getService());
+        pair<int, int> syncWin = blackops.getSyncServiceWindow(interdepI->getId(), interdepI->getService(), routeIndex);
         // è possibile infilare il servizio prima di quello sincrono senza scombinare l'altra route?
         if (prevToIns >= syncWin.first && prevToIns <= syncWin.second) {
             // trovato il posto del nuovo nodo nella lista 
@@ -165,7 +165,7 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
                 // inserisce il nodo interdipendente
                 interdepI -> setArrivalTime(prevToIns);
                 first.push_back(*interdepI);
-                blackops.updateSyncServiceTime(interdepI->getId(), interdepI->getService(), prevToIns);
+                blackops.updateSyncServiceTime(interdepI->getId(), interdepI->getService(), prevToIns, routeIndex);
                 interdepI = nextNode(local, ++interdepI, true);
             }
         } // altrimenti SE il tempo è oltre il vincolo di dipendenza metti prima il sincrono
@@ -173,7 +173,7 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
             // inserisce il nodo interdipendente
             interdepI -> setArrivalTime(syncWin.first);
             first.push_back(*interdepI);
-            blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), syncWin.first);
+            blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), syncWin.first, routeIndex);
             interdepI = nextNode(local, ++interdepI, true);
         } // altrimenti il nodo interdipendente può aspettare
         else {
@@ -219,7 +219,7 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
         // compare with interdependent node time
         int prevNewToSync = newNode.getDeparturTime() 
                         + HCData::getDistance(newNode.getDistancesIndex(), interdepI -> getDistancesIndex());
-        pair<int, int> syncWin = blackops.getSyncServiceWindow(interdepI->getId(), interdepI->getService());
+        pair<int, int> syncWin = blackops.getSyncServiceWindow(interdepI->getId(), interdepI->getService(), routeIndex);
         // è possibile infilare il servizio prima di quello sincrono senza scombinare l'altra route?
         if (prevNewToSync <= syncWin.second) {
             // trovato il posto del nuovo nodo nella lista 
@@ -230,16 +230,20 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
             // inserisce il nodo interdipendente
             //interdepI -> setArrivalTime(syncWin.first);
             first.push_back(*interdepI);
-            blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), syncWin.first);
+            blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), syncWin.first, routeIndex);
             interdepI = nextNode(local, ++interdepI, true);
         } 
     }
     return make_tuple(newNode, first, second);
 }
 
-vector<Node> Route::mergeLists(vector<Node> first, vector<Node> second, RoutesOpt& blackops) {
-    // se first è vuoto inserisce il primo di second (che dovrebbe essere depot)
+vector<Node> Route::mergeLists(vector<Node>& first, vector<Node>& second, RoutesOpt& blackops, int routeIndex) {
+    // se second è vuoto torna first
     int begin = 0;
+    if (second.empty()) {
+        return first;
+    }
+    // se first è vuoto inserisce il primo di second (che dovrebbe essere depot)
     if (first.empty()) {
         first.push_back(second[0]);
         begin++;
@@ -256,7 +260,7 @@ vector<Node> Route::mergeLists(vector<Node> first, vector<Node> second, RoutesOp
         // compare with interdependent node time
         int prevNewToSync = indepI->getDeparturTime() 
                         + HCData::getDistance(indepI->getDistancesIndex(), interdepI -> getDistancesIndex());
-        pair<int, int> syncWin = blackops.getSyncServiceWindow(interdepI->getId(), interdepI->getService());
+        pair<int, int> syncWin = blackops.getSyncServiceWindow(interdepI->getId(), interdepI->getService(), routeIndex);
         // se ci entra 
         if (prevNewToSync <= syncWin.second) {
             // trovato il posto del vecchio nodo nella lista 
@@ -266,7 +270,8 @@ vector<Node> Route::mergeLists(vector<Node> first, vector<Node> second, RoutesOp
         else {
             // inserisce il nodo interdipendente
             //interdepI -> setArrivalTime(prevNewToSync);
-            blackops.updateSyncServiceTime(interdepI -> getId(), interdepI->getService(), interdepI->getArrivalTime());
+            blackops.updateSyncServiceTime(interdepI->getId(), interdepI->getService(), 
+                                            interdepI->getArrivalTime(), routeIndex);
             first.push_back(*interdepI);
             interdepI = nextNode(second, ++interdepI, true);
         }
@@ -466,7 +471,7 @@ bool Route::validityControl(int node_pos) const {
 
 int Route::getNoChangeWindowCloseTime(int n_node) const {
     if (validityControl(n_node)) {
-        throw std::runtime_error("Constraint on route selection.");
+        throw std::out_of_range("[route] Constraint on route selection.");
     }
     if (n_node == m_nodes.size() - 1) {
         return max(m_nodes[n_node].getArrivalTime(), m_nodes[n_node].getTimeWindowClose());
@@ -476,7 +481,7 @@ int Route::getNoChangeWindowCloseTime(int n_node) const {
 
 int Route::getNoChangeWindowOpenTime(int n_node) const {
     if (validityControl(n_node)) {
-        throw std::runtime_error("Constraint on route selection.");
+        throw std::out_of_range("[route] Constraint on route selection.");
     }
     int time = max(m_nodes[n_node].getArrivalTime(), m_nodes[n_node].getTimeWindowOpen());
     int time2 = getNoChangeWindowCloseTime(n_node);
@@ -485,7 +490,7 @@ int Route::getNoChangeWindowOpenTime(int n_node) const {
 
 void Route::updateNodeTime(int n_node, int arrival) {
     if (validityControl(n_node)) {
-        throw std::runtime_error("Constraint on route selection.");
+        throw std::out_of_range("[route] Constraint on route selection.");
     }
     m_nodes[n_node].setArrivalTime(arrival);
 }

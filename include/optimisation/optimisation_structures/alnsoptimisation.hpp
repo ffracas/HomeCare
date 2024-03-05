@@ -31,7 +31,7 @@ public:
     void setISol(std::vector<Route>, double);
 
     /**/ 
-    static RoutesOpt destroy(RoutesOpt, int, int);                                     
+    static RoutesOpt destroy(RoutesOpt, int, int) noexcept (false);                                     
     /**/
     /**/
     static RoutesOpt repairDouble(RoutesOpt, Patient, int, int);
@@ -45,16 +45,19 @@ public:
     /**/
     static void resetOperation();
     static std::string makeHash(const std::vector<Route>);
-    static RoutesOpt getCurrentSol();
+    static RoutesOpt getCurrentSchedule();
     static RoutesOpt getBestSol();
     static double getCurrentCost();
 
     /*Node to repiar*/
     static bool hasNodeToRepair();                                  // Node to repair
-    static std::string popNodeToRepair();                           // Node to repair
+    static std::string popNodeToRepair() noexcept (false);          // Node to repair
 
     /*other utilities*/
     static double generateRandom();                                 // Random generator
+
+    //TODO cancella
+    static void printNodeToRelocate();
 };
 
 }

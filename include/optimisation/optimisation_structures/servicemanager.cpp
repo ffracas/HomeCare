@@ -7,9 +7,9 @@ ServiceManager::ServiceManager() : m_services () {}
 
 ServiceManager::~ServiceManager() {}
 
-void ServiceManager::insertService(string key, InfoNode value) { m_services.insert(make_pair(key, value)); }
-
-InfoNode ServiceManager::getInfoForService(string key) { return m_services[key]; }
+void ServiceManager::insertService(string key, InfoNode value) { 
+    m_services.push_back(make_pair(key, value)); 
+}
 
 vector<InfoNode>  ServiceManager::getAllService() const { 
     vector<InfoNode> services;
@@ -21,7 +21,14 @@ vector<InfoNode>  ServiceManager::getAllService() const {
 
 int ServiceManager::size() { return m_services.size(); }
 
-bool ServiceManager::isPresent(string service) const { return m_services.find(service) != m_services.end(); }
+bool ServiceManager::isPresent(string service) const { 
+    for (auto it = m_services.begin(); it != m_services.end(); ++it) {
+        if (it->first == service) {
+            return true;
+        }
+    }
+    return false;
+}
 
 void ServiceManager::destroyAll() {
     for (auto& service : m_services) {
@@ -29,22 +36,26 @@ void ServiceManager::destroyAll() {
     }
 }
 
-InfoNode ServiceManager::getOtherServiceInfo(string service) const {
+pair<string, InfoNode> ServiceManager::getOtherServiceInfo(string service, int currentRoute) const {
     for (auto it = m_services.begin(); it != m_services.end(); ++it ) {
-        if (it->first != service) {
-            return it -> second;
+        if (it->first != service || it->second.getRoute() != currentRoute) {
+            return *it;
         }
     }
-    return InfoNode();
-    throw runtime_error("[service manager] Service not found");
+    throw out_of_range("[service manager] Service not found");
 }
 
-InfoNode ServiceManager::update(string service, int time, int openWin, int closeWin) {
-    if (m_services[service].getTime() > closeWin) {
-        m_services[service].setTime(closeWin);
+pair<string, InfoNode> ServiceManager::update(string service, int currentRoute, int openWin, int closeWin) {
+    auto it = m_services.begin();
+    for (; it != m_services.end(); ++it) {
+        if (it->first == service && it->second.getRoute() == currentRoute) {
+            if (it->second.getTime() > closeWin) {
+                it->second.setTime(closeWin);
+            } else if (it->second.getTime() < openWin) {
+                it->second.setTime(openWin);
+            }
+            return make_pair(it->first, it->second);
+        }
     }
-    else if (m_services[service].getTime() < openWin) {
-        m_services[service].setTime(openWin);
-    }
-    return m_services[service];
-} 
+    throw runtime_error("[service manager] Service not found");
+}

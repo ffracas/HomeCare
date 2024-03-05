@@ -11,7 +11,7 @@ ClusterRemoval::~ClusterRemoval() {}
 void ClusterRemoval::removeNodes(int elementsToDestroy) {
     vector<pair<int, int>> nodesToRemove;
     // Select random node
-    RoutesOpt routes(ALNSOptimisation::getCurrentSol());
+    RoutesOpt routes(ALNSOptimisation::getCurrentSchedule());
     int n_route = chooseRandomRoute(routes);
     while (n_route != NO_INDEX) {
         KruskalGraph edges(routes.getNumberOfNodesInRoute(n_route));

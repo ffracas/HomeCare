@@ -57,7 +57,7 @@ pair<int, int> RelatedRemoval::getRandomNode(vector<pair<int, int>> list) {
 
 void RelatedRemoval::removeNodes(int elementsToDestroy) {
     //resetOperation();
-    RoutesOpt routes(ALNSOptimisation::getCurrentSol());
+    RoutesOpt routes(ALNSOptimisation::getCurrentSchedule());
     int n_route = chooseRandomRoute(routes);
     int n_pos   = chooseRandomNode(routes, n_route);
     if (n_pos == NO_INDEX) { return; }

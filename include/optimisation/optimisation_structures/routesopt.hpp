@@ -25,6 +25,7 @@ public:
     RoutesOpt replaceRoute(Route&, int);
     
     std::vector<Route> getRoutes() const;
+    Route getRoute(int) const;
     Node getNodeInRoute(int, int) noexcept (false);
     std::string getRouteCaregiver(int) const noexcept (false);
     int getNumberOfRoutes() const;
@@ -37,8 +38,9 @@ public:
     bool isEmpty() const;
     
     void destroyReferencesForPatient(std::string);
-    std::pair<int, int> getSyncServiceWindow(std::string, std::string); //pazinete, servizio                
-    void updateSyncServiceTime(std::string, std::string, int);          //pazinete, servizio,new time       
+    std::pair<int, int> getSyncServiceWindow(std::string, std::string, int) noexcept(false);              
+    void updateSyncServiceTime(std::string, std::string, int, int);          
+    std::pair<std::string, InfoNode> getInterdependetInfo(std::string, std::string, int); 
 };
 
 }

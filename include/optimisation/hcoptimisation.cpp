@@ -17,7 +17,9 @@ vector<Route> HCOptimisation::optimise() {
     RandomRemoval rr;
     GreedyRepair  gr; 
     
+    cout<<"\nrem\n";
     rr.removeNodes(ELEMENT_TO_DESTROY);
+    cout<<"\nrep\n";
     gr.repairNodes();
        
     return ALNSOptimisation::getBestSol().getRoutes();

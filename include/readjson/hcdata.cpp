@@ -199,17 +199,11 @@ Patient HCData::getPatient(string t_patientId) {
     for (const auto& patient : m_patients) {
         if (patient.getID() == t_patientId) { return patient; }
     }
-    cout<<t_patientId;
-    string s;
-    cin>>s;
     throw std::runtime_error("Patient not found.");
 }
 
 Patient HCData::getPatient(int pIndex) {
     if (pIndex < 0 || pIndex >= m_patients.size()) {
-        cout<<pIndex;
-    string s;
-    cin>>s;
         throw std::runtime_error("Patient not found.");
     }
     return m_patients[pIndex];

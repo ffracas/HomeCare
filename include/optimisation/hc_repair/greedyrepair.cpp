@@ -9,15 +9,20 @@ GreedyRepair::~GreedyRepair() {}
 
 int GreedyRepair::repairNodes()
 {
-    RoutesOpt routesToTest(ALNSOptimisation::getCurrentSol());
+    RoutesOpt routesToTest(ALNSOptimisation::getCurrentSchedule());
     // Best
     double bestCost = ALNSOptimisation::MAX_DOUBLE;
     RoutesOpt bestRoute;
+
+    //TODO cancella
+    ALNSOptimisation::printNodeToRelocate();
+
     while (ALNSOptimisation::hasNodeToRepair())
     {
         bestCost = ALNSOptimisation::MAX_DOUBLE;
         // find patient
         Patient patient(HCData::getPatient(ALNSOptimisation::popNodeToRepair()));
+        cout<<patient.getID();
         // indipendet service
         if (!patient.hasNextService())
         {
@@ -52,7 +57,7 @@ int GreedyRepair::repairNodes()
                     if (i != j && routesToTest.isServiceAvailableInRoute(patient.getCurrentService().getService(), i) 
                     && routesToTest.isServiceAvailableInRoute(patient.getNextService().getService(), j)
                     && patient.isCaregiverValid(routesToTest.getRouteCaregiver(i))
-                    && patient.isCaregiverValid(routesToTest.getRouteCaregiver(j)))
+                    && patient.getPatientAndNextService().isCaregiverValid(routesToTest.getRouteCaregiver(j)))
                     {
                         RoutesOpt newRoutes (ALNSOptimisation::repairDouble(routesToTest, patient, i, j));
                         if (!newRoutes.isEmpty())

@@ -63,16 +63,12 @@ public:
     int getDeltaTime() const;
     std::string getHash() const;
 
+    //add node sequntial
     int addNode(Patient, int);
     int addNode(Node, int); 
     //solver
-    /* 
-    int addNodeBeetween(Node);
-    int addNodeBeetween(Node, int, int); ////////////////////////////////////////////////////
-    int findSuitablePosition(Node) const;
-     */
-    Route deleteNode(int, RoutesOpt&);
-    std::tuple<Node, std::vector<Node>, std::vector<Node>> addNodeInRoute(Patient, RoutesOpt&);
+    Route deleteNode(int, RoutesOpt&, int);
+    std::tuple<Node, std::vector<Node>, std::vector<Node>> addNodeInRoute(Patient, RoutesOpt&, int);
     // toFileFormat
     std::string getRouteToString() const;
     Json::Value getJSONRoute() const;
@@ -83,7 +79,7 @@ public:
     int readNodesFromJson(Json::Value, std::vector<Patient>, std::vector<int>) noexcept (false);
     //
     void updateRoute(std::vector<Node>&);
-    static std::vector<Node> mergeLists(std::vector<Node>, std::vector<Node>, RoutesOpt&);
+    static std::vector<Node> mergeLists(std::vector<Node>&, std::vector<Node>&, RoutesOpt&, int) noexcept (false);
 
     int getNoChangeWindowCloseTime(int) const noexcept (false);
     int getNoChangeWindowOpenTime(int) const noexcept (false);

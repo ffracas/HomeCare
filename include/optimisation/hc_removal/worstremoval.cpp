@@ -11,7 +11,7 @@ WorstRemoval::~WorstRemoval() {}
 void WorstRemoval::removeNodes(int elementsToDestroy) {
     //resetOperation();
     int n_des = 0;
-    RoutesOpt routes(ALNSOptimisation::getCurrentSol());
+    RoutesOpt routes(ALNSOptimisation::getCurrentSchedule());
     while (n_des < elementsToDestroy) {
         vector<CostCoord> worstList;
         for (int i = 0; i < ALNSOptimisation::getNumberOfRoutes(); ++i) {

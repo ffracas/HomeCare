@@ -10,7 +10,7 @@ RandomRemoval::~RandomRemoval() {}
 void RandomRemoval::removeNodes(int t_elementsToDestroy) {
     //potrebbe servire reset lista percorsi operazionale
     int i = 0;
-    RoutesOpt routes(ALNSOptimisation::getCurrentSol());
+    RoutesOpt routes(ALNSOptimisation::getCurrentSchedule());
     int n_route = chooseRandomRoute(routes);
     while (n_route != NO_INDEX) {
         int pos = chooseRandomNode(routes, n_route);

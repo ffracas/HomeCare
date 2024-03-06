@@ -39,7 +39,6 @@ public:
     std::string toString() const;
     int getDeparturTime() const;
     int getArrivalTime() const;
-    int getDelayTime() const;
     bool isInterdependent() const;
     //setter
     void setArrivalTime(int);

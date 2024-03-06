@@ -88,6 +88,7 @@ bool HCValidation::checkSolution() {
             }
             if (service -> setTime(node.getService(), node.getArrivalTime(), node.getDeparturTime()) 
                     != ValidatioNode::OK) { 
+                cout<<endl<<route.getCaregiver()<<"->"<<i<<endl;
                 cout<<"Not all patients were examined\n"; 
                 return false; 
             }
@@ -95,6 +96,8 @@ bool HCValidation::checkSolution() {
                 Node prev = route_nodes[i - 1];
                 if (prev.getDeparturTime() + HCData::getDistance(prev.getDistancesIndex(), node.getDistancesIndex()) 
                         > node.getArrivalTime()) {
+                cout<<endl<<route.getCaregiver()<<"->"<<i<<endl;
+                cout<<prev.getDeparturTime()<<"+ "<<HCData::getDistance(prev.getDistancesIndex(), node.getDistancesIndex()) << " > " <<node.getArrivalTime()<<endl;
                     cout<<"Some data can be wrong\n"; 
                     return false; 
                 }

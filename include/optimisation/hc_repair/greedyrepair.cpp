@@ -30,7 +30,7 @@ int GreedyRepair::repairNodes()
             {
                 if (routesToTest.isServiceAvailableInRoute(patient.getCurrentService().getService(), i))
                 {
-                    RoutesOpt newRoutes (ALNSOptimisation::repairSingle(routesToTest, patient, i));
+                    RoutesOpt newRoutes = ALNSOptimisation::repairSingle(routesToTest, patient, i);
                     if (!newRoutes.isEmpty())
                     {
                         double cost = ALNSOptimisation::calculateCost(newRoutes.getRoutes());

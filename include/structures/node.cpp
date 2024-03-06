@@ -117,10 +117,12 @@ string Node::toString() const {
 }
 
 void Node::setArrivalTime(int t_arrivalTime) { 
-    m_arrivalTime = t_arrivalTime; 
-    if (!m_isDepot) { m_departureTime = m_arrivalTime + m_duration; }
+    if (!m_isDepot) { 
+        m_arrivalTime = max(t_arrivalTime, m_timeWindowOpen); 
+        m_departureTime = m_arrivalTime + m_duration; 
+    }
+    else {
+         m_arrivalTime = t_arrivalTime; 
+    }
 }
 
-int Node::getDelayTime() const {
-    return max(m_timeWindowOpen, m_arrivalTime);
-}

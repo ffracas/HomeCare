@@ -117,12 +117,8 @@ pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service, i
         soon = p.getWindowStartTime();
     }
     else {
-        try{
         late = m_routes[otherNode.getRoute()].getNoChangeWindowCloseTime(otherNode.getPositionInRoute());
         soon = m_routes[otherNode.getRoute()].getNoChangeWindowOpenTime(otherNode.getPositionInRoute());
-        } catch(exception e) {
-            cerr<<"dio cane impiastricato"<<e.what();
-        }
     }
     if (p.isFirstService(service)){
         return make_pair(max(soon - p.getMaxWait(), 0), late - p.getMinWait());

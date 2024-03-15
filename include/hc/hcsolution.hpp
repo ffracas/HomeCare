@@ -30,6 +30,7 @@ private:
     int calculateArrivalTime(int route, int node); 
     int writeSolutionOnFile(std::string);
     double calculateCost();
+    double calculateCost(std::vector<Route>&);
 
 public:
     static const int NO_INDEX;

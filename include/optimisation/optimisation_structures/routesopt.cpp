@@ -107,20 +107,29 @@ void RoutesOpt::destroyReferencesForPatient(string patient) {
     m_mapOfPatient.at(patient).destroyAll();
 }
                                                                          
-pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service, int currentRoute) {
+/**
+ * Returns the earliest start time and latest end time of the service window
+ * for the given patient and service, taking into account synchronization with
+ * another service scheduled in the given route.
+ *
+ * @param patient The ID of the patient
+ * @param service The service to get the window for
+ * @param currentRoute The route that already has a service scheduled
+ * @return A pair with the earliest start and latest end times of the window
+ */
+pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service, int currentRoute)
+{
     InfoNode otherNode(m_mapOfPatient[patient].getOtherServiceInfo(service, currentRoute).second);
     Patient p = HCData::getPatient(otherNode.getPatientIndex());
     int late;
     int soon;
-    if (!otherNode.isAssigned()){
-        late = p.getWindowEndTime();
-        soon = p.getWindowStartTime();
+    late = m_routes[otherNode.getRoute()].getNoChangeWindowCloseTime(otherNode.getPositionInRoute());
+    soon = m_routes[otherNode.getRoute()].getNoChangeWindowOpenTime(otherNode.getPositionInRoute());
+    if (soon > p.getWindowEndTime()) {
+        soon = otherNode.getTime();
+        late = soon;
     }
-    else {
-        late = m_routes[otherNode.getRoute()].getNoChangeWindowCloseTime(otherNode.getPositionInRoute());
-        soon = m_routes[otherNode.getRoute()].getNoChangeWindowOpenTime(otherNode.getPositionInRoute());
-    }
-    if (p.isFirstService(service)){
+    if (p.isFirstService(service)) {
         return make_pair(max(soon - p.getMaxWait(), 0), late - p.getMinWait());
     }
     else {

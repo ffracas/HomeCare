@@ -84,6 +84,8 @@ public:
     int getNoChangeWindowCloseTime(int) const noexcept (false);
     int getNoChangeWindowOpenTime(int) const noexcept (false);
     void updateNodeTime(int, int);
+
+    double getCost() const;
 };
 
 }

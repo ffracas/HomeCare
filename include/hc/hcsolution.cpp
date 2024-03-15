@@ -109,16 +109,19 @@ int HCSolution::searchForRoute(Patient patient, int sync_index)  {
     string request = patient.getCurrentService().getService();
     vector<string> invalidCaregivers(patient.getInvalidCaregivers());
     int bestRoute = NO_INDEX;
-    int bestCost = MAX_INT;
+    double bestCost = MAX_INT;
 
     for (int i = 0; i < m_routes.size(); ++i) {
         if (i != sync_index 
-                && m_routes[i].hasService(request)
-                && find(invalidCaregivers.begin(), invalidCaregivers.end(), m_routes[i].getCaregiver()) 
-                    == invalidCaregivers.end()
-                ) {
-            int cost = m_routes[i].getFreeTime() + 
-                        HCData::getDistance(m_routes[i].getLastPatientDistanceIndex(), patient.getDistancesIndex());
+            && m_routes[i].hasService(request)
+            && find(invalidCaregivers.begin(), invalidCaregivers.end(), m_routes[i].getCaregiver()) 
+            == invalidCaregivers.end()
+            ) {
+            Route routeUpdate (m_routes[i]);
+            int estimatedTime = routeUpdate.getFreeTime() + 
+                        HCData::getDistance(routeUpdate.getLastPatientDistanceIndex(), patient.getDistancesIndex()); 
+            routeUpdate.addNode(patient, estimatedTime);
+            int cost = routeUpdate.getCost();
             if (cost < bestCost) {
                 bestCost = cost;
                 bestRoute = i;
@@ -137,6 +140,26 @@ double HCSolution::calculateCost() {
     return HCData::MAX_IDLE_TIME_WEIGHT * m_maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * m_maxTardiness 
         + HCData::TARDINESS_WEIGHT * m_totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime  
         + HCData::EXTRA_TIME_WEIGHT * m_totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * m_travelTime;
+}
+
+double HCSolution::calculateCost(std::vector<Route>& routes) {
+    int maxIdleTime      = 0;
+    int maxTardiness     = 0;
+    int totalTardiness   = 0;
+    int totalWaitingTime = 0; 
+    int travelTime       = 0;   
+    int totalExtraTime   = 0;
+    for (Route route : routes) {
+        maxIdleTime = route.getMaxIdleTime() > maxIdleTime ? route.getMaxIdleTime() : maxIdleTime;
+        maxTardiness = route.getMaxTardiness() > maxTardiness ? route.getMaxTardiness() : maxTardiness;
+        totalTardiness += route.getTotalTardiness();
+        totalWaitingTime += route.getTotalWaitingTime();
+        travelTime += route.getTravelTime();
+        totalExtraTime += route.getExtraTime();
+    }
+    return HCData::MAX_IDLE_TIME_WEIGHT * maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * maxTardiness +  
+        HCData::TARDINESS_WEIGHT * totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * totalWaitingTime +    
+        HCData::EXTRA_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
 }
 
 int HCSolution::writeSolutionOnFile(string outputFilePath) {

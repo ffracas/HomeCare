@@ -88,6 +88,8 @@ string Node::getService() const { return m_service; }
 
 bool Node::isInterdependent() const { return m_interdependet; }
 
+bool Node::isDepot() const { return m_isDepot; }
+
 string Node::getHash() const { 
     stringstream ss;
 

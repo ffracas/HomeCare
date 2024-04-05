@@ -31,34 +31,29 @@ int ALNSOptimisation::getNumberOfRoutes() { return m_ops.getNumberOfRoutes(); }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////         DESTROY
 
 RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node) {
-    try {
-        if (routes.getNumberOfRoutes() <= n_route || n_route < 0) { 
-            return RoutesOpt(); 
-        }
-        if (pos_node >= routes.getNumberOfNodesInRoute(n_route) || pos_node < 1) { 
-            return RoutesOpt(); 
-        }
-        // save a copy of the node
-        Node deletedOne (routes.getNodeInRoute(n_route, pos_node));
-        // delete the node
-        Route newRoute (routes.getRoute(n_route).deleteNode(pos_node, routes, n_route));
-        routes = routes.replaceRoute(newRoute, n_route);
-        // search for interdependet node
-        if (deletedOne.isInterdependent()) {
-            InfoNode otherNode = routes.getInterdependetInfo(deletedOne.getId(), deletedOne.getService(), n_route)
-                                        .second;
-            Route interdepRoute (routes.getRoutes()[otherNode.getRoute()]
-                                        .deleteNode(otherNode.getPositionInRoute(), routes, otherNode.getRoute()));
-            routes = routes.replaceRoute(interdepRoute, otherNode.getRoute());
-        }
-        // return result
-        return routes;
+    
+    if (routes.getNumberOfRoutes() <= n_route || n_route < 0) { 
+        return RoutesOpt(); 
     }
-    catch (exception e) {
-        cerr << "Error in destroy node: " << e.what() << '\n';
-        exit(1); // Termina l'esecuzione del programma
+    if (pos_node >= routes.getNumberOfNodesInRoute(n_route) || pos_node < 1) { 
+        return RoutesOpt(); 
     }
-    return RoutesOpt();
+    // save a copy of the node to delete
+    Node deletedOne (routes.getNodeInRoute(n_route, pos_node));
+    // delete the node
+    Route newRoute (routes.getRoute(n_route).deleteNode(pos_node, routes, n_route));
+    // replace the route
+    routes = routes.replaceRoute(newRoute, n_route);
+    // search for interdependet node
+    if (deletedOne.isInterdependent()) {
+        InfoNode otherNode = routes.getInterdependetInfo(deletedOne.getId(), deletedOne.getService(), n_route)
+                                    .second;
+        Route interdepRoute (routes.getRoutes()[otherNode.getRoute()]
+                                    .deleteNode(otherNode.getPositionInRoute(), routes, otherNode.getRoute()));
+        routes = routes.replaceRoute(interdepRoute, otherNode.getRoute());
+    }
+    // return result
+    return routes;
 }
 
 

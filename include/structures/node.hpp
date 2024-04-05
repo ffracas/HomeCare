@@ -40,6 +40,7 @@ public:
     int getDeparturTime() const;
     int getArrivalTime() const;
     bool isInterdependent() const;
+    bool isDepot() const;
     //setter
     void setArrivalTime(int);
     // s

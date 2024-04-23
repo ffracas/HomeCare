@@ -206,6 +206,6 @@ bool Patient::isFirstService(string service) const {
     return m_services[0].getService() == service;
 }
 
- bool Patient::isCaregiverValid(string service) const {
-    return find(m_invalidCaregivers.begin(), m_invalidCaregivers.end(), service) == m_invalidCaregivers.end();
+ bool Patient::isCaregiverValid(string cgID) const {
+    return find(m_invalidCaregivers.begin(), m_invalidCaregivers.end(), cgID) == m_invalidCaregivers.end();
  }

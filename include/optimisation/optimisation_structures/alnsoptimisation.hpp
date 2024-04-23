@@ -24,8 +24,6 @@ private:
     static std::map<std::string, std::vector<Route>> m_solutionsDump;          //hash sol, sol
    
 public:
-    static const double MAX_DOUBLE;
-
     ~ALNSOptimisation();
     void setISol(std::vector<Route>, double);
 

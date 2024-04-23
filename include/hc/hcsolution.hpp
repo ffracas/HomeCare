@@ -4,17 +4,18 @@
 #include <sstream>
 #include <map>
 
+#include "hcvalidation.hpp"
 #include "../readjson/hcdata.hpp"
 #include "../structures/route/route.hpp"
-#include "hcvalidation.hpp"
 #include "../optimisation/hcoptimisation.hpp"
+#include "../structures/schedule/schedule.hpp"
 
 namespace homecare {
 
 class HCSolution {
 
 private:
-    std::vector<Route> m_routes;
+    Schedule m_schedule;
     
     int m_maxTardiness;
     int m_maxIdleTime;
@@ -34,7 +35,6 @@ private:
 
 public:
     static const int NO_INDEX;
-    static const int MAX_INT;
 
     HCSolution();
     ~HCSolution();

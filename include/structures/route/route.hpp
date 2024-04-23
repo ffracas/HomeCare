@@ -49,6 +49,7 @@ public:
 
     Route(Caregiver);
     ~Route();
+    
     // getter
     int getFreeTime() const;
     int getLastPatientDistanceIndex() const;
@@ -66,10 +67,10 @@ public:
     int getExtraTime() const;
     int getDeltaTime() const;
     std::string getHash() const;
+    double getCost() const;
 
     //add node sequntial
-    int addNode(Patient, int);
-    int addNode(Node, int); 
+    int appendNode(Node, int); 
     //solver
     Route deleteNode(int, SyncWindows);
     std::vector<Node> addNodeInRoute(Node, int);
@@ -84,13 +85,13 @@ public:
     //reader
     int readNodesFromJson(Json::Value, std::vector<Patient>, std::vector<int>) noexcept (false);
     // updater
-    void replaceRoute(std::vector<Node>&);
+    //void replaceRoute(std::vector<Node>&);  //TODO: spostare in Schedule
     void updateNodeTime(int, int);
     //static std::vector<Node> mergeLists(std::vector<Node>&, std::vector<Node>&, RoutesOpt&, int) noexcept (false);
 
     int getNoChangeWindowCloseTime(int) const noexcept (false);
     int getNoChangeWindowOpenTime(int) const noexcept (false);
-    double getCost() const;
+    
 };
 
 }

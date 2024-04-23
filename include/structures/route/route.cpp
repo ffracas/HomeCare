@@ -93,19 +93,15 @@ int Route::getTotalWaitingTime() const { return m_totalWaitingTime; }
  */
 int Route::getTravelTime() const { return m_travelTime; }
 
-int Route::getExtraTime() const
-{
+int Route::getExtraTime() const {
     int endTime = m_nodes[DEPOT].getArrivalTime() - m_caregiver.getShiftEndTime();
     return endTime > 0 ? endTime : 0;
 }
 
-string Route::getHash() const
-{
+string Route::getHash() const {
     stringstream ss;
-
     ss << m_caregiver.getID() << "--";
-    for (const Node &node : m_nodes)
-    {
+    for (const Node &node : m_nodes) {
         ss << node.getHash() << '-';
     }
     ss << "--";
@@ -113,7 +109,12 @@ string Route::getHash() const
 }
 
 double Route::getCost() const {
-    return HCData::MAX_IDLE_TIME_WEIGHT * m_maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * m_maxTardiness + HCData::TARDINESS_WEIGHT * m_totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime + HCData::IDLE_TIME_WEIGHT * getExtraTime() + HCData::TRAVEL_TIME_WEIGHT * m_travelTime;
+    if (m_nodes.size() < BASE_ROUTE_LEN) {
+        return 0;
+    }
+    return HCData::MAX_WAIT_TIME_WEIGHT * m_maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * m_maxTardiness 
+        + HCData::TARDINESS_WEIGHT * m_totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime 
+        + HCData::EXTRA_TIME_WEIGHT * getExtraTime() + HCData::TRAVEL_TIME_WEIGHT * m_travelTime;
 }
 
 bool Route::validityControl(int node_pos) const {
@@ -121,6 +122,33 @@ bool Route::validityControl(int node_pos) const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////         update route
+int Route::appendNode(Node newNode, int t_arrivalTime) {
+    // subtract old return to depot time
+    m_travelTime -= m_lastNode2DepotDistance;
+    // new arcs time
+    int lastToNewDistance = HCData::getDistance(getLastPatientDistanceIndex(), newNode.getDistancesIndex());
+    m_lastNode2DepotDistance = HCData::getDistance(newNode.getDistancesIndex(), m_nodes[DEPOT].getDistancesIndex());
+    m_travelTime += lastToNewDistance + m_lastNode2DepotDistance;
+
+    // calculate arrival time
+    int arrivalTime = getFreeTime() + lastToNewDistance;
+    // update waiting time
+    int startTime = max(t_arrivalTime, newNode.getTimeWindowOpen());
+    if (arrivalTime < startTime) {
+        int earliness = startTime - arrivalTime;
+        m_totalWaitingTime += earliness;
+        m_maxIdleTime = max(earliness, m_maxIdleTime);
+    }
+    else {
+        arrivalTime = t_arrivalTime;
+        if (arrivalTime > newNode.getTimeWindowClose()) {
+            int tardiness = arrivalTime - newNode.getTimeWindowClose();
+            m_totalTardiness += tardiness;
+            m_maxTardiness = max(tardiness, m_maxTardiness);
+        }
+    }
+}
+
 
 int Route::addNode(Patient t_newPatient, int t_estimatedArrivalTime) {
     return addNode(Node(t_newPatient, t_estimatedArrivalTime), t_estimatedArrivalTime);
@@ -191,7 +219,7 @@ Route Route::deleteNode(int nodeIndex, SyncWindows syncWin) {
     return *this;
 }
 
-// TODO remove this function
+// TODO: remove this function
 /*vector<Node> Route::addNodeInRoute(Patient patient, RoutesOpt& blackops, int routeIndex) {
     // if route index is out of bounds throw exception
     if (routeIndex >= blackops.getNumberOfRoutes()) {
@@ -284,7 +312,7 @@ Route Route::deleteNode(int nodeIndex, SyncWindows syncWin) {
     return closed;
 }*/
 
-// TODO remove this function
+// TODO: remove this function
 /*vector<Node> Route::mergeLists(vector<Node>& first, vector<Node>& second, RoutesOpt& blackops, int routeIndex) {
     // if second is empty return first
     if (second.empty()) {
@@ -380,11 +408,12 @@ bool Route::hasService(string request) const
     return find(availableServices.begin(), availableServices.end(), request) != availableServices.end();
 }
 
-void Route::replaceRoute(vector<Node>& newRoute) {
+// TODO: move this function in schedule 
+/*void Route::replaceRoute(vector<Node>& newRoute) {
     m_nodes.clear();
     m_nodes = newRoute;
     exploreData();
-}
+}*/
 
 vector<Node> Route::getNodes() const { return m_nodes; }
 

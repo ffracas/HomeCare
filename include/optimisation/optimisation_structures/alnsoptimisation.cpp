@@ -3,7 +3,6 @@
 using namespace std;
 using namespace homecare;
 
-const double ALNSOptimisation::MAX_DOUBLE = 1.79769313486231570e+308;
 string ALNSOptimisation::m_currentSol = "";
 double ALNSOptimisation::m_currentCost = ALNSOptimisation::MAX_DOUBLE;
 RoutesOpt ALNSOptimisation::m_ops;
@@ -74,16 +73,19 @@ RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node)
     RoutesOpt repaired(routes);
     return repaired;
 }*/
+
 RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patient, int n_route) {
     if (n_route >= 0 && n_route < routesToRepair.getNumberOfRoutes()) { 
         throw out_of_range("[ALNSOptimisation] repairSingle, route selected is out of range"); 
     }
      // Node's arrive time is not really important right now
     Node n1(patient, routesToRepair.getRoute(n_route).getFreeTime()); 
-    routesToRepair.updateRoute() routesToRepair[n_route].addNodeInRoute(n1, n_route)
+    // TODO: cambiare sti metodi
+    routesToRepair.updateRoute() routesToRepair[n_route].addNodeInRoute(n1, n_route);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////        REPAIR 2
-
+// TODO: riscrivere sta merda
 RoutesOpt ALNSOptimisation::repairDouble(RoutesOpt routesToRepair, Patient patient, 
                                             int first_route, int second_route) {
     Node n1(patient, 0);
@@ -166,9 +168,9 @@ double ALNSOptimisation::calculateCost(const vector<Route>& t_routes) {
         totalExtraTime += route.getExtraTime();
     }
 
-    return HCData::MAX_IDLE_TIME_WEIGHT * maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * maxTardiness 
+    return HCData::MAX_WAIT_TIME_WEIGHT * maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * maxTardiness 
         + HCData::TARDINESS_WEIGHT * totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * totalWaitingTime  
-        + HCData::IDLE_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
+        + HCData::EXTRA_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////// LIST NODE TO REPAIR

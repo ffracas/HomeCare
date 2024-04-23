@@ -96,7 +96,7 @@ double RouteOps::calculateCost(const Node& lastInRoute, Node currentNode, map<st
     }
     // else delta < 0 then there is time to wait for the doctor. Increase cost
     else {
-        cost += (double)delta * HCData::IDLE_TIME_WEIGHT;
+        cost += (double)delta * HCData::EXTRA_TIME_WEIGHT;
     }
     return cost;
 }

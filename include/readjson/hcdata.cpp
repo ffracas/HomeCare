@@ -12,12 +12,15 @@ std::vector<Depot>            HCData::m_depots;
 std::vector<Caregiver>        HCData::m_caregivers;
 
 // Initialize constants
-const double HCData::TRAVEL_TIME_WEIGHT      = 0.165;
-const double HCData::MAX_TARDINESS_WEIGHT    = 0.165;
-const double HCData::TARDINESS_WEIGHT        = 0.165;
-const double HCData::IDLE_TIME_WEIGHT       = 0.165;
-const double HCData::MAX_IDLE_TIME_WEIGHT    = 0.165;
-const double HCData::TOT_WAITING_TIME_WEIGHT = 0.165;
+const int    HCData::EMPTY_ROUTE             = -1;
+const int    HCData::NO_INDEX                = -1;
+const double HCData::MAX_COST                = 1.79769313486231570e+308;
+const double HCData::TRAVEL_TIME_WEIGHT      = 0.2;
+const double HCData::EXTRA_TIME_WEIGHT       = 0.5;
+const double HCData::MAX_TARDINESS_WEIGHT    = 0.5;
+const double HCData::TARDINESS_WEIGHT        = 0.2;
+const double HCData::MAX_WAIT_TIME_WEIGHT    = 0.5;
+const double HCData::TOT_WAITING_TIME_WEIGHT = 0.17;
 
 HCData::~HCData() {}
 

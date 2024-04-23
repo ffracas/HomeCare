@@ -25,11 +25,14 @@ private:
     static std::vector<Caregiver> m_caregivers;
 
 public:
+    static const int EMPTY_ROUTE;
+    static const int NO_INDEX;
+    static const double MAX_COST;
     static const double TRAVEL_TIME_WEIGHT;
     static const double MAX_TARDINESS_WEIGHT;
     static const double TARDINESS_WEIGHT;
-    static const double IDLE_TIME_WEIGHT;
-    static const double MAX_IDLE_TIME_WEIGHT;
+    static const double EXTRA_TIME_WEIGHT;
+    static const double MAX_WAIT_TIME_WEIGHT;
     static const double TOT_WAITING_TIME_WEIGHT;
 
     ~HCData();

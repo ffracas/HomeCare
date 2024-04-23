@@ -7,7 +7,8 @@ LDIRVR = ../include/vr
 
 LIBSTR = $(LIBDIR)/structures/validationode.cpp \
          $(LIBDIR)/structures/node.cpp \
-         $(LIBDIR)/structures/route.cpp
+         $(LIBDIR)/structures/route/route.cpp \
+         $(LIBDIR)/structures/route/routeops.cpp
 
 LIBHCO = $(LIBDIR)/hc/hcvalidation.cpp \
          $(LIBDIR)/hc/hcsolution.cpp \

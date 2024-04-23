@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include "../readjson/hcdata.hpp"
-#include "../structures/route.hpp"
+#include "../structures/route/route.hpp"
 #include "../structures/node.hpp"
 #include "../structures/validationode.hpp"
 

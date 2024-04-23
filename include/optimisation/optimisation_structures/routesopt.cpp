@@ -25,7 +25,7 @@ RoutesOpt RoutesOpt::replaceRoute(Route& route, int n_route) {
         RoutesOpt newRoutesOpt(m_routes);
         return newRoutesOpt;
     } else {
-        throw std::out_of_range("[RoutesOpt]");
+        throw out_of_range("[RoutesOpt]");
     }
 }
 
@@ -41,7 +41,7 @@ string RoutesOpt::getRouteCaregiver(int n_route) const {
     if (n_route >= 0 && n_route < m_routes.size()) {
         return m_routes[n_route].getCaregiver();
     } else {
-        throw std::out_of_range("[RoutesOpt] c");
+        throw out_of_range("[RoutesOpt] c");
     }
 }
 
@@ -56,7 +56,7 @@ string RoutesOpt::getRouteCaregiver(int n_route) const {
  */
 Node RoutesOpt::getNodeInRoute(int n_route, int n_node) { 
     if (n_route < 0 || n_route >= m_routes.size()) { 
-        throw std::out_of_range("Errore nella scelta del nodo"); 
+        throw out_of_range("Errore nella scelta del nodo"); 
     }
     return m_routes[n_route].getNodeToDestroy(n_node); 
 }
@@ -75,7 +75,7 @@ int RoutesOpt::getNumberOfRoutes() const { return m_routes.size(); }
  * @return The number of nodes in the specified route.
  */
 int RoutesOpt::getNumberOfNodesInRoute(int route) const { 
-    if (route >= m_routes.size() || route < 0) { throw std::out_of_range("No route"); }
+    if (route >= m_routes.size() || route < 0) { throw out_of_range("No route"); }
     return m_routes[route].getNumNodes();
 }
 
@@ -90,12 +90,12 @@ int RoutesOpt::getNPatientServices(string patient) const {
         return it->second.getAllService().size();
     } else {
         // Se la chiave non esiste, genera un'eccezione
-        throw std::runtime_error("Chiave non trovata nella mappa");
+        throw runtime_error("Chiave non trovata nella mappa");
     }
 }
 
 bool RoutesOpt::isServiceAvailableInRoute(string service, int route) const {
-    if (route >= m_routes.size() || route < 0) { throw std::out_of_range("No route"); }
+    if (route >= m_routes.size() || route < 0) { throw out_of_range("No route"); }
     return m_routes[route].hasService(service); 
 }
 
@@ -117,9 +117,8 @@ void RoutesOpt::destroyReferencesForPatient(string patient) {
  * @param currentRoute The route that already has a service scheduled
  * @return A pair with the earliest start and latest end times of the window
  */
-pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service, int currentRoute)
-{
-    InfoNode otherNode(m_mapOfPatient[patient].getOtherServiceInfo(service, currentRoute).second);
+pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service, int currentRoute) const {
+    InfoNode otherNode(m_mapOfPatient.at(patient).getOtherServiceInfo(service, currentRoute).second);
     Patient p = HCData::getPatient(otherNode.getPatientIndex());
     int late;
     int soon;
@@ -138,7 +137,6 @@ pair<int, int> RoutesOpt::getSyncServiceWindow(string patient, string service, i
 }
 
 void RoutesOpt::updateSyncServiceTime(string patient, string service, int time, int currentRoute) { 
-    
     pair<string, InfoNode> otherNode(m_mapOfPatient[patient].getOtherServiceInfo(service, currentRoute));
     if (!otherNode.second.isAssigned()) { return; }
     Patient p = HCData::getPatient(otherNode.second.getPatientIndex());
@@ -157,3 +155,14 @@ void RoutesOpt::updateSyncServiceTime(string patient, string service, int time, 
 pair<string, InfoNode> RoutesOpt::getInterdependetInfo(string patient, string service, int currentRoute) {
     return m_mapOfPatient[patient].getOtherServiceInfo(service, currentRoute);
 }   
+
+SyncWindows RoutesOpt::getServiceWindows(int route) const {
+    if (route >= m_routes.size() || route < 0) { throw out_of_range("No route"); }
+    SyncWindows result;
+    for (auto& node : m_routes[route].getNodes()) {
+        if (node.isInterdependent()) {
+            result.addSyncWindow(node.getService(), getSyncServiceWindow(node.getId(), node.getService(), route));
+        }
+    }
+    return result;
+}

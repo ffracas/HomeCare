@@ -20,13 +20,11 @@ public:
     int getPositionInRoute() const;
     int getTime() const;
     int getPatientIndex() const;
-
     // Metodi setter
     void setInRoute(int, int, int);
     void setTime(int);
     void destroy();
-
-    // 
+    // checker
     bool isAssigned();
 };
     

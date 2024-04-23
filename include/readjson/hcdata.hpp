@@ -28,7 +28,7 @@ public:
     static const double TRAVEL_TIME_WEIGHT;
     static const double MAX_TARDINESS_WEIGHT;
     static const double TARDINESS_WEIGHT;
-    static const double EXTRA_TIME_WEIGHT;
+    static const double IDLE_TIME_WEIGHT;
     static const double MAX_IDLE_TIME_WEIGHT;
     static const double TOT_WAITING_TIME_WEIGHT;
 

@@ -1,5 +1,5 @@
 #include "route.hpp"
-#include "../optimisation/optimisation_structures/routesopt.hpp"
+//#include "../../optimisation/optimisation_structures/routesopt.hpp"
 
 using namespace std;
 using namespace homecare;
@@ -113,7 +113,7 @@ string Route::getHash() const
 }
 
 double Route::getCost() const {
-    return HCData::MAX_IDLE_TIME_WEIGHT * m_maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * m_maxTardiness + HCData::TARDINESS_WEIGHT * m_totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime + HCData::EXTRA_TIME_WEIGHT * getExtraTime() + HCData::TRAVEL_TIME_WEIGHT * m_travelTime;
+    return HCData::MAX_IDLE_TIME_WEIGHT * m_maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * m_maxTardiness + HCData::TARDINESS_WEIGHT * m_totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime + HCData::IDLE_TIME_WEIGHT * getExtraTime() + HCData::TRAVEL_TIME_WEIGHT * m_travelTime;
 }
 
 bool Route::validityControl(int node_pos) const {
@@ -179,29 +179,20 @@ int Route::addNode(Node t_newNode, int t_estimatedArrivalTime)
     return m_nodes.size() - 1;
 }
 
-Route Route::deleteNode(int node, RoutesOpt& blackops, int routeIndex)
-{
-    try{
+Route Route::deleteNode(int nodeIndex, SyncWindows syncWin) {
     int nNodes = m_nodes.size();
-    if (nNodes <= 1 || node >= nNodes || node < 1){
-        throw std::runtime_error("Constraint on node destruction.");
+    if (nNodes <= 1 || nodeIndex >= nNodes || nodeIndex < 1){
+        throw std::out_of_range("Constraint on node destruction.");
     }
-    m_nodes.erase(m_nodes.begin() + node);
+    m_nodes.erase(m_nodes.begin() + nodeIndex);
     //recalculateRoute();
-    vector<Node> newList;
-    cout << "Route " << routeIndex << " deleted node " << node << endl;
-    m_nodes = mergeLists(newList, m_nodes, blackops, routeIndex);
-    cout<< "Route " << routeIndex << " new list size " << m_nodes.size() << endl;
+    m_nodes = RouteOps::rescheduleRoute(m_nodes, syncWin);
     exploreData();
-    cout<< "Route " << routeIndex << " new travel time " << m_travelTime << endl;
     return *this;
-    }catch(exception& e){
-        cout << e.what() << endl;
-        exit(1);
-    }
 }
 
-tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, RoutesOpt& blackops, int routeIndex) {
+// TODO remove this function
+/*vector<Node> Route::addNodeInRoute(Patient patient, RoutesOpt& blackops, int routeIndex) {
     // if route index is out of bounds throw exception
     if (routeIndex >= blackops.getNumberOfRoutes()) {
         throw std::runtime_error("[Route::addNodeInRoute] Route index out of bounds.");
@@ -252,7 +243,7 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
                     // change node if constraint is not satisfied
                     failed = true;
                     if (justChanged && oldCurrentId == current.getId()) {
-                        throw runtime_error("Service is not available in this route");
+                        return vector<Node>();
                     }
                     justChanged = true;
                     oldCurrentId = current.getId();
@@ -274,6 +265,9 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
             }
         }
         if (!failed) {
+            if (current.getId() == newNode.getId()) {
+                newNode.setArrivalTime(current.getArrivalTime());
+            }
             justChanged = false;
             oldCurrentId = "";
             closed.push_back(current);
@@ -282,15 +276,16 @@ tuple<Node, vector<Node>, vector<Node>> Route::addNodeInRoute(Patient patient, R
             if (it != nodesList.end()) {
                 nodesList.erase(it);
             } else {
-                throw runtime_error ("Error in Route::mergeLists: node not found in second list");
+                return vector<Node>();
             }
         }
         current = opened[0];
     }
-    return tuple<Node, vector<Node>, vector<Node>>(newNode, closed, nodesList);
-}
+    return closed;
+}*/
 
-vector<Node> Route::mergeLists(vector<Node>& first, vector<Node>& second, RoutesOpt& blackops, int routeIndex) {
+// TODO remove this function
+/*vector<Node> Route::mergeLists(vector<Node>& first, vector<Node>& second, RoutesOpt& blackops, int routeIndex) {
     // if second is empty return first
     if (second.empty()) {
         return first;
@@ -375,7 +370,7 @@ vector<Node> Route::mergeLists(vector<Node>& first, vector<Node>& second, Routes
     }
 
     return first;
-}
+}*/
 
 bool Route::isAvailable() const { return m_caregiver.isWorking(this->getFreeTime()); }
 
@@ -385,18 +380,16 @@ bool Route::hasService(string request) const
     return find(availableServices.begin(), availableServices.end(), request) != availableServices.end();
 }
 
-void Route::updateRoute(vector<Node>& newRoute) {
+void Route::replaceRoute(vector<Node>& newRoute) {
     m_nodes.clear();
     m_nodes = newRoute;
     exploreData();
-    //ricalcola costo route TODO
 }
 
 vector<Node> Route::getNodes() const { return m_nodes; }
 
 int Route::readNodesFromJson(Json::Value t_patientsInJson, vector<Patient> t_patients, vector<int> t_depotDistances)
 {
-
     const string PATIENT_FIELD("patient");
     const string SERVICE_FIELD("service");
     const string ARRIVAL_FIELD("arrival_time");
@@ -434,18 +427,6 @@ int Route::readNodesFromJson(Json::Value t_patientsInJson, vector<Patient> t_pat
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////          Utils
-
-std::vector<Node> Route::difference(const std::vector<Node>& vec1, const std::vector<Node>& vec2) {
-    std::vector<Node> result;
-    for (Node node : vec1) {
-        // Se l'elemento di vec1 non è presente in vec2, aggiungilo al risultato
-        if (find_if(vec2.begin(), vec2.end(), [&node](const Node& n) { return n.getId() == node.getId(); }) 
-            == vec2.end()) {
-                result.push_back(node);
-        }
-    }
-    return result;
-}
 
 int Route::getNoChangeWindowCloseTime(int n_node) const {
     if (validityControl(n_node)) {

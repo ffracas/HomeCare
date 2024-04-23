@@ -6,7 +6,8 @@
 #include <sstream>
 
 #include "../../readjson/hcdata.hpp"
-#include "../../structures/route.hpp"
+#include "../../structures/route/route.hpp"
+#include "../../structures/syncwindows/syncwindows.hpp"
 #include "infonode.hpp"
 #include "servicemanager.hpp"
 
@@ -38,7 +39,8 @@ public:
     bool isEmpty() const;
     
     void destroyReferencesForPatient(std::string);
-    std::pair<int, int> getSyncServiceWindow(std::string, std::string, int) noexcept(false);              
+    SyncWindows getServiceWindows(int) const noexcept (false);
+    std::pair<int, int> getSyncServiceWindow(std::string, std::string, int) const noexcept(false);              
     void updateSyncServiceTime(std::string, std::string, int, int);          
     std::pair<std::string, InfoNode> getInterdependetInfo(std::string, std::string, int); 
 };

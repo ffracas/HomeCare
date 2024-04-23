@@ -139,7 +139,7 @@ int HCSolution::calculateArrivalTime(int route, int patient) {
 double HCSolution::calculateCost() {
     return HCData::MAX_IDLE_TIME_WEIGHT * m_maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * m_maxTardiness 
         + HCData::TARDINESS_WEIGHT * m_totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime  
-        + HCData::EXTRA_TIME_WEIGHT * m_totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * m_travelTime;
+        + HCData::IDLE_TIME_WEIGHT * m_totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * m_travelTime;
 }
 
 double HCSolution::calculateCost(std::vector<Route>& routes) {
@@ -159,7 +159,7 @@ double HCSolution::calculateCost(std::vector<Route>& routes) {
     }
     return HCData::MAX_IDLE_TIME_WEIGHT * maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * maxTardiness +  
         HCData::TARDINESS_WEIGHT * totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * totalWaitingTime +    
-        HCData::EXTRA_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
+        HCData::IDLE_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
 }
 
 int HCSolution::writeSolutionOnFile(string outputFilePath) {

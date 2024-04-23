@@ -59,7 +59,7 @@ RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////        REPAIR 1
 
-RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patient, int n_route) {
+/*RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patient, int n_route) {
     Node n1(patient, 0);
     vector<Route> routes(routesToRepair.getRoutes());
     tuple<Node, vector<Node>, vector<Node>> data(routes[n_route].addNodeInRoute(patient, routesToRepair, n_route));
@@ -73,7 +73,14 @@ RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patie
     routes[n_route].updateRoute(completed);
     RoutesOpt repaired(routes);
     return repaired;
-}
+}*/
+RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patient, int n_route) {
+    if (n_route >= 0 && n_route < routesToRepair.getNumberOfRoutes()) { 
+        throw out_of_range("[ALNSOptimisation] repairSingle, route selected is out of range"); 
+    }
+     // Node's arrive time is not really important right now
+    Node n1(patient, routesToRepair.getRoute(n_route).getFreeTime()); 
+    routesToRepair.updateRoute() routesToRepair[n_route].addNodeInRoute(n1, n_route)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////        REPAIR 2
 
@@ -161,7 +168,7 @@ double ALNSOptimisation::calculateCost(const vector<Route>& t_routes) {
 
     return HCData::MAX_IDLE_TIME_WEIGHT * maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * maxTardiness 
         + HCData::TARDINESS_WEIGHT * totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * totalWaitingTime  
-        + HCData::EXTRA_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
+        + HCData::IDLE_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////// LIST NODE TO REPAIR

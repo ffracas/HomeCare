@@ -46,8 +46,7 @@ pair<string, InfoNode> ServiceManager::getOtherServiceInfo(string service, int c
 }
 
 pair<string, InfoNode> ServiceManager::update(string service, int currentRoute, int openWin, int closeWin) {
-    auto it = m_services.begin();
-    for (; it != m_services.end(); ++it) {
+    for (auto it = m_services.begin(); it != m_services.end(); ++it) {
         if (it->first == service && it->second.getRoute() == currentRoute) {
             if (it->second.getTime() > closeWin) {
                 it->second.setTime(closeWin);

@@ -8,7 +8,6 @@
 #include <random>
 
 #include "../../readjson/hcdata.hpp"
-#include "../../structures/route.hpp"
 #include "infonode.hpp"
 #include "routesopt.hpp"
 #include "costcoord.hpp"

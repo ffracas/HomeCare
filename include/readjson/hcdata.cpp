@@ -15,7 +15,7 @@ std::vector<Caregiver>        HCData::m_caregivers;
 const double HCData::TRAVEL_TIME_WEIGHT      = 0.165;
 const double HCData::MAX_TARDINESS_WEIGHT    = 0.165;
 const double HCData::TARDINESS_WEIGHT        = 0.165;
-const double HCData::EXTRA_TIME_WEIGHT       = 0.165;
+const double HCData::IDLE_TIME_WEIGHT       = 0.165;
 const double HCData::MAX_IDLE_TIME_WEIGHT    = 0.165;
 const double HCData::TOT_WAITING_TIME_WEIGHT = 0.165;
 

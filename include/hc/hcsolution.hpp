@@ -27,15 +27,13 @@ private:
 
     static const std::string I_SOL_FILE;
 
-    int searchForRoute(Patient, int = NO_INDEX);
+    int searchForRoute(Patient, int = HCData::NO_INDEX);
     int calculateArrivalTime(int route, int node); 
     int writeSolutionOnFile(std::string);
     double calculateCost();
     double calculateCost(std::vector<Route>&);
 
 public:
-    static const int NO_INDEX;
-
     HCSolution();
     ~HCSolution();
     int generateISolution() noexcept(false);

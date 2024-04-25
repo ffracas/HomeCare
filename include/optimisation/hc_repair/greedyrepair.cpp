@@ -11,15 +11,15 @@ int GreedyRepair::repairNodes()
 {
     RoutesOpt routesToTest(ALNSOptimisation::getCurrentSchedule());
     // Best
-    double bestCost = ALNSOptimisation::MAX_DOUBLE;
+    double bestCost = HCData::MAX_COST;
     RoutesOpt bestRoute;
 
-    //TODO cancella
+    //TODO: cancella
     ALNSOptimisation::printNodeToRelocate();
 
     while (ALNSOptimisation::hasNodeToRepair())
     {
-        bestCost = ALNSOptimisation::MAX_DOUBLE;
+        bestCost = HCData::MAX_COST;
         // find patient
         Patient patient(HCData::getPatient(ALNSOptimisation::popNodeToRepair()));
         cout<<patient.getID();
@@ -42,7 +42,7 @@ int GreedyRepair::repairNodes()
                     }
                 }
             }
-            if (bestCost != ALNSOptimisation::MAX_DOUBLE) {
+            if (bestCost != HCData::MAX_COST) {
                 routesToTest = bestRoute;
             }
             else { throw runtime_error("fallimento nel cercare soluzione"); }
@@ -72,7 +72,7 @@ int GreedyRepair::repairNodes()
                     }
                 }
             }
-            if (bestCost != ALNSOptimisation::MAX_DOUBLE) {
+            if (bestCost != HCData::MAX_COST) {
                 routesToTest = bestRoute;
             }
             else { throw runtime_error("fallimento nel cercare soluzione"); }

@@ -8,53 +8,51 @@
 #include <random>
 
 #include "../../readjson/hcdata.hpp"
-#include "infonode.hpp"
-#include "routesopt.hpp"
+#include "../../structures/service_manager/infonode.hpp" 
+#include "../../structures/schedule/scheduleoptimiser.hpp"
 #include "costcoord.hpp"
 
 namespace homecare {
 
+// TODO: Trasformare in una classe singleton
 class ALNSOptimisation {
 private:
     static double m_currentCost;
     static std::string m_currentSol;
     static std::vector<std::string> m_nodeToRelocate;
-    static RoutesOpt m_ops;    
-    static std::vector<std::pair<double, std::string>> m_solutionsRank;        //costo, hash sol
-    static std::map<std::string, std::vector<Route>> m_solutionsDump;          //hash sol, sol
+    static RoutesOpt m_ops;    //FIXME: ScheduleOptimiser
+    static std::vector<std::pair<double, std::string>> m_solutionsRank;        //costo, hash-sol
+    static std::map<std::string, Schedule> m_solutionsDump;          //hash-sol, sol
+
+    ALNSOptimisation();
    
 public:
     ~ALNSOptimisation();
-    void setISol(std::vector<Route>, double);
-
+    static ALNSOptimisation& getInstance(Schedule&, double);
     /**/ 
-    static RoutesOpt destroy(RoutesOpt, int, int) noexcept (false);                                     
+    //RoutesOpt destroy(RoutesOpt, int, int) noexcept (false);                                     
     /**/
+    //RoutesOpt repairDouble(RoutesOpt, Patient, int, int);
+    //RoutesOpt repairSingle(RoutesOpt, Patient, int);
     /**/
-    static RoutesOpt repairDouble(RoutesOpt, Patient, int, int);
-    static RoutesOpt repairSingle(RoutesOpt, Patient, int);
+    void saveDestruction(RoutesOpt&, int, int);
+    void saveRepair(RoutesOpt&);
     /**/
-    static void saveDestruction(RoutesOpt&, int, int);
-    static void saveRepair(RoutesOpt&);
+    double calculateCost(const std::vector<Route>&);
+    int getNumberOfRoutes();
     /**/
-    static double calculateCost(const std::vector<Route>&);
-    static int getNumberOfRoutes();
-    /**/
-    static void resetOperation();
+    void resetOperation();
     static std::string makeHash(const std::vector<Route>);
-    static RoutesOpt getCurrentSchedule();
-    static RoutesOpt getBestSol();
-    static double getCurrentCost();
+    //RoutesOpt getCurrentSchedule();
+    RoutesOpt getBestSol();
+    double getCurrentCost();
 
     /*Node to repiar*/
-    static bool hasNodeToRepair();                                  // Node to repair
-    static std::string popNodeToRepair() noexcept (false);          // Node to repair
+    bool hasNodeToRepair();                                  // Node to repair
+    std::string popNodeToRepair() noexcept (false);          // Node to repair
 
     /*other utilities*/
-    static double generateRandom();                                 // Random generator
-
-    //TODO cancella
-    static void printNodeToRelocate();
+    double generateRandom();                                 // Random generator
 };
 
 }

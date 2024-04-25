@@ -1,14 +1,19 @@
 CC = g++
-CFLAGS = -std=c++11 -Wall
-DFLAGS = -std=c++11 -g -Wall -O2
+CFLAGS = -std=c++17 -Wall
+DFLAGS = -std=c++17 -g -Wall -O2
 LIB = -ljsoncpp
 LIBDIR = ../include
 LDIRVR = ../include/vr
 
-LIBSTR = $(LIBDIR)/structures/validationode.cpp \
-         $(LIBDIR)/structures/node.cpp \
-         $(LIBDIR)/structures/route/route.cpp \
-         $(LIBDIR)/structures/route/routeops.cpp
+LIBSTR = $(LIBDIR)/structures/route/route.cpp \
+         $(LIBDIR)/structures/route/routeops.cpp \
+         $(LIBDIR)/structures/schedule/schedule.cpp \
+         $(LIBDIR)/structures/schedule/scheduleoptimiser.cpp \
+         $(LIBDIR)/structures/service_manager/servicemanager.cpp \
+         $(LIBDIR)/structures/service_manager/infonode.cpp \
+         $(LIBDIR)/structures/syncwindows/syncwindows.cpp \
+         $(LIBDIR)/structures/validationode.cpp \
+         $(LIBDIR)/structures/node.cpp 
 
 LIBHCO = $(LIBDIR)/hc/hcvalidation.cpp \
          $(LIBDIR)/hc/hcsolution.cpp \
@@ -21,9 +26,6 @@ LIBSER = $(LIBDIR)/patient/patient.cpp \
 
 LIBOPT = $(LIBDIR)/optimisation/hcoptimisation.cpp \
 		 $(LIBDIR)/optimisation/optimisation_structures/alnsoptimisation.cpp \
-         $(LIBDIR)/optimisation/optimisation_structures/infonode.cpp \
-         $(LIBDIR)/optimisation/optimisation_structures/servicemanager.cpp \
-         $(LIBDIR)/optimisation/optimisation_structures/routesopt.cpp \
          $(LIBDIR)/optimisation/optimisation_structures/costcoord.cpp \
          $(LIBDIR)/optimisation/optimisation_structures/kruskalgraph.cpp \
          $(LIBDIR)/optimisation/hc_removal/noderemoval.cpp \

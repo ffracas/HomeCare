@@ -3,32 +3,37 @@
 using namespace std;
 using namespace homecare;
 
-string ALNSOptimisation::m_currentSol = "";
-double ALNSOptimisation::m_currentCost = ALNSOptimisation::MAX_DOUBLE;
-RoutesOpt ALNSOptimisation::m_ops;
-vector<string> ALNSOptimisation::m_nodeToRelocate;
-std::vector<std::pair<double, std::string>> ALNSOptimisation::m_solutionsRank; 
-std::map<std::string, std::vector<Route>> ALNSOptimisation::m_solutionsDump;
+/*
+ALNSOptimisation::ALNSOptimisation(Schedule t_schedule, double t_cost) 
+    : m_currentCost(t_cost), m_currentSol(makeHash(t_schedule.getSchedule())), 
+        m_solutionsDump(), m_solutionsRank() {
+    m_solutionsDump.emplace(m_currentSol, t_schedule.getSchedule());
+    m_solutionsRank.push_back(make_pair(t_cost, m_currentSol));
+    m_ops = t_schedule;
+}
+*/
 
 ALNSOptimisation::~ALNSOptimisation() {}
 
-void ALNSOptimisation::setISol(vector<Route> routes, double cost) {
+ALNSOptimisation& ALNSOptimisation::getInstance(Schedule& firstSolution, double cost) {
     m_currentCost = cost;
-    string solHash = makeHash(routes);
+    string solHash = makeHash(firstSolution.getSchedule());
     m_currentSol = solHash;
     //fill dump
-    m_solutionsDump.emplace(solHash, routes);
+    m_solutionsDump.emplace(solHash, firstSolution.getSchedule());
     //init rank
     m_solutionsRank.push_back(make_pair(cost, solHash));
     //init list and map
     RoutesOpt Isol(routes);
     m_ops = Isol;
+    static ALNSOptimisation instance;
+    return instance;
 }
 
 int ALNSOptimisation::getNumberOfRoutes() { return m_ops.getNumberOfRoutes(); }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////         DESTROY
-
+/*
 RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node) {
     
     if (routes.getNumberOfRoutes() <= n_route || n_route < 0) { 
@@ -54,7 +59,7 @@ RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node)
     // return result
     return routes;
 }
-
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////        REPAIR 1
 
@@ -73,7 +78,7 @@ RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node)
     RoutesOpt repaired(routes);
     return repaired;
 }*/
-
+/*
 RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patient, int n_route) {
     if (n_route >= 0 && n_route < routesToRepair.getNumberOfRoutes()) { 
         throw out_of_range("[ALNSOptimisation] repairSingle, route selected is out of range"); 
@@ -83,9 +88,10 @@ RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patie
     // TODO: cambiare sti metodi
     routesToRepair.updateRoute() routesToRepair[n_route].addNodeInRoute(n1, n_route);
 }
-
+*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////        REPAIR 2
 // TODO: riscrivere sta merda
+/*
 RoutesOpt ALNSOptimisation::repairDouble(RoutesOpt routesToRepair, Patient patient, 
                                             int first_route, int second_route) {
     Node n1(patient, 0);
@@ -118,7 +124,7 @@ RoutesOpt ALNSOptimisation::repairDouble(RoutesOpt routesToRepair, Patient patie
     
     RoutesOpt repaired(routes);
     return repaired;
-}
+}*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////      SAVE
 
@@ -228,10 +234,3 @@ string ALNSOptimisation::makeHash(vector<Route> t_routes) {
     return hash.str();
 }
 
-//////////////////////////////////////////////////////////////////////////////  Cancella 
-void ALNSOptimisation::printNodeToRelocate() {
-    for (string s : m_nodeToRelocate) {
-        cout<<s<<"--";
-    }
-    cout<<endl;
-}

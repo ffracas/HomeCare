@@ -18,8 +18,6 @@
 
 namespace homecare {
 
-class RoutesOpt;
-
 class Route{
 private:
     std::vector<Node> m_nodes;
@@ -56,7 +54,7 @@ public:
     std::vector<std::string> getAvilableServices() const;
     std::string getCaregiver() const;
     std::vector<Node> getNodes() const;
-    Node getNodeToDestroy(int) const noexcept (false);
+    Node getPatientNode(int) const noexcept (false);
     int getLastNode2DepotDistance() const;
     int getNumNodes() const;
     int getMaxTardiness() const;

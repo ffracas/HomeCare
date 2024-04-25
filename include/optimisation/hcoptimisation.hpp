@@ -7,7 +7,8 @@
 
 #include "../readjson/hcdata.hpp"
 #include "../structures/route/route.hpp"
-#include "./optimisation_structures/alnsoptimisation.hpp"
+#include "../structures/schedule/schedule.hpp"
+#include "optimisation_structures/alnsoptimisation.hpp"
 #include "hc_removal/randomremoval.hpp"
 #include "hc_removal/worstremoval.hpp"
 #include "hc_removal/relatedremoval.hpp"
@@ -19,16 +20,16 @@ namespace homecare {
 
 class HCOptimisation {
 private:
-    std::vector<Route> m_initial;
-    ALNSOptimisation m_ops;
+    Schedule m_solution;
+    ALNSOptimisation& m_ops;
     static const int ELEMENT_TO_DESTROY;
     static const int PERIOD;
     //TODO variabili per meccanismi di scelta dell'algoritmo
 
 public:
-    HCOptimisation(std::vector<Route>, double);
+    HCOptimisation(Schedule, double);
     ~HCOptimisation();
-    std::vector<Route> optimise();
+    Schedule optimise();
 };
 
 }

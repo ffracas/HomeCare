@@ -4,9 +4,8 @@
 #include <sstream>
 
 #include "../optimisation_structures/alnsoptimisation.hpp"
-#include "../optimisation_structures/infonode.hpp"
+//#include "../optimisation_structures/infonode.hpp" // FIXME: include non-existing file 
 #include "../optimisation_structures/costcoord.hpp"
-#include "../optimisation_structures/routesopt.hpp"
 
 namespace homecare {
 

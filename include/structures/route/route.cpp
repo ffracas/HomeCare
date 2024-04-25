@@ -53,12 +53,10 @@ int Route::getNumNodes() const { return m_nodes.size(); }
  * @return The node at the specified position in the route.
  * @throws std::runtime_error if the route contains only one node.
  */
-Node Route::getNodeToDestroy(int pos) const
-{
+Node Route::getPatientNode(int pos) const {
     int nNodes = m_nodes.size();
-    if (nNodes == 1 || pos >= nNodes || pos == DEPOT)
-    {
-        throw std::runtime_error("Constraint on route selection.");
+    if (nNodes < 1 || pos >= nNodes || pos <= DEPOT) {
+        throw std::out_of_range("\n[route] Error: Out of range of route\n");
     }
     return m_nodes[pos];
 }
@@ -147,64 +145,8 @@ int Route::appendNode(Node newNode, int t_arrivalTime) {
             m_maxTardiness = max(tardiness, m_maxTardiness);
         }
     }
-}
-
-
-int Route::addNode(Patient t_newPatient, int t_estimatedArrivalTime) {
-    return addNode(Node(t_newPatient, t_estimatedArrivalTime), t_estimatedArrivalTime);
-}
-
-
-/**
- * Adds a new node to the route in a sequential manner.
- *
- * Updates the route's cost data:
- * - Travel time
- * - Total waiting time
- * - Max idle time
- * - Total tardiness
- * - Max tardiness
- *
- * Checks and updates timing:
- * - Waiting time if arrival is before time window open
- * - Tardiness if arrival is after time window close
- *
- * Adds the new node to the route.
- *
- * Returns the index of the added node.
- */
-int Route::addNode(Node t_newNode, int t_estimatedArrivalTime)
-{
-    // update cost data
-    // sub distance of the last arc
-    m_travelTime -= m_lastNode2DepotDistance;
-    m_travelTime += HCData::getDistance(t_newNode.getDistancesIndex(), m_caregiver.getDepotDistanceIndex());
-    // update waiting time
-    if (t_estimatedArrivalTime < t_newNode.getTimeWindowOpen())
-    {
-        int earliness = t_newNode.getTimeWindowOpen() - (m_nodes[m_nodes.size() - 1].getDeparturTime() + HCData::getDistance(getLastPatientDistanceIndex(), t_newNode.getDistancesIndex()));
-        m_totalWaitingTime += earliness;
-        m_maxIdleTime = max(earliness, m_maxIdleTime);
-        t_estimatedArrivalTime = t_newNode.getTimeWindowOpen();
-    }
-    // update tardiness
-    if (t_estimatedArrivalTime > t_newNode.getTimeWindowClose())
-    {
-        int tardiness = t_estimatedArrivalTime - t_newNode.getTimeWindowClose();
-        m_totalTardiness += tardiness;
-        m_maxTardiness = max(tardiness, m_maxTardiness);
-    }
-
-    // add new node
-    t_newNode.setArrivalTime(t_estimatedArrivalTime);
-    m_nodes.push_back(t_newNode);
-    m_lastNode2DepotDistance = HCData::getDistance(getLastPatientDistanceIndex(), t_newNode.getDistancesIndex());
-    m_nodes[DEPOT].setArrivalTime(m_nodes[m_nodes.size() - 1].getDeparturTime() + m_lastNode2DepotDistance);
-
-    // update cost data (travel time)
-    m_travelTime += m_lastNode2DepotDistance;
-
-    return m_nodes.size() - 1;
+    // FIXME: direi che manca inserimento in lista
+    return arrivalTime;
 }
 
 Route Route::deleteNode(int nodeIndex, SyncWindows syncWin) {

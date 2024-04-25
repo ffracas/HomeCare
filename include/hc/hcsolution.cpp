@@ -4,8 +4,6 @@ using namespace homecare;
 using namespace std;
 using namespace Json;
 
-const int HCSolution::NO_INDEX = -1;
-
 const string HCSolution::I_SOL_FILE("./I_soluzione.json");
 
 HCSolution::HCSolution() : m_maxTardiness (0), m_maxIdleTime (0), 
@@ -67,7 +65,7 @@ int HCSolution::optimizeSolution() {
     m_schedule = HCOptimisation(m_schedule, calculateCost()).optimise();
     updateCostData();
     //solution validation 
-    HCValidation val(m_routes);
+    HCValidation val(m_schedule.getSchedule());
     cout << val.checkSolution() << "\n";
 
     //calculate cost

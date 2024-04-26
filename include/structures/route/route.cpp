@@ -350,6 +350,10 @@ bool Route::hasService(string request) const
     return find(availableServices.begin(), availableServices.end(), request) != availableServices.end();
 }
 
+bool Route::isIndexNodeValid(int index) const {
+    return index >= DEPOT && index < m_nodes.size();
+}
+
 // TODO: move this function in schedule 
 /*void Route::replaceRoute(vector<Node>& newRoute) {
     m_nodes.clear();

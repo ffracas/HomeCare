@@ -7,12 +7,11 @@ GreedyRepair::GreedyRepair() {}
 
 GreedyRepair::~GreedyRepair() {}
 
-int GreedyRepair::repairNodes()
-{
-    RoutesOpt routesToTest(ALNSOptimisation::getCurrentSchedule());
+int GreedyRepair::repairNodes() {
+    /*ScheduleOptimiser routesToTest(ALNSOptimisation::getCurrentSchedule());
     // Best
     double bestCost = HCData::MAX_COST;
-    RoutesOpt bestRoute;
+    ScheduleOptimiser bestRoute;
 
     //TODO: cancella
     ALNSOptimisation::printNodeToRelocate();
@@ -30,7 +29,7 @@ int GreedyRepair::repairNodes()
             {
                 if (routesToTest.isServiceAvailableInRoute(patient.getCurrentService().getService(), i))
                 {
-                    RoutesOpt newRoutes = ALNSOptimisation::repairSingle(routesToTest, patient, i);
+                    ScheduleOptimiser newRoutes = ALNSOptimisation::repairSingle(routesToTest, patient, i);
                     if (!newRoutes.isEmpty())
                     {
                         double cost = ALNSOptimisation::calculateCost(newRoutes.getRoutes());
@@ -59,7 +58,7 @@ int GreedyRepair::repairNodes()
                     && patient.isCaregiverValid(routesToTest.getRouteCaregiver(i))
                     && patient.getPatientAndNextService().isCaregiverValid(routesToTest.getRouteCaregiver(j)))
                     {
-                        RoutesOpt newRoutes (ALNSOptimisation::repairDouble(routesToTest, patient, i, j));
+                        ScheduleOptimiser newRoutes (ALNSOptimisation::repairDouble(routesToTest, patient, i, j));
                         if (!newRoutes.isEmpty())
                         {
                             double cost = ALNSOptimisation::calculateCost(newRoutes.getRoutes());
@@ -78,6 +77,6 @@ int GreedyRepair::repairNodes()
             else { throw runtime_error("fallimento nel cercare soluzione"); }
         }
     }
-    ALNSOptimisation::saveRepair(routesToTest);
+    ALNSOptimisation::saveRepair(routesToTest);*/
     return 1;
 }

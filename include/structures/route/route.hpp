@@ -80,6 +80,7 @@ public:
     // checker
     bool isAvailable() const;
     bool hasService(std::string) const;
+    bool isIndexNodeValid(int) const;
     //reader
     int readNodesFromJson(Json::Value, std::vector<Patient>, std::vector<int>) noexcept (false);
     // updater

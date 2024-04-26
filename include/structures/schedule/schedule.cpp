@@ -89,16 +89,6 @@ int Schedule::getSupposedArrivalTime(int n_route, int distanceIndex, int openWT)
         openWT);
 }
 
-/**
- * Checks if the given route index is valid within the schedule.
- *
- * @param n_route The index of the route to check.
- * @return `true` if the index is valid, `false` otherwise.
- */
-bool Schedule::isIndexValid(int n_route) const {
-    return n_route >= 0 && n_route < m_routes.size() && !m_routes.empty();
-}
-
 //////////////////////////////////////////////////////////////////////////////////////       GETTER
 
 /**
@@ -228,6 +218,16 @@ bool Schedule::isServiceAvailableInRoute(string service, int n_route) const noex
     else {
         throw out_of_range("\n[Schedule] ERROR: Index out of range");
     }
+}
+
+/**
+ * Checks if the given route index is valid within the schedule.
+ *
+ * @param n_route The index of the route to check.
+ * @return `true` if the index is valid, `false` otherwise.
+ */
+bool Schedule::isIndexValid(int n_route) const {
+    return n_route >= 0 && n_route < m_routes.size() && !m_routes.empty();
 }
 
 /// Returns true if the schedule has no routes, false otherwise.

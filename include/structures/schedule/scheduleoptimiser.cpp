@@ -13,6 +13,8 @@ ScheduleOptimiser::ScheduleOptimiser(const Schedule& schedule) : Schedule(schedu
     }
 }
 
+ScheduleOptimiser::ScheduleOptimiser() : Schedule() {}
+
 ScheduleOptimiser::~ScheduleOptimiser() {}
 
 /////////////////////////////////////////////////////////////////////////////   GETTERS
@@ -22,9 +24,7 @@ int ScheduleOptimiser::getNPatientServices(string patient) const {
     if (it != m_mapOfPatient.end()) {
         // Restituisce il riferimento all'elemento se la chiave esiste
         return it->second.getAllService().size();
-    } else {
-        return 0;
-    }
+    } else { return 0; }
 }
 
 vector<InfoNode> ScheduleOptimiser::getPatientServices(string patient) const {
@@ -63,12 +63,8 @@ pair<int, int> ScheduleOptimiser::getSyncServiceWindow(string patient, string se
         soon = otherNode.getTime();
         late = soon;
     }
-    if (p.isFirstService(service)) {
-        return make_pair(max(soon - p.getMaxWait(), 0), late - p.getMinWait());
-    }
-    else {
-        return make_pair(soon + p.getMinWait(), late + p.getMaxWait());
-    }
+    if (p.isFirstService(service)) { return make_pair(max(soon - p.getMaxWait(), 0), late - p.getMinWait()); }
+    else { return make_pair(soon + p.getMinWait(), late + p.getMaxWait()); }
 }
 
 pair<string, InfoNode> ScheduleOptimiser::getInterdependetInfo(string patient, string service, int currentRoute) {
@@ -77,12 +73,14 @@ pair<string, InfoNode> ScheduleOptimiser::getInterdependetInfo(string patient, s
     
 
 /////////////////////////////////////////////////////////////////////////////   UPDATE STRUCTURES
-// FIXME: implement
-int ScheduleOptimiser::replaceRoute(Route& route, int n_route) {
-    if (!isIndexValid(n_route)) { 
-        throw out_of_range("[ScheduleOPT] Error: route index out of range"); 
+
+void ScheduleOptimiser::replaceRoute(Route& route, int n_route) {
+    if (!isIndexValid(n_route)) { throw out_of_range("[ScheduleOPT] Error: route index out of range"); }
+    Schedule::replaceRoute(route, n_route);
+    for (int i = 1; i < route.getNumNodes(); ++i) {
+        Node node = route.getPatientNode(i);
+        m_mapOfPatient[node.getId()].relocateNode(node.getService(), n_route, node.getArrivalTime(), i);
     }
-    
 }
 
 void ScheduleOptimiser::destroyReferencesForPatient(string patient) {
@@ -106,3 +104,11 @@ void ScheduleOptimiser::updateSyncServiceTime(string patient, string service, in
     otherNode = m_mapOfPatient[patient].update(otherNode.first, otherNode.second.getRoute(), openWin, closeWin);
     updateNodeTime(otherNode.second.getRoute(), otherNode.second.getPositionInRoute(), otherNode.second.getTime());
 } 
+
+/////////////////////////////////////////////////////////////////////////////   CHECKER
+
+bool ScheduleOptimiser::isNodeIndexValid(int n_route, int n_node) const {
+    if (!isIndexValid(n_route)) { return false; }
+    if (!getRoute(n_route).isIndexNodeValid(n_node)) { return false; }
+    return true;
+}

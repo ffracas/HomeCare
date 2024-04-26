@@ -15,7 +15,7 @@ public:
     ClusterRemoval(int);
     ~ClusterRemoval();
     void removeNodes(int) override;
-    void generateGraph(RoutesOpt&, int, KruskalGraph &);
+    void generateGraph(ScheduleOptimiser&, int, KruskalGraph &);
 };
 
 }

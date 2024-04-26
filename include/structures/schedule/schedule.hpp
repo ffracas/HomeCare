@@ -21,9 +21,6 @@ private:
     int getSupposedArrivalTime(int, int, int) const;
     int searchForRoute(Patient, int) const;
 
-protected:
-    bool isIndexValid(int) const;
-
 public:
     Schedule();
     Schedule(const std::vector<Caregiver>&);
@@ -42,6 +39,7 @@ public:
 
     // checker
     bool isServiceAvailableInRoute(std::string, int) const noexcept (false); 
+    bool isIndexValid(int) const;
     bool isEmpty() const;
 
     // add nodes

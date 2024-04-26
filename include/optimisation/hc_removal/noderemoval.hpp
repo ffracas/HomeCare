@@ -17,11 +17,13 @@ private:
     static const int MIN_ROUTE_LENGTH;
 
 protected:
-    const int MIN_N_NODES;
     static const int NO_INDEX;
+    const int MIN_N_NODES;
+    
+    //ALNSOptimisation m_ops; todo: implement
 
-    int chooseRandomRoute(RoutesOpt&);
-    int chooseRandomNode(RoutesOpt&, int);
+    int chooseRandomRoute(ScheduleOptimiser&);
+    int chooseRandomNode(ScheduleOptimiser&, int);
 
 public:
     NodeRemoval(int = 2);

@@ -3,107 +3,85 @@
 using namespace std;
 using namespace homecare;
 
-/*
-ALNSOptimisation::ALNSOptimisation(Schedule t_schedule, double t_cost) 
-    : m_currentCost(t_cost), m_currentSol(makeHash(t_schedule.getSchedule())), 
-        m_solutionsDump(), m_solutionsRank() {
-    m_solutionsDump.emplace(m_currentSol, t_schedule.getSchedule());
+
+ALNSOptimisation::ALNSOptimisation(Schedule t_firstSchedule, double t_cost) 
+    : m_currentCost(t_cost), m_currentSol(makeHash(t_firstSchedule.getSchedule())), 
+        m_nodeToRelocate(), m_ops (t_firstSchedule) {
+    m_solutionsDump.emplace(m_currentSol, t_firstSchedule.getSchedule());
     m_solutionsRank.push_back(make_pair(t_cost, m_currentSol));
-    m_ops = t_schedule;
 }
-*/
+
 
 ALNSOptimisation::~ALNSOptimisation() {}
 
 ALNSOptimisation& ALNSOptimisation::getInstance(Schedule& firstSolution, double cost) {
-    m_currentCost = cost;
-    string solHash = makeHash(firstSolution.getSchedule());
-    m_currentSol = solHash;
-    //fill dump
-    m_solutionsDump.emplace(solHash, firstSolution.getSchedule());
-    //init rank
-    m_solutionsRank.push_back(make_pair(cost, solHash));
-    //init list and map
-    RoutesOpt Isol(routes);
-    m_ops = Isol;
-    static ALNSOptimisation instance;
+    static ALNSOptimisation instance(firstSolution, cost);
     return instance;
 }
 
-int ALNSOptimisation::getNumberOfRoutes() { return m_ops.getNumberOfRoutes(); }
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////         DESTROY
-/*
-RoutesOpt ALNSOptimisation::destroy(RoutesOpt routes, int n_route, int pos_node) {
-    
-    if (routes.getNumberOfRoutes() <= n_route || n_route < 0) { 
-        return RoutesOpt(); 
-    }
-    if (pos_node >= routes.getNumberOfNodesInRoute(n_route) || pos_node < 1) { 
-        return RoutesOpt(); 
-    }
+
+ScheduleOptimiser ALNSOptimisation::destroy(ScheduleOptimiser routes, int n_route, int n_node) {
+    if (!routes.isNodeIndexValid(n_route, n_node)) { return ScheduleOptimiser(); }
     // save a copy of the node to delete
-    Node deletedOne (routes.getNodeInRoute(n_route, pos_node));
+    Node deletedOne (routes.getNodeFromRoute(n_route, n_node));
     // delete the node
-    Route newRoute (routes.getRoute(n_route).deleteNode(pos_node, routes, n_route));
-    // replace the route
-    routes = routes.replaceRoute(newRoute, n_route);
-    // search for interdependet node
+    if (!routes.destroyNode(n_route, n_node)) { throw runtime_error("[ALNS OPT] Error: Something in destroying node"); }
     if (deletedOne.isInterdependent()) {
-        InfoNode otherNode = routes.getInterdependetInfo(deletedOne.getId(), deletedOne.getService(), n_route)
-                                    .second;
-        Route interdepRoute (routes.getRoutes()[otherNode.getRoute()]
-                                    .deleteNode(otherNode.getPositionInRoute(), routes, otherNode.getRoute()));
-        routes = routes.replaceRoute(interdepRoute, otherNode.getRoute());
+        InfoNode otherNode = routes.getInterdependetInfo(deletedOne.getId(), deletedOne.getService(), n_route).second;
+        routes.destroyNode(otherNode.getRoute(), otherNode.getPositionInRoute());
     }
-    // return result
     return routes;
 }
-*/
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////        REPAIR 1
 
-/*RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patient, int n_route) {
+/*ScheduleOptimiser ALNSOptimisation::repairSingle(ScheduleOptimiser routes, Patient patient, int n_route) {
     Node n1(patient, 0);
-    vector<Route> routes(routesToRepair.getRoutes());
-    tuple<Node, vector<Node>, vector<Node>> data(routes[n_route].addNodeInRoute(patient, routesToRepair, n_route));
+    // fixme: sostituisci con nuovo metodo statico
+    vector<Route> routes(routes.getRoutes());
+    tuple<Node, vector<Node>, vector<Node>> data(routes[n_route].addNodeInRoute(patient, routes, n_route)); 
+    // todo: static route adding
     Node node(std::get<0>(data));
     vector<Node> first (std::get<1>(data));
     node.setArrivalTime(first.back().getDeparturTime() 
                         + HCData::getDistance(first.back().getDistancesIndex(), node.getDistancesIndex()));
     first.push_back(node);
     vector<Node> second (std::get<2>(data));   
-    vector<Node> completed (Route::mergeLists(first, second, routesToRepair, n_route)); 
+    vector<Node> completed (Route::mergeLists(first, second, routes, n_route)); 
     routes[n_route].updateRoute(completed);
-    RoutesOpt repaired(routes);
+    ScheduleOptimiser repaired(routes);
     return repaired;
+    return routes;
 }*/
-/*
-RoutesOpt ALNSOptimisation::repairSingle(RoutesOpt routesToRepair, Patient patient, int n_route) {
-    if (n_route >= 0 && n_route < routesToRepair.getNumberOfRoutes()) { 
+
+ScheduleOptimiser ALNSOptimisation::repairSingle(ScheduleOptimiser routes, Patient patient, int n_route) {
+    /*if (n_route >= 0 && n_route < routes.getNumberOfRoutes()) { 
         throw out_of_range("[ALNSOptimisation] repairSingle, route selected is out of range"); 
     }
      // Node's arrive time is not really important right now
-    Node n1(patient, routesToRepair.getRoute(n_route).getFreeTime()); 
+    Node n1(patient, routes.getRoute(n_route).getFreeTime()); 
     // TODO: cambiare sti metodi
-    routesToRepair.updateRoute() routesToRepair[n_route].addNodeInRoute(n1, n_route);
+    routes.updateRoute() routes[n_route].addNodeInRoute(n1, n_route);*/
+    return routes;
 }
-*/
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////        REPAIR 2
 // TODO: riscrivere sta merda
-/*
-RoutesOpt ALNSOptimisation::repairDouble(RoutesOpt routesToRepair, Patient patient, 
+
+ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patient patient, 
                                             int first_route, int second_route) {
-    Node n1(patient, 0);
-    vector<Route> routes(routesToRepair.getRoutes());
+    /*Node n1(patient, 0);
+    vector<Route> routes(routes.getRoutes());
     tuple<Node, vector<Node>, vector<Node>> data1(routes[first_route]
-                                                .addNodeInRoute(patient, routesToRepair, first_route));
+                                                .addNodeInRoute(patient, routes, first_route));
     Node node1(std::get<0>(data1));
     vector<Node> *first1  = &std::get<1>(data1);
     vector<Node> *second1 = &std::get<2>(data1);
     tuple<Node, vector<Node>, vector<Node>> data2(routes[second_route]
                                         .addNodeInRoute(patient.getPatientAndNextService(node1.getArrivalTime()),       
-                                                                                    routesToRepair, second_route));
+                                                                                    routes, second_route));
     Node node2(std::get<0>(data2));
     vector<Node> *first2  = &std::get<1>(data2);
     vector<Node> *second2 = &std::get<2>(data2);
@@ -117,19 +95,20 @@ RoutesOpt ALNSOptimisation::repairDouble(RoutesOpt routesToRepair, Patient patie
     //inserisci i dati
     first1 -> push_back(node1);
     first2 -> push_back(node2);
-    vector<Node> route1(Route::mergeLists(*first1, *second1, routesToRepair, first_route));
-    vector<Node> route2(Route::mergeLists(*first2, *second2, routesToRepair, second_route));
+    vector<Node> route1(Route::mergeLists(*first1, *second1, routes, first_route));
+    vector<Node> route2(Route::mergeLists(*first2, *second2, routes, second_route));
     routes[first_route].updateRoute(route1);
     routes[second_route].updateRoute(route2);
     
-    RoutesOpt repaired(routes);
-    return repaired;
-}*/
+    ScheduleOptimiser repaired(routes);
+    return repaired;*/
+    return routes;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////      SAVE
 
-void ALNSOptimisation::saveRepair(RoutesOpt& repaired) {
-    double cost = calculateCost(repaired.getRoutes());
+void ALNSOptimisation::saveRepair(ScheduleOptimiser& repaired) {
+    /*double cost = calculateCost(repaired.getRoutes());
     string hash = ALNSOptimisation::makeHash(repaired.getRoutes());
     //salva soluzione
     m_solutionsDump.emplace(hash, repaired.getRoutes());
@@ -139,11 +118,11 @@ void ALNSOptimisation::saveRepair(RoutesOpt& repaired) {
             [] (pair<double, string> e1, pair<double, string> e2) { return e1.first < e2.first; });
     m_currentSol = m_solutionsRank[0].second;
     m_currentCost = m_solutionsRank[0].first;
-    resetOperation();
+    resetOperation();*/
 }
 
-void ALNSOptimisation::saveDestruction(RoutesOpt& destructed, int n_route, int pos_node) {
-    m_nodeToRelocate.push_back(m_ops.getNodeInRoute(n_route, pos_node).getId());
+void ALNSOptimisation::saveDestruction(ScheduleOptimiser& destructed, int n_route, int n_node) {
+    m_nodeToRelocate.push_back(m_ops.getNodeFromRoute(n_route, n_node).getId());
     m_ops = destructed;
 }
 
@@ -198,11 +177,11 @@ string ALNSOptimisation::popNodeToRepair() {
 
 ////////////////////////////////////////////////////////////////////////////////////////// OTHER UTILITY
 
-RoutesOpt ALNSOptimisation::getCurrentSchedule() { return m_ops; }
+ScheduleOptimiser ALNSOptimisation::getCurrentSchedule() { return m_ops; }
 
-RoutesOpt ALNSOptimisation::getBestSol() { 
+ScheduleOptimiser ALNSOptimisation::getBestSol() { 
     string bestHash = m_solutionsRank[0].second;
-    RoutesOpt routes(m_solutionsDump[bestHash]);
+    ScheduleOptimiser routes(m_solutionsDump[bestHash]);
     return routes; 
 }
 
@@ -224,7 +203,7 @@ double ALNSOptimisation::generateRandom() {
 }
 
 void ALNSOptimisation::resetOperation() {
-    RoutesOpt routes(m_solutionsDump[m_currentSol]);
+    ScheduleOptimiser routes(m_solutionsDump[m_currentSol]);
     m_ops = routes;
 }
 

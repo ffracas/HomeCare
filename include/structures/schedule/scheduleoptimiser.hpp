@@ -12,7 +12,9 @@ namespace homecare {
 class ScheduleOptimiser : public Schedule {
 private:
     std::map<std::string, ServiceManager> m_mapOfPatient;
+
 public:
+    ScheduleOptimiser();
     ScheduleOptimiser(const Schedule&);
     ~ScheduleOptimiser();
 
@@ -24,9 +26,13 @@ public:
     std::pair<std::string, InfoNode> getInterdependetInfo(std::string, std::string, int); 
     
     // update structures
-    int replaceRoute(Route&, int) noexcept (false);
+    void replaceRoute(Route&, int) noexcept (false);
     void destroyReferencesForPatient(std::string); 
     void updateSyncServiceTime(std::string, std::string, int, int); 
+    bool destroyNode(int, int) noexcept (false);
+
+    // checker
+    bool isNodeIndexValid(int, int) const;
 };
 
 }

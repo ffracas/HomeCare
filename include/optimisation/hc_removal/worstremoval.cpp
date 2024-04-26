@@ -4,21 +4,21 @@ using namespace std;
 using namespace homecare;
 
 WorstRemoval::WorstRemoval(double t_worseParam) 
-        : NodeRemoval(3), p_worst (t_worseParam) {}
+        : NodeRemoval(3)/*, p_worst (t_worseParam)*/ {}
 
 WorstRemoval::~WorstRemoval() {}
 
 void WorstRemoval::removeNodes(int elementsToDestroy) {
-    //resetOperation();
+    /*//resetOperation();
     int n_des = 0;
-    RoutesOpt routes(ALNSOptimisation::getCurrentSchedule());
+    ScheduleOptimiser routes(ALNSOptimisation::getCurrentSchedule());
     while (n_des < elementsToDestroy) {
         vector<CostCoord> worstList;
         for (int i = 0; i < ALNSOptimisation::getNumberOfRoutes(); ++i) {
             for (int j = 1; j < routes.getNumberOfNodesInRoute(i); ++j) {
                 vector<Route> routeToTest;
                 routeToTest.push_back(routes.getRoutes()[i]);
-                RoutesOpt solCopy(routes);
+                ScheduleOptimiser solCopy(routes);
                 solCopy = ALNSOptimisation::destroy(solCopy, i, j);
                 double dif = (ALNSOptimisation::calculateCost(solCopy.getRoutes()) - ALNSOptimisation::getCurrentCost()) 
                             / ALNSOptimisation::calculateCost(routeToTest);
@@ -29,11 +29,11 @@ void WorstRemoval::removeNodes(int elementsToDestroy) {
             }
         }
         int pos = floor(pow(ALNSOptimisation::generateRandom(), p_worst) * worstList.size());
-        RoutesOpt newRoutes(ALNSOptimisation::destroy(routes,
+        ScheduleOptimiser newRoutes(ALNSOptimisation::destroy(routes,
                             worstList[pos].getRouteNumber(), worstList[pos].getNodePosition()));
         if (!newRoutes.isEmpty()) {
             routes = newRoutes;
         }
         n_des ++;
-    }
+    }*/
 }

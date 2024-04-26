@@ -7,15 +7,17 @@ RandomRemoval::RandomRemoval() : NodeRemoval() {}
 
 RandomRemoval::~RandomRemoval() {}
 
+//todo: implements
 void RandomRemoval::removeNodes(int t_elementsToDestroy) {
+    /*
     //potrebbe servire reset lista percorsi operazionale
     int i = 0;
-    RoutesOpt routes(ALNSOptimisation::getCurrentSchedule());
+    ScheduleOptimiser routes(m getCurrentSchedule());
     int n_route = chooseRandomRoute(routes);
     while (n_route != NO_INDEX) {
         int pos = chooseRandomNode(routes, n_route);
         if (pos != NO_INDEX && n_route != NO_INDEX) { 
-            RoutesOpt newRoutes(ALNSOptimisation::destroy(routes, n_route, pos));
+            ScheduleOptimiser newRoutes(ALNSOptimisation::destroy(routes, n_route, pos));
             if (!newRoutes.isEmpty()) {
                 i ++;
                 routes = newRoutes;
@@ -24,5 +26,5 @@ void RandomRemoval::removeNodes(int t_elementsToDestroy) {
         }
         if (i < t_elementsToDestroy) { n_route = chooseRandomRoute(routes); }
         else { n_route = NO_INDEX; }
-    }
+    }*/
 }

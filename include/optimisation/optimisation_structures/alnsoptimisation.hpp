@@ -1,7 +1,6 @@
 #ifndef ALNSOPTIMISATION_HPP
 #define ALNSOPTIMISATION_HPP
 
-#include <vector>
 #include <map>
 #include <sstream>
 #include <cmath>
@@ -14,45 +13,51 @@
 
 namespace homecare {
 
+// Todo: refactorare il codice 
 // TODO: Trasformare in una classe singleton
 class ALNSOptimisation {
 private:
-    static double m_currentCost;
-    static std::string m_currentSol;
-    static std::vector<std::string> m_nodeToRelocate;
-    static RoutesOpt m_ops;    //FIXME: ScheduleOptimiser
-    static std::vector<std::pair<double, std::string>> m_solutionsRank;        //costo, hash-sol
-    static std::map<std::string, Schedule> m_solutionsDump;          //hash-sol, sol
+    static ALNSOptimisation* m_instance;
 
-    ALNSOptimisation();
+    double m_currentCost;
+    std::string m_currentSol;
+    std::vector<std::string> m_nodeToRelocate;
+    ScheduleOptimiser m_ops;   
+    std::vector<std::pair<double, std::string>> m_solutionsRank;        //costo, hash-sol
+    std::map<std::string, Schedule> m_solutionsDump;                    //hash-sol, sol
+
+    ALNSOptimisation(Schedule, double);
+    ALNSOptimisation(const ALNSOptimisation&) = delete;
+    ALNSOptimisation& operator=(const ALNSOptimisation&) = delete;
    
 public:
     ~ALNSOptimisation();
-    static ALNSOptimisation& getInstance(Schedule&, double);
-    /**/ 
-    //RoutesOpt destroy(RoutesOpt, int, int) noexcept (false);                                     
-    /**/
-    //RoutesOpt repairDouble(RoutesOpt, Patient, int, int);
-    //RoutesOpt repairSingle(RoutesOpt, Patient, int);
-    /**/
-    void saveDestruction(RoutesOpt&, int, int);
-    void saveRepair(RoutesOpt&);
-    /**/
-    double calculateCost(const std::vector<Route>&);
-    int getNumberOfRoutes();
-    /**/
-    void resetOperation();
-    static std::string makeHash(const std::vector<Route>);
-    //RoutesOpt getCurrentSchedule();
-    RoutesOpt getBestSol();
-    double getCurrentCost();
 
-    /*Node to repiar*/
+    static ALNSOptimisation& getInstance(Schedule&, double);
+     
+    // main Operation
+    ScheduleOptimiser destroy(ScheduleOptimiser, int, int) noexcept (false);     
+    ScheduleOptimiser repairDouble(ScheduleOptimiser, Patient, int, int);
+    ScheduleOptimiser repairSingle(ScheduleOptimiser, Patient, int);
+
+    // save operation
+    void saveDestruction(ScheduleOptimiser&, int, int);
+    void saveRepair(ScheduleOptimiser&);
+    void resetOperation();
+
+    // getter
+    double getCurrentCost();
+    ScheduleOptimiser getCurrentSchedule();
+    ScheduleOptimiser getBestSol();
+
+    // Node to repiar
     bool hasNodeToRepair();                                  // Node to repair
     std::string popNodeToRepair() noexcept (false);          // Node to repair
 
-    /*other utilities*/
-    double generateRandom();                                 // Random generator
+    // other utilities
+    static double calculateCost(const std::vector<Route>&);  //Fixme: non mi sembra necessaria
+    static std::string makeHash(const std::vector<Route>);   //Fixme: non mi sembra necessaria
+    static double generateRandom();                                 // Random generator
 };
 
 }

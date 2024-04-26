@@ -9,9 +9,9 @@ ClusterRemoval::ClusterRemoval(int t_minNodesN)
 ClusterRemoval::~ClusterRemoval() {}
 
 void ClusterRemoval::removeNodes(int elementsToDestroy) {
-    vector<pair<int, int>> nodesToRemove;
+    /*vector<pair<int, int>> nodesToRemove;
     // Select random node
-    RoutesOpt routes(ALNSOptimisation::getCurrentSchedule());
+    ScheduleOptimiser routes(ALNSOptimisation::getCurrentSchedule());
     int n_route = chooseRandomRoute(routes);
     while (n_route != NO_INDEX) {
         KruskalGraph edges(routes.getNumberOfNodesInRoute(n_route));
@@ -24,15 +24,15 @@ void ClusterRemoval::removeNodes(int elementsToDestroy) {
         else { n_route = NO_INDEX; }
     }
     for (const pair<int, int> & node : nodesToRemove) {
-        RoutesOpt newRoutes = ALNSOptimisation::destroy(routes, node.first, node.second);
+        ScheduleOptimiser newRoutes = ALNSOptimisation::destroy(routes, node.first, node.second);
         if (!newRoutes.isEmpty()) {
             routes = newRoutes;
         }
-    }
+    }*/
 }
 
-void ClusterRemoval::generateGraph(RoutesOpt& routes, int n_route, KruskalGraph & edges) {
-    for (int i = 1; i < routes.getNumberOfNodesInRoute(n_route); ++i) {
+void ClusterRemoval::generateGraph(ScheduleOptimiser& routes, int n_route, KruskalGraph & edges) {
+    /*for (int i = 1; i < routes.getNumberOfNodesInRoute(n_route); ++i) {
         Node n_i = routes.getNodeInRoute(n_route, i);
         for (int j = i; j < routes.getNumberOfNodesInRoute(n_route); ++j) {
             double likelihood = 99999.9;
@@ -46,5 +46,5 @@ void ClusterRemoval::generateGraph(RoutesOpt& routes, int n_route, KruskalGraph 
             }
             edges.addWeightedEdge(likelihood, i, j);
         }
-    }
+    }*/
 }

@@ -6,9 +6,10 @@ using namespace Json;
 
 const string HCSolution::I_SOL_FILE("./I_soluzione.json");
 
-HCSolution::HCSolution() : m_maxTardiness (0), m_maxIdleTime (0), 
+HCSolution::HCSolution() 
+        : m_schedule(HCData::getCaregivers()), m_maxTardiness (0), m_maxIdleTime (0), 
         m_totalExtraTime (0), m_totalTardiness (0), m_totalWaitingTime (0), m_travelTime (0), 
-        m_solCost (HCData::MAX_COST), m_schedule(HCData::getCaregivers()) {}
+        m_solCost (HCData::MAX_COST) {}
 
 HCSolution::~HCSolution() {}
 

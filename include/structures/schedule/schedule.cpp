@@ -270,6 +270,13 @@ int Schedule::greedyAppend(Patient patient) {
 
 //////////////////////////////////////////////////////////////////////////////////////       UPDATER
 
+void Schedule::destroyNode(int n_route, int pos_node, const SyncWindows& syncWin) {
+    if (!isIndexValid(n_route) || !m_routes[n_route].isIndexNodeValid(pos_node)) { 
+        throw out_of_range("[Schedule] Error: route index out of range"); 
+    }
+    m_routes[n_route].deleteNode(pos_node, syncWin);
+}
+
 /**
  * Replaces the route at the specified index in the schedule.
  *
@@ -278,15 +285,23 @@ int Schedule::greedyAppend(Patient patient) {
  * @return 1 on success, or throws an `out_of_range` exception if the index is invalid.
  */
 void Schedule::replaceRoute(Route &route, int n_route) {
-    if (!isIndexValid(n_route)) {
-        throw out_of_range("[Schedule] Error: route index out of range");
-    }
+    if (!isIndexValid(n_route)) { throw out_of_range("[Schedule] Error: route index out of range"); }
     m_routes[n_route] = route;
 }
 
-void Schedule::updateNodeTime(int n_route, int n_node, int newTime) {
-    if (!isIndexValid(n_route)) {
+/**
+ * Updates the arrival time of a node in the specified route.
+ *
+ * @param n_route The index of the route to update.
+ * @param n_node The index of the node to update.
+ * @param newTime The new arrival time for the node.
+ * @throws std::out_of_range if the route index is invalid.
+ */
+void Schedule::updateNodeTime(int n_route, int n_node, int newTime)
+{
+    if (!isIndexValid(n_route))
+    {
         throw out_of_range("[Schedule]");
-    }    
+    }
     m_routes[n_route].updateNodeTime(n_node, newTime);
 }

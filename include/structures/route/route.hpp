@@ -70,7 +70,7 @@ public:
     //add node sequntial
     int appendNode(Node, int); 
     //solver
-    Route deleteNode(int, SyncWindows);
+    void deleteNode(int, SyncWindows);
     std::vector<Node> addNodeInRoute(Node, int);
     //std::vector<Node> addNodeInRoute(Patient, RoutesOpt&, int);
     //std::vector<Node> recalculateRoute(std::vector<Node>, std::vector<Node>, std::map<std::string,std::pair<int,int>>&);
@@ -84,7 +84,6 @@ public:
     //reader
     int readNodesFromJson(Json::Value, std::vector<Patient>, std::vector<int>) noexcept (false);
     // updater
-    //void replaceRoute(std::vector<Node>&);  //TODO: spostare in Schedule
     void updateNodeTime(int, int);
     //static std::vector<Node> mergeLists(std::vector<Node>&, std::vector<Node>&, RoutesOpt&, int) noexcept (false);
 

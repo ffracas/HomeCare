@@ -26,10 +26,9 @@ public:
     std::pair<std::string, InfoNode> getInterdependetInfo(std::string, std::string, int); 
     
     // update structures
-    void replaceRoute(Route&, int) noexcept (false);
-    void destroyReferencesForPatient(std::string); 
+    void replaceRoute(Route&, int) noexcept (false); 
     void updateSyncServiceTime(std::string, std::string, int, int); 
-    bool destroyNode(int, int) noexcept (false);
+    void destroyNode(int, int, std::string) noexcept (false);
 
     // checker
     bool isNodeIndexValid(int, int) const;

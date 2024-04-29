@@ -5,6 +5,7 @@
 #include <sstream>
 #include <cmath>
 #include <random>
+#include <optional>
 
 #include "../../readjson/hcdata.hpp"
 #include "../../structures/service_manager/infonode.hpp" 
@@ -13,11 +14,9 @@
 
 namespace homecare {
 
-// Todo: refactorare il codice 
-// TODO: Trasformare in una classe singleton
 class ALNSOptimisation {
 private:
-    static ALNSOptimisation* m_instance;
+    static std::optional<ALNSOptimisation*> m_instance;
 
     double m_currentCost;
     std::string m_currentSol;
@@ -33,10 +32,11 @@ private:
 public:
     ~ALNSOptimisation();
 
-    static ALNSOptimisation& getInstance(Schedule&, double);
+    static ALNSOptimisation* getInstance(Schedule&, double);
+    static ALNSOptimisation* getInstance() noexcept (false);
      
     // main Operation
-    ScheduleOptimiser destroy(ScheduleOptimiser, int, int) noexcept (false);     
+    ScheduleOptimiser destroy(ScheduleOptimiser, int, int) noexcept (false);     //todo: mettere in scheduleoptimiser
     ScheduleOptimiser repairDouble(ScheduleOptimiser, Patient, int, int);
     ScheduleOptimiser repairSingle(ScheduleOptimiser, Patient, int);
 

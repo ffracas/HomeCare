@@ -67,14 +67,30 @@ pair<int, int> ScheduleOptimiser::getSyncServiceWindow(string patient, string se
     else { return make_pair(soon + p.getMinWait(), late + p.getMaxWait()); }
 }
 
+/**
+ * Returns the information about the other service that is interdependent with the given service for the specified patient and current route.
+ *
+ * @param patient The ID of the patient.
+ * @param service The name of the service.
+ * @param currentRoute The index of the current route.
+ * @return A pair containing the name of the other service and the corresponding InfoNode.
+ * @throws runtime_error if no other node is assigned for the given service.
+ */
 pair<string, InfoNode> ScheduleOptimiser::getInterdependetInfo(string patient, string service, int currentRoute) {
     return m_mapOfPatient[patient].getOtherServiceInfo(service, currentRoute);
-} 
+}
     
-
 /////////////////////////////////////////////////////////////////////////////   UPDATE STRUCTURES
 
-void ScheduleOptimiser::replaceRoute(Route& route, int n_route) {
+/**
+ * Replaces the specified route in the schedule with the provided route.
+ * This updates the internal data structures to reflect the new route.
+ *
+ * @param route The new route to replace the existing route.
+ * @param n_route The index of the route to replace.
+ * @throws std::out_of_range if the route index is out of range.
+ */
+void ScheduleOptimiser::replaceRoute(Route &route, int n_route) {
     if (!isIndexValid(n_route)) { throw out_of_range("[ScheduleOPT] Error: route index out of range"); }
     Schedule::replaceRoute(route, n_route);
     for (int i = 1; i < route.getNumNodes(); ++i) {
@@ -83,11 +99,34 @@ void ScheduleOptimiser::replaceRoute(Route& route, int n_route) {
     }
 }
 
-void ScheduleOptimiser::destroyReferencesForPatient(string patient) {
-    m_mapOfPatient.at(patient).destroyAll();
-} 
+/**
+ * Destroys a node in the schedule at the specified route and position.
+ *
+ * @param n_route The index of the route to destroy the node from.
+ * @param pos_node The position of the node to destroy within the route.
+ * @param patient The patient associated with the node to be destroyed.
+ * @throws std::out_of_range If the route index or node position is invalid.
+ */
+void ScheduleOptimiser::destroyNode(int n_route, int pos_node, string patient) {
+    if (!isIndexValid(n_route) || !isNodeIndexValid(n_route, pos_node)) {
+        throw out_of_range("[Schedule] Error: route index out of range");
+    }
+    SyncWindows sw = getServiceWindows(n_route);
+    Schedule::destroyNode(n_route, pos_node, sw);
+    m_mapOfPatient.at(patient).destroyAll();    
+}
 
-void ScheduleOptimiser::updateSyncServiceTime(string patient, string service, int time, int currentRoute) { 
+/**
+ * Updates the sync service time for a patient's service on the given route.
+ *
+ * @param patient The patient whose service time is being updated.
+ * @param service The service whose time is being updated.
+ * @param time The new time for the service.
+ * @param currentRoute The route on which the service is being updated.
+ * @throws runtime_error if there is no other node assigned for the service.
+ */
+void ScheduleOptimiser::updateSyncServiceTime(string patient, string service, int time, int currentRoute)
+{
     pair<string, InfoNode> otherNode(m_mapOfPatient[patient].getOtherServiceInfo(service, currentRoute));
     if (!otherNode.second.isAssigned()) { throw runtime_error("[ScheduleOPT] Error: no other node"); }
     Patient p = HCData::getPatient(otherNode.second.getPatientIndex());
@@ -103,7 +142,7 @@ void ScheduleOptimiser::updateSyncServiceTime(string patient, string service, in
     }
     otherNode = m_mapOfPatient[patient].update(otherNode.first, otherNode.second.getRoute(), openWin, closeWin);
     updateNodeTime(otherNode.second.getRoute(), otherNode.second.getPositionInRoute(), otherNode.second.getTime());
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////   CHECKER
 

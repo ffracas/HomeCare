@@ -46,6 +46,7 @@ public:
     int greedyAppend(Patient);
 
     // update routes
+    void destroyNode(int, int, const SyncWindows&) noexcept (false);
     void replaceRoute(Route&, int) noexcept (false);
     void updateNodeTime(int, int, int) noexcept (false);
 };

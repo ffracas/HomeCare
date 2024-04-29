@@ -3,33 +3,74 @@
 using namespace std;
 using namespace homecare;
 
+std::optional<ALNSOptimisation*> ALNSOptimisation::m_instance;
 
-ALNSOptimisation::ALNSOptimisation(Schedule t_firstSchedule, double t_cost) 
-    : m_currentCost(t_cost), m_currentSol(makeHash(t_firstSchedule.getSchedule())), 
-        m_nodeToRelocate(), m_ops (t_firstSchedule) {
-    m_solutionsDump.emplace(m_currentSol, t_firstSchedule.getSchedule());
+/**
+ * Constructs an ALNSOptimisation instance with the given initial schedule and cost.
+ *
+ * @param t_firstSchedule The initial schedule for the optimization.
+ * @param t_cost The initial cost of the optimization.
+ */
+ALNSOptimisation::ALNSOptimisation(Schedule t_firstSchedule, double t_cost)
+    : m_currentCost(t_cost), m_currentSol(makeHash(t_firstSchedule.getSchedule())),
+      m_nodeToRelocate(), m_ops(t_firstSchedule)
+{
+    m_solutionsDump.emplace(m_currentSol, t_firstSchedule);
     m_solutionsRank.push_back(make_pair(t_cost, m_currentSol));
 }
 
 
 ALNSOptimisation::~ALNSOptimisation() {}
 
-ALNSOptimisation& ALNSOptimisation::getInstance(Schedule& firstSolution, double cost) {
-    static ALNSOptimisation instance(firstSolution, cost);
-    return instance;
+/**
+ * Gets the singleton instance of the ALNSOptimisation class, creating it if it doesn't exist.
+ *
+ * @param t_firstSolution The initial solution for the optimization.
+ * @param t_cost The initial cost of the optimization.
+ * @return The singleton instance of the ALNSOptimisation class.
+ * @throws runtime_error if no solution is found for the optimization.
+ */
+ALNSOptimisation* ALNSOptimisation::getInstance(Schedule& t_firstSolution, double t_cost) {
+    if (!m_instance.has_value()) {
+        m_instance = new ALNSOptimisation(t_firstSolution, t_cost);
+    }
+    return m_instance.value();
+}
+
+/**
+ * Returns the singleton instance of the ALNSOptimisation class.
+ *
+ * @return The singleton instance of ALNSOptimisation.
+ * @throws runtime_error if the instance has not been initialized.
+ */
+ALNSOptimisation* ALNSOptimisation::getInstance() noexcept (false) {
+    if (!m_instance.has_value()) {
+        throw runtime_error("\n[ALNSOpt] Error: No solution found for optimisation\n");
+    }
+    return m_instance.value();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////         DESTROY
 
+/**
+ * Removes a node from the specified route in the given schedule optimiser.
+ *
+ * @param routes The schedule optimiser containing the routes.
+ * @param n_route The index of the route to remove the node from.
+ * @param n_node The index of the node to remove from the route.
+ * @return The updated schedule optimiser with the node removed.
+ */
 ScheduleOptimiser ALNSOptimisation::destroy(ScheduleOptimiser routes, int n_route, int n_node) {
-    if (!routes.isNodeIndexValid(n_route, n_node)) { return ScheduleOptimiser(); }
+    if (!routes.isNodeIndexValid(n_route, n_node)) {
+        return ScheduleOptimiser();
+    }
     // save a copy of the node to delete
-    Node deletedOne (routes.getNodeFromRoute(n_route, n_node));
+    Node deleted(routes.getNodeFromRoute(n_route, n_node));
     // delete the node
-    if (!routes.destroyNode(n_route, n_node)) { throw runtime_error("[ALNS OPT] Error: Something in destroying node"); }
-    if (deletedOne.isInterdependent()) {
-        InfoNode otherNode = routes.getInterdependetInfo(deletedOne.getId(), deletedOne.getService(), n_route).second;
-        routes.destroyNode(otherNode.getRoute(), otherNode.getPositionInRoute());
+    routes.destroyNode(n_route, n_node, deleted.getId());
+    if (deleted.isInterdependent()) {
+        InfoNode otherNode = routes.getInterdependetInfo(deleted.getId(), deleted.getService(), n_route).second;
+        routes.destroyNode(otherNode.getRoute(), otherNode.getPositionInRoute(), deleted.getId());
     }
     return routes;
 }

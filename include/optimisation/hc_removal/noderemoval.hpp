@@ -19,9 +19,8 @@ private:
 protected:
     static const int NO_INDEX;
     const int MIN_N_NODES;
+    ALNSOptimisation* m_data;
     
-    //ALNSOptimisation m_ops; todo: implement
-
     int chooseRandomRoute(ScheduleOptimiser&);
     int chooseRandomNode(ScheduleOptimiser&, int);
 

@@ -11,6 +11,7 @@ namespace homecare {
 class NodeRepair {
 protected:
     const static int NOT_ASSIGNED;
+    ALNSOptimisation* m_data;
 
 public:
     NodeRepair();

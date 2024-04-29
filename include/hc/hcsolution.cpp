@@ -26,6 +26,14 @@ int HCSolution::generateISolution() {
         patientsToServe.erase(patientsToServe.begin());
     }
 
+    // todo: to delete
+    for (auto route : m_schedule.getSchedule()) {
+        for (auto node : route.getNodes()) {
+            cout<<node.getId()<<"->";
+        }
+        cout<<endl;
+    }
+
     updateCostData();
 
     //solution validation 

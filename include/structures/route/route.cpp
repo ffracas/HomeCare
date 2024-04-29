@@ -145,20 +145,24 @@ int Route::appendNode(Node newNode, int t_arrivalTime) {
             m_maxTardiness = max(tardiness, m_maxTardiness);
         }
     }
-    // FIXME: direi che manca inserimento in lista
+    m_nodes.push_back(newNode);
     return arrivalTime;
 }
 
-Route Route::deleteNode(int nodeIndex, SyncWindows syncWin) {
-    int nNodes = m_nodes.size();
-    if (nNodes <= 1 || nodeIndex >= nNodes || nodeIndex < 1){
+/**
+ * Deletes a node from the route at the specified index.
+ *
+ * @param nodeIndex The index of the node to be deleted.
+ * @param syncWin The sync windows for the route.
+ * @throws std::out_of_range If the route has less than the base route length or the node index is invalid.
+ */
+void Route::deleteNode(int nodeIndex, SyncWindows syncWin) {
+    if (m_nodes.size() < BASE_ROUTE_LEN || !isIndexNodeValid(nodeIndex)) {
         throw std::out_of_range("Constraint on node destruction.");
     }
     m_nodes.erase(m_nodes.begin() + nodeIndex);
-    //recalculateRoute();
     m_nodes = RouteOps::rescheduleRoute(m_nodes, syncWin);
     exploreData();
-    return *this;
 }
 
 // TODO: remove this function
@@ -351,7 +355,7 @@ bool Route::hasService(string request) const
 }
 
 bool Route::isIndexNodeValid(int index) const {
-    return index >= DEPOT && index < m_nodes.size();
+    return index > DEPOT && index < m_nodes.size();
 }
 
 // TODO: move this function in schedule 

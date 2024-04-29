@@ -21,7 +21,7 @@ namespace homecare {
 class HCOptimisation {
 private:
     Schedule m_solution;
-    ALNSOptimisation& m_ops;
+    ALNSOptimisation* m_ops;
     static const int ELEMENT_TO_DESTROY;
     static const int PERIOD;
     //TODO variabili per meccanismi di scelta dell'algoritmo

@@ -36,7 +36,7 @@ public:
     static ALNSOptimisation* getInstance() noexcept (false);
      
     // main Operation
-    ScheduleOptimiser destroy(ScheduleOptimiser, int, int) noexcept (false);     //todo: mettere in scheduleoptimiser
+    ScheduleOptimiser destroy(ScheduleOptimiser, int, int) noexcept (false);    
     ScheduleOptimiser repairDouble(ScheduleOptimiser, Patient, int, int);
     ScheduleOptimiser repairSingle(ScheduleOptimiser, Patient, int);
 
@@ -56,7 +56,7 @@ public:
 
     // other utilities
     static double calculateCost(const std::vector<Route>&);  //Fixme: non mi sembra necessaria
-    static std::string makeHash(const std::vector<Route>);   //Fixme: non mi sembra necessaria
+    static std::string makeHash(const std::vector<Route>&);   //Fixme: non mi sembra necessaria
     static double generateRandom();                                 // Random generator
 };
 

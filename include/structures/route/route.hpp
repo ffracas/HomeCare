@@ -70,8 +70,8 @@ public:
     //add node sequntial
     int appendNode(Node, int); 
     //solver
-    void deleteNode(int, SyncWindows);
-    std::vector<Node> addNodeInRoute(Node, int);
+    void deleteNode(int, const SyncWindows&);
+    void addNodeInRoute(Node, const SyncWindows&);
     //std::vector<Node> addNodeInRoute(Patient, RoutesOpt&, int);
     //std::vector<Node> recalculateRoute(std::vector<Node>, std::vector<Node>, std::map<std::string,std::pair<int,int>>&);
     // toFileFormat

@@ -23,7 +23,7 @@ public:
     int size();
     bool isPresent(std::string) const;
     void destroyAll();
-    void relocateNode(std::string, int, int, int);
+    int relocateNode(std::string, int, int, int);
     std::pair<std::string, InfoNode> getOtherServiceInfo(std::string, int) const noexcept (false); 
     std::pair<std::string, InfoNode> update(std::string, int, int, int) noexcept(false);               
 };

@@ -5,7 +5,7 @@ using namespace homecare;
 
 const double RouteOps::MAX_NODE_COST = 99999.99;
 
-std::vector<Node> RouteOps::rescheduleRoute(const std::vector<Node>& route, SyncWindows& scheduleOps) {
+std::vector<Node> RouteOps::rescheduleRoute(const std::vector<Node>& route, const SyncWindows& scheduleOps) {
     vector<Node> newRoute;
     if (route.empty()) {
         return newRoute;

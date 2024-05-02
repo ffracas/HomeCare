@@ -47,6 +47,7 @@ public:
 
     // update routes
     void destroyNode(int, int, const SyncWindows&) noexcept (false);
+    void repairNode(int, Node, const SyncWindows&) noexcept (false);
     void replaceRoute(Route&, int) noexcept (false);
     void updateNodeTime(int, int, int) noexcept (false);
 };

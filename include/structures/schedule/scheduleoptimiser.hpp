@@ -29,6 +29,8 @@ public:
     void replaceRoute(Route&, int) noexcept (false); 
     void updateSyncServiceTime(std::string, std::string, int, int); 
     void destroyNode(int, int, std::string) noexcept (false);
+    void repairNode(int, const Patient&) noexcept (false);
+    void updateMapOfPatient(const Route&, int);
 
     // checker
     bool isNodeIndexValid(int, int) const;

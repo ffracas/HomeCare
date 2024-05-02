@@ -116,7 +116,7 @@ double Route::getCost() const {
 }
 
 bool Route::validityControl(int node_pos) const {
-    return node_pos <= DEPOT || node_pos >= m_nodes.size();
+    return node_pos > DEPOT || node_pos < m_nodes.size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////         update route
@@ -156,7 +156,7 @@ int Route::appendNode(Node newNode, int t_arrivalTime) {
  * @param syncWin The sync windows for the route.
  * @throws std::out_of_range If the route has less than the base route length or the node index is invalid.
  */
-void Route::deleteNode(int nodeIndex, SyncWindows syncWin) {
+void Route::deleteNode(int nodeIndex, const SyncWindows& syncWin) {
     if (m_nodes.size() < BASE_ROUTE_LEN || !isIndexNodeValid(nodeIndex)) {
         throw std::out_of_range("Constraint on node destruction.");
     }
@@ -165,98 +165,11 @@ void Route::deleteNode(int nodeIndex, SyncWindows syncWin) {
     exploreData();
 }
 
-// TODO: remove this function
-/*vector<Node> Route::addNodeInRoute(Patient patient, RoutesOpt& blackops, int routeIndex) {
-    // if route index is out of bounds throw exception
-    if (routeIndex >= blackops.getNumberOfRoutes()) {
-        throw std::runtime_error("[Route::addNodeInRoute] Route index out of bounds.");
-    }
-
-    // scheduling
-    vector<Node> newSchedule;
-    vector<Node> otherNodes;
-    vector<Node> nodesList = blackops.getRoute(routeIndex).getNodes();
-
-    // get time window for sync services
-    map<string, pair<int, int>> syncWindows;
-    for (auto& node : nodesList) {
-        if (node.isInterdependent()) {
-            syncWindows[node.getId()] = blackops.getSyncServiceWindow(node.getId(), node.getService(), routeIndex);
-        }
-    }
-
-    // add new node to the route
-    Node newNode(patient, patient.getWindowStartTime());
-    nodesList.push_back(newNode);
-    // if node is interdependent add sync time window
-    if (patient.hasNextService()) {
-        syncWindows[patient.getID()] = make_pair(patient.getWindowStartTime(), patient.getWindowEndTime());
-    }
-
-    // support list for scheduling
-    vector<Node> opened;
-    vector<Node> closed;
-    opened.push_back(nodesList[0]);
-
-    // build the route
-    Node current (opened[0]);
-    while (!opened.empty()) {
-        int depTime = current.getDeparturTime();
-        opened.clear();
-        bool failed = false;
-        bool justChanged = false;
-        string oldCurrentId = "";
-        for (int i = 0; i < nodesList.size() && !failed; i++) {
-            if (nodesList[i].getId() != current.getId()) {
-                Node& node = nodesList[i];
-                // prevision time for new node
-                int previsionT = depTime + HCData::getDistance(current.getDistancesIndex(), node.getDistancesIndex());
-                // if the node is sync service and the time is not in the window
-                if (node.isInterdependent() && previsionT > syncWindows[node.getId()].second) {
-                    if (current.isDepot()) { throw runtime_error("Service is not available in this route"); }
-                    // change node if constraint is not satisfied
-                    failed = true;
-                    if (justChanged && oldCurrentId == current.getId()) {
-                        return vector<Node>();
-                    }
-                    justChanged = true;
-                    oldCurrentId = current.getId();
-                    opened.clear();
-                    int newNodeT = closed.back().getArrivalTime() 
-                                + HCData::getDistance(closed.back().getDistancesIndex(), node.getDistancesIndex());
-                    node.setArrivalTime(newNodeT);
-                    opened.push_back(node);
-                }
-                else {
-                    if (node.isInterdependent()) {
-                        previsionT = max(previsionT, syncWindows[node.getId()].first);
-                    }
-                    node.setArrivalTime(previsionT);
-                    opened.push_back(node);
-                    sort(opened.begin(), opened.end(), 
-                        [](Node& a, Node& b) { return a.getDeparturTime() < b.getDeparturTime(); });
-                }
-            }
-        }
-        if (!failed) {
-            if (current.getId() == newNode.getId()) {
-                newNode.setArrivalTime(current.getArrivalTime());
-            }
-            justChanged = false;
-            oldCurrentId = "";
-            closed.push_back(current);
-            auto it = find_if(nodesList.begin(), nodesList.end(), 
-                    [current](const Node& n) { return n.getId() == current.getId(); });
-            if (it != nodesList.end()) {
-                nodesList.erase(it);
-            } else {
-                return vector<Node>();
-            }
-        }
-        current = opened[0];
-    }
-    return closed;
-}*/
+void Route::addNodeInRoute(Node newNode, const SyncWindows& syncWin) {
+    m_nodes.push_back(newNode);
+    m_nodes = RouteOps::rescheduleRoute(m_nodes, syncWin);
+    exploreData();
+}
 
 // TODO: remove this function
 /*vector<Node> Route::mergeLists(vector<Node>& first, vector<Node>& second, RoutesOpt& blackops, int routeIndex) {
@@ -374,27 +287,22 @@ int Route::readNodesFromJson(Json::Value t_patientsInJson, vector<Patient> t_pat
     const string ARRIVAL_FIELD("arrival_time");
     const string DEPARTURE_FIELD("departure_time");
 
-    for (int i = 0; i < t_patientsInJson.size(); ++i)
-    {
+    for (int i = 0; i < t_patientsInJson.size(); ++i) {
         string patientToSearch = t_patientsInJson[i][PATIENT_FIELD].asString();
         vector<Patient>::iterator patient = find_if(t_patients.begin(), t_patients.end(),
                                                     [patientToSearch](const Patient p)
                                                     { return p.getID() == patientToSearch; });
-        if (patient == t_patients.end())
-        {
+        if (patient == t_patients.end()) {
             throw runtime_error("Errore nel file soluzione. Paziente non trovato.");
         }
-        if (patient->getCurrentService().getService() != t_patientsInJson[i][SERVICE_FIELD].asString())
-        {
+        if (patient->getCurrentService().getService() != t_patientsInJson[i][SERVICE_FIELD].asString()) {
             *patient = patient->getPatientAndNextService();
-            if (patient->getCurrentService().getService() != t_patientsInJson[i][SERVICE_FIELD].asString())
-            {
+            if (patient->getCurrentService().getService() != t_patientsInJson[i][SERVICE_FIELD].asString()) {
                 throw runtime_error("Errore nel file soluzione. Servizio non associato al paziente.");
             }
         }
         m_nodes.push_back(Node(*patient, t_patientsInJson[i][ARRIVAL_FIELD].asInt()));
-        if (m_nodes[m_nodes.size() - 1].getDeparturTime() != t_patientsInJson[i][DEPARTURE_FIELD].asInt())
-        {
+        if (m_nodes[m_nodes.size() - 1].getDeparturTime() != t_patientsInJson[i][DEPARTURE_FIELD].asInt()) {
             throw runtime_error("Errore nel file soluzione. Problema nei tempi.");
         }
     }
@@ -408,7 +316,7 @@ int Route::readNodesFromJson(Json::Value t_patientsInJson, vector<Patient> t_pat
 ////////////////////////////////////////////////////////////////////////////////////////////////          Utils
 
 int Route::getNoChangeWindowCloseTime(int n_node) const {
-    if (validityControl(n_node)) {
+    if (!validityControl(n_node)) {
         throw std::out_of_range("[route] Constraint on route selection.");
     }
     // if last node return max(arrival, close)
@@ -422,7 +330,7 @@ int Route::getNoChangeWindowCloseTime(int n_node) const {
 }
 
 int Route::getNoChangeWindowOpenTime(int n_node) const {
-    if (validityControl(n_node)) {
+    if (!validityControl(n_node)) {
         throw std::out_of_range("[route] Constraint on route selection.");
     }
     int time = max(m_nodes[n_node].getArrivalTime(), m_nodes[n_node].getTimeWindowOpen());
@@ -431,7 +339,7 @@ int Route::getNoChangeWindowOpenTime(int n_node) const {
 }
 
 void Route::updateNodeTime(int n_node, int arrival) {
-    if (validityControl(n_node)) {
+    if (!validityControl(n_node)) {
         throw std::out_of_range("[route] Constraint on route selection.");
     }
     m_nodes[n_node].setArrivalTime(arrival);

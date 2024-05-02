@@ -95,7 +95,10 @@ void ScheduleOptimiser::replaceRoute(Route &route, int n_route) {
     Schedule::replaceRoute(route, n_route);
     for (int i = 1; i < route.getNumNodes(); ++i) {
         Node node = route.getPatientNode(i);
-        m_mapOfPatient[node.getId()].relocateNode(node.getService(), n_route, node.getArrivalTime(), i);
+        if (!m_mapOfPatient[node.getId()].relocateNode(node.getService(), n_route, node.getArrivalTime(), i)) {
+            m_mapOfPatient[node.getId()].insertService(node.getService(), 
+                    InfoNode(n_route, i, node.getArrivalTime(), HCData::getPatientPosition(node.getId())));
+        }
     }
 }
 
@@ -114,6 +117,22 @@ void ScheduleOptimiser::destroyNode(int n_route, int pos_node, string patient) {
     SyncWindows sw = getServiceWindows(n_route);
     Schedule::destroyNode(n_route, pos_node, sw);
     m_mapOfPatient.at(patient).destroyAll();    
+}
+
+void ScheduleOptimiser::repairNode(int n_route, const Patient& patient) {
+    if (!isIndexValid(n_route)) { throw out_of_range("[Schedule] Error: route index out of range"); }
+    SyncWindows sw = getServiceWindows(n_route);
+    volatile int time = getRoute(n_route).getFreeTime() + 100;
+    Node node = Node(patient, time);
+    Schedule::repairNode(n_route, node, sw);
+    updateMapOfPatient(getRoute(n_route), n_route);
+}
+
+void ScheduleOptimiser::updateMapOfPatient(const Route &route, int n_route) {
+    for (int i = 1; i < route.getNumNodes(); ++i) {
+        Node node = route.getPatientNode(i);
+        m_mapOfPatient[node.getId()].relocateNode(node.getService(), n_route, node.getArrivalTime(), i);
+    }
 }
 
 /**

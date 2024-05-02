@@ -60,6 +60,7 @@ ALNSOptimisation* ALNSOptimisation::getInstance() noexcept (false) {
  * @param n_node The index of the node to remove from the route.
  * @return The updated schedule optimiser with the node removed.
  */
+
 ScheduleOptimiser ALNSOptimisation::destroy(ScheduleOptimiser routes, int n_route, int n_node) {
     if (!routes.isNodeIndexValid(n_route, n_node)) {
         return ScheduleOptimiser();
@@ -98,13 +99,11 @@ ScheduleOptimiser ALNSOptimisation::destroy(ScheduleOptimiser routes, int n_rout
 }*/
 
 ScheduleOptimiser ALNSOptimisation::repairSingle(ScheduleOptimiser routes, Patient patient, int n_route) {
-    /*if (n_route >= 0 && n_route < routes.getNumberOfRoutes()) { 
-        throw out_of_range("[ALNSOptimisation] repairSingle, route selected is out of range"); 
+    if (!routes.isIndexValid(n_route)) { 
+        throw out_of_range("[ALNSOptimisation] RepairSingle Error, route selected is out of range"); 
     }
-     // Node's arrive time is not really important right now
-    Node n1(patient, routes.getRoute(n_route).getFreeTime()); 
-    // TODO: cambiare sti metodi
-    routes.updateRoute() routes[n_route].addNodeInRoute(n1, n_route);*/
+    // Node's arrive time is not really important right now 
+    routes.repairNode(n_route, patient);
     return routes;
 }
 
@@ -149,17 +148,17 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
 //////////////////////////////////////////////////////////////////////////////////////////////////////////      SAVE
 
 void ALNSOptimisation::saveRepair(ScheduleOptimiser& repaired) {
-    /*double cost = calculateCost(repaired.getRoutes());
-    string hash = ALNSOptimisation::makeHash(repaired.getRoutes());
+    double cost = repaired.getCost();
+    string hash = ALNSOptimisation::makeHash(repaired.getSchedule());
     //salva soluzione
-    m_solutionsDump.emplace(hash, repaired.getRoutes());
+    m_solutionsDump.insert({hash, repaired});
     //classifica soluzioni
     m_solutionsRank.push_back(make_pair(cost, hash));
     sort(m_solutionsRank.begin(), m_solutionsRank.end(), 
             [] (pair<double, string> e1, pair<double, string> e2) { return e1.first < e2.first; });
     m_currentSol = m_solutionsRank[0].second;
     m_currentCost = m_solutionsRank[0].first;
-    resetOperation();*/
+    resetOperation();
 }
 
 void ALNSOptimisation::saveDestruction(ScheduleOptimiser& destructed, int n_route, int n_node) {
@@ -248,7 +247,7 @@ void ALNSOptimisation::resetOperation() {
     m_ops = routes;
 }
 
-string ALNSOptimisation::makeHash(vector<Route> t_routes) {
+string ALNSOptimisation::makeHash(const vector<Route>& t_routes) {
     stringstream hash;
     for (Route const & route : t_routes) { hash << route.getHash(); }
     return hash.str();

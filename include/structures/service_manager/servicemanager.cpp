@@ -36,14 +36,14 @@ void ServiceManager::destroyAll() {
     }
 }
 
-void ServiceManager::relocateNode(string service, int route, int arrival, int routePos) {
+int ServiceManager::relocateNode(string service, int route, int arrival, int routePos) {
     for (auto it = m_services.begin(); it != m_services.end(); ++it) {
         if (it->first == service && !it->second.isAssigned()) {
             it->second.setInRoute(route, routePos, arrival);
-            return;
+            return 1;
         }
     }
-    throw runtime_error("[service manager] Service not found");
+    return 0;
 }
 
 pair<string, InfoNode> ServiceManager::getOtherServiceInfo(string service, int currentRoute) const {

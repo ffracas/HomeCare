@@ -15,7 +15,7 @@ class RouteOps {
 
 public:
     static const double MAX_NODE_COST;
-    static std::vector<Node> rescheduleRoute(const std::vector<Node>&, SyncWindows&);
+    static std::vector<Node> rescheduleRoute(const std::vector<Node>&, const SyncWindows&);
     static std::vector<Node> scheduleRoute(std::vector<Node>, std::vector<Node>, 
                                             std::map<std::string,std::pair<int,int>>&);
     static double calculateCost(const Node&, Node, std::map<std::string,std::pair<int,int>>&);

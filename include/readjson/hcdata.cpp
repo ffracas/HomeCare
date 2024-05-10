@@ -154,7 +154,7 @@ vector<int> HCData::getNodeDistances(int t_node) noexcept(false) {
 int HCData::getDistance(int t_departure, int t_arrival) { 
     if (t_departure < 0 || t_departure >= m_distances.size() || 
             t_arrival < 0 || t_arrival >= m_distances[t_departure].size()) {
-        throw std::out_of_range("Indice non contenuto nella matrice delle distanze");
+        throw std::out_of_range("[GET Distance] Indice non contenuto nella matrice delle distanze");
     }
     return m_distances[t_departure][t_arrival]; 
 }

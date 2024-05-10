@@ -7,6 +7,7 @@ LDIRVR = ../include/vr
 
 LIBSTR = $(LIBDIR)/structures/route/route.cpp \
          $(LIBDIR)/structures/route/routeops.cpp \
+         $(LIBDIR)/structures/route/dataroute.cpp \
          $(LIBDIR)/structures/schedule/schedule.cpp \
          $(LIBDIR)/structures/schedule/scheduleoptimiser.cpp \
          $(LIBDIR)/structures/service_manager/servicemanager.cpp \

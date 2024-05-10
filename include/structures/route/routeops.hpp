@@ -5,6 +5,7 @@
 #include <map>
 #include <queue>
 
+#include "dataroute.hpp"
 #include "../node.hpp"
 #include "../../readjson/hcdata.hpp"
 #include "../../structures/syncwindows/syncwindows.hpp"
@@ -12,15 +13,13 @@
 namespace homecare {
 
 class RouteOps {
-
-public:
-    static const double MAX_NODE_COST;
-    static std::vector<Node> rescheduleRoute(const std::vector<Node>&, const SyncWindows&);
-    static std::vector<Node> scheduleRoute(std::vector<Node>, std::vector<Node>, 
-                                            std::map<std::string,std::pair<int,int>>&);
-    static double calculateCost(const Node&, Node, std::map<std::string,std::pair<int,int>>&);
-    static std::vector<Node> escludeNode(const std::vector<Node>&, const Node&);
-
+    public:
+        static const int BASE_ROUTE_LEN;
+        static std::vector<Node> rescheduleRoute(std::vector<Node>&);
+        static std::vector<Node> scheduleRoute(std::vector<Node>&);
+        static DataRoute scheduleRoute(std::vector<Node>, Node);
+        static std::vector<Node> excludeNode(const std::vector<Node>&, const Node&);
+        static bool validityControl(std::vector<Node>&, int, int);
 };
 
     

@@ -4,9 +4,6 @@
 using namespace std;
 using namespace homecare;
 
-const int Route::BASE_ROUTE_LEN = 2;
-const int Route::DEPOT = 0;
-
 // Constructor
 Route::Route(Caregiver t_caregiver) : m_caregiver(t_caregiver)
 {
@@ -96,6 +93,13 @@ int Route::getExtraTime() const {
     return endTime > 0 ? endTime : 0;
 }
 
+double Route::getCost() const {
+    if (m_nodes.size() < RouteOps::BASE_ROUTE_LEN) { return 0; }
+    return HCData::MAX_WAIT_TIME_WEIGHT * m_maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * m_maxTardiness 
+        + HCData::TARDINESS_WEIGHT * m_totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime 
+        + HCData::EXTRA_TIME_WEIGHT * getExtraTime() + HCData::TRAVEL_TIME_WEIGHT * m_travelTime;
+}
+
 string Route::getHash() const {
     stringstream ss;
     ss << m_caregiver.getID() << "--";
@@ -106,20 +110,7 @@ string Route::getHash() const {
     return ss.str();
 }
 
-double Route::getCost() const {
-    if (m_nodes.size() < BASE_ROUTE_LEN) {
-        return 0;
-    }
-    return HCData::MAX_WAIT_TIME_WEIGHT * m_maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * m_maxTardiness 
-        + HCData::TARDINESS_WEIGHT * m_totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime 
-        + HCData::EXTRA_TIME_WEIGHT * getExtraTime() + HCData::TRAVEL_TIME_WEIGHT * m_travelTime;
-}
-
-bool Route::validityControl(int node_pos) const {
-    return node_pos > DEPOT || node_pos < m_nodes.size();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////         update route
+////////////////////////////////////////////////////////////////////////////////////////////////       UPDATE
 int Route::appendNode(Node newNode, int t_arrivalTime) {
     // subtract old return to depot time
     m_travelTime -= m_lastNode2DepotDistance;
@@ -157,128 +148,37 @@ int Route::appendNode(Node newNode, int t_arrivalTime) {
  * @throws std::out_of_range If the route has less than the base route length or the node index is invalid.
  */
 void Route::deleteNode(int nodeIndex, const SyncWindows& syncWin) {
-    if (m_nodes.size() < BASE_ROUTE_LEN || !isIndexNodeValid(nodeIndex)) {
-        throw std::out_of_range("Constraint on node destruction.");
+    if (m_nodes.size() < RouteOps::BASE_ROUTE_LEN || !isIndexNodeValid(nodeIndex)) {
+        throw std::out_of_range("\n[Route] Error: Constraint on node destruction.\n");
     }
     m_nodes.erase(m_nodes.begin() + nodeIndex);
-    m_nodes = RouteOps::rescheduleRoute(m_nodes, syncWin);
-    exploreData();
+    //m_nodes = RouteOps::rescheduleRoute(m_nodes, syncWin);
+    //m_nodes = RouteOps::rescheduleRoute(m_nodes);
+    //exploreData();
 }
 
 void Route::addNodeInRoute(Node newNode, const SyncWindows& syncWin) {
     m_nodes.push_back(newNode);
-    m_nodes = RouteOps::rescheduleRoute(m_nodes, syncWin);
+    //m_nodes = RouteOps::rescheduleRoute(m_nodes, syncWin);
+    m_nodes = RouteOps::rescheduleRoute(m_nodes);
     exploreData();
 }
 
-// TODO: remove this function
-/*vector<Node> Route::mergeLists(vector<Node>& first, vector<Node>& second, RoutesOpt& blackops, int routeIndex) {
-    // if second is empty return first
-    if (second.empty()) {
-        return first;
-    }
-    // if first is not empty the first node in second is the depot
-    if (!first.empty()) {
-        second.insert(second.begin(), first.back());
-        first.pop_back();
-    }
-    
-    // get time window for sync services
-    map<string, pair<int, int>> syncWindows;
-    for (auto& node : second) {
-        if (node.isInterdependent()) {
-            syncWindows[node.getId()] = blackops.getSyncServiceWindow(node.getId(), node.getService(), routeIndex);
-        }
-    }
-
-    // support list for scheduling
-    vector<Node> opened;
-    vector<Node> closed;
-    opened.push_back(second[0]);
-    if (!first.empty()) {
-        closed.push_back(first.back());
-    }
-
-    // build the route
-    Node current (opened[0]);
-    while (!opened.empty()) {
-        int depTime = current.getDeparturTime();
-        opened.clear();
-        bool failed = false;
-        bool justChanged = false;
-        string oldCurrentId = "";
-        for (int i = 0; i < second.size() && !failed; i++) {
-            if (second[i].getId() != current.getId()) {
-                Node& node = second[i];
-                // prevision time for new node
-                int previsionT = depTime + HCData::getDistance(current.getDistancesIndex(), node.getDistancesIndex());
-                // if the node is sync service and the time is not in the window
-                if (node.isInterdependent() && previsionT > syncWindows[node.getId()].second) {
-                    if (current.isDepot()) { throw runtime_error("Service is not available in this route"); }
-                    // change node if constraint is not satisfied
-                    failed = true;
-                    if (justChanged && oldCurrentId == current.getId()) {
-                        throw runtime_error("Service is not available in this route");
-                    }
-                    justChanged = true;
-                    oldCurrentId = current.getId();
-                    opened.clear();
-                    int newNodeT = closed.back().getArrivalTime() 
-                                + HCData::getDistance(closed.back().getDistancesIndex(), node.getDistancesIndex());
-                    node.setArrivalTime(newNodeT);
-                    opened.push_back(node);
-                }
-                else {
-                    node.setArrivalTime(previsionT);
-                    opened.push_back(node);
-                    sort(opened.begin(), opened.end(), 
-                        [](Node& a, Node& b) { return a.getDeparturTime() < b.getDeparturTime(); });
-                }
-            }
-        }
-        if (!failed) {
-            justChanged = false;
-            oldCurrentId = "";
-            closed.push_back(current);
-            auto it = find_if(second.begin(), second.end(), 
-                    [current](const Node& n) { return n.getId() == current.getId(); });
-            if (it != second.end()) {
-                second.erase(it);
-            } else {
-                throw runtime_error ("Error in Route::mergeLists: node not found in second list");
-            }
-        }
-        current = opened[0];
-    }
-
-    // add nodes to the route
-    for (auto& node : closed) {
-        first.push_back(node);
-    }
-
-    return first;
-}*/
+bool Route::validityControl(int node_pos) const { return node_pos > DEPOT || node_pos < m_nodes.size(); }
 
 bool Route::isAvailable() const { return m_caregiver.isWorking(this->getFreeTime()); }
 
-bool Route::hasService(string request) const
-{
+bool Route::hasService(string request) const {
     vector<string> availableServices = m_caregiver.getServicesList();
     return find(availableServices.begin(), availableServices.end(), request) != availableServices.end();
 }
 
-bool Route::isIndexNodeValid(int index) const {
-    return index > DEPOT && index < m_nodes.size();
-}
-
-// TODO: move this function in schedule 
-/*void Route::replaceRoute(vector<Node>& newRoute) {
-    m_nodes.clear();
-    m_nodes = newRoute;
-    exploreData();
-}*/
+bool Route::isIndexNodeValid(int index) const { return index > DEPOT && index < m_nodes.size(); }
 
 vector<Node> Route::getNodes() const { return m_nodes; }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////       READ FROM FILE
 
 int Route::readNodesFromJson(Json::Value t_patientsInJson, vector<Patient> t_patients, vector<int> t_depotDistances)
 {
@@ -313,7 +213,7 @@ int Route::readNodesFromJson(Json::Value t_patientsInJson, vector<Patient> t_pat
     return m_nodes.size() - 1;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////          Utils
+////////////////////////////////////////////////////////////////////////////////////////////////          UTILS
 
 int Route::getNoChangeWindowCloseTime(int n_node) const {
     if (!validityControl(n_node)) {
@@ -345,8 +245,12 @@ void Route::updateNodeTime(int n_node, int arrival) {
     m_nodes[n_node].setArrivalTime(arrival);
 }
 
+/**
+ * Explores the data associated with the route, calculating various metrics that are 
+ * total travel time, total waiting time, total tardiness, and the maximum idle time and tardiness.
+ */
 void Route::exploreData() {
-    //reset params
+    // reset params
     m_maxTardiness = 0;
     m_maxIdleTime = 0;
     m_totalTardiness = 0;
@@ -354,26 +258,21 @@ void Route::exploreData() {
     m_travelTime = 0;
 
     for (vector<Node>::iterator i = m_nodes.begin() + 1; i != m_nodes.end(); ++i) {
-        
-        m_travelTime += HCData::getDistance((i-1)->getDistancesIndex(), i->getDistancesIndex());
+        m_travelTime += HCData::getDistance((i - 1)->getDistancesIndex(), i->getDistancesIndex());
         if (i->getArrivalTime() < i->getTimeWindowOpen()) {
             int waiting = i->getTimeWindowOpen() - i->getArrivalTime();
             m_totalWaitingTime += waiting;
-            if (waiting > m_maxIdleTime) {
-                m_maxIdleTime = waiting;
-            }
+            if (waiting > m_maxIdleTime) { m_maxIdleTime = waiting; }
         }
         else if (i->getArrivalTime() > i->getTimeWindowClose()) {
             int tardiness = i->getArrivalTime() - i->getTimeWindowClose();
             m_totalTardiness += tardiness;
-            if (tardiness > m_maxTardiness) {
-                m_maxTardiness = tardiness;
-            }
+            if (tardiness > m_maxTardiness) { m_maxTardiness = tardiness; }
         }
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////// Output
+///////////////////////////////////////////////////////////////////////////////////////////////////////// OUTPUT
 Json::Value Route::getJSONRoute() const
 {
     Json::Value route;

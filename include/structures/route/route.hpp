@@ -31,11 +31,10 @@ private:
 
     int m_lastNode2DepotDistance;
 
-    static const int BASE_ROUTE_LEN;
-    static const int DEPOT;
+    static const int DEPOT = 0;
 
     //void makeTimeRecalculation(int);
-    int addNode(Node, int, int, int);
+    //int addNode(Node, int, int, int);
     //void recalculateRoute(const int = 1);
     //static std::vector<Node>::iterator nextNode(std::vector<Node>&, std::vector<Node>::iterator, bool);
     bool validityControl(int) const;
@@ -66,30 +65,25 @@ public:
     int getDeltaTime() const;
     std::string getHash() const;
     double getCost() const;
+    int getNoChangeWindowCloseTime(int) const noexcept (false);
+    int getNoChangeWindowOpenTime(int) const noexcept (false);
 
     //add node sequntial
     int appendNode(Node, int); 
     //solver
     void deleteNode(int, const SyncWindows&);
     void addNodeInRoute(Node, const SyncWindows&);
-    //std::vector<Node> addNodeInRoute(Patient, RoutesOpt&, int);
-    //std::vector<Node> recalculateRoute(std::vector<Node>, std::vector<Node>, std::map<std::string,std::pair<int,int>>&);
-    // toFileFormat
-    std::string getRouteToString() const;
-    Json::Value getJSONRoute() const;
     // checker
     bool isAvailable() const;
     bool hasService(std::string) const;
     bool isIndexNodeValid(int) const;
-    //reader
-    int readNodesFromJson(Json::Value, std::vector<Patient>, std::vector<int>) noexcept (false);
     // updater
     void updateNodeTime(int, int);
-    //static std::vector<Node> mergeLists(std::vector<Node>&, std::vector<Node>&, RoutesOpt&, int) noexcept (false);
-
-    int getNoChangeWindowCloseTime(int) const noexcept (false);
-    int getNoChangeWindowOpenTime(int) const noexcept (false);
-    
+    // output for File
+    std::string getRouteToString() const;
+    Json::Value getJSONRoute() const;
+    // input from File
+    int readNodesFromJson(Json::Value, std::vector<Patient>, std::vector<int>) noexcept (false);
 };
 
 }

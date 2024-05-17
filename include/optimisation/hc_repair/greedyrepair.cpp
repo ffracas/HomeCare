@@ -22,14 +22,17 @@ int GreedyRepair::repairNodes() {
         ScheduleOptimiser bestRoute;
         double bestCost = HCData::MAX_COST;
         // find patient
+        string s;
+        cin>>s;
         Patient patient(HCData::getPatient(m_data->popNodeToRepair()));
-        cout << patient.getID();
+        cout << patient.getID()<<endl;
         // indipendet service
         if (!patient.hasNextService()) {
             for (int i = 0; i < routesToTest.getNumberOfRoutes(); ++i) {
                 if (routesToTest.isServiceAvailableInRoute(patient.getCurrentService().getService(), i)) {
                     ScheduleOptimiser newRoutes = m_data->repairSingle(routesToTest, patient, i);
                     if (!newRoutes.isEmpty()) {
+                        cout<<"riuscito";
                         double cost = newRoutes.getCost();
                         if (cost < bestCost) {
                             bestCost = cost;

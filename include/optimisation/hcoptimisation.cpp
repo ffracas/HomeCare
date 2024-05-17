@@ -19,12 +19,22 @@ Schedule HCOptimisation::optimise() {
     cout<<"\nrem\n";
     //rr.removeNodes(ELEMENT_TO_DESTROY);
     ScheduleOptimiser routes(m_ops->getCurrentSchedule());
-    ScheduleOptimiser r1(m_ops->destroy(routes, 6, 4));
-    m_ops->saveDestruction(r1,6,4);
-    ScheduleOptimiser r2(m_ops->destroy(r1, 9, 2));
-    m_ops->saveDestruction(r2,9,2);
-    ScheduleOptimiser r3(m_ops->destroy(r2, 12, 1));
-    m_ops->saveDestruction(r3,12,1);
+    //ScheduleOptimiser r1(m_ops->destroy(routes, 6, 4));
+    //m_ops->saveDestruction(r1,6,4);
+    //cout<<"--------------\n";
+    ScheduleOptimiser r2(m_ops->destroy(routes, 12, 1));
+    m_ops->saveDestruction(r2,12,1);
+    cout<<"--------------\n";
+    ScheduleOptimiser r3(m_ops->destroy(r2, 4, 2));
+    m_ops->saveDestruction(r3,4,2);
+    cout<<"--------------\n";
+    /*ScheduleOptimiser r4(m_ops->destroy(r3, 6, 4));
+    m_ops->saveDestruction(r4,12,1);
+    cout<<"--------------\n";
+    ScheduleOptimiser r5(m_ops->destroy(r4, 0, 4));
+    m_ops->saveDestruction(r5,12,1);*/
+
+
 
     //todo: to delete
     for (auto route : m_ops->getCurrentSchedule().getSchedule()) {
@@ -33,13 +43,18 @@ Schedule HCOptimisation::optimise() {
         }
         cout<<endl;
     }
-    cout<<"\nCurrent cost: "<<m_ops->getCurrentCost()<<"\n";
+    //cout<<"\nCurrent cost: "<<m_ops->getCurrentCost()<<"\n";
 
     cout<<"\nrep\n";
     gr.repairNodes();
+    cout<<"\n----------\n";
+    //todo: to delete
+    for (auto route : m_ops->getCurrentSchedule().getSchedule()) {
+        for (auto node : route.getNodes()) {
+            cout<<node.getId()<<"->";
+        }
+        cout<<endl;
+    }
        
     return m_ops->getBestSol();
-    /*for (const Route& r : m_ops.getCurrentSol().getRoutes()) {
-        cout << r.getRouteToString() << "\n ----------------------------- \n";
-    }*/
 }

@@ -18,6 +18,7 @@ public:
     void addSyncWindow(std::string, std::pair<int, int>);
     // getter
     std::pair<int, int> getSyncWindow(std::string) const noexcept(false);
+    std::string toString() const; 
 };
 
 }

@@ -72,12 +72,13 @@ public:
     int appendNode(Node, int); 
     //solver
     void deleteNode(int, const SyncWindows&);
-    void addNodeInRoute(Node, const SyncWindows&);
+    int addNodeInRoute(Node, const SyncWindows&);
     // checker
     bool isAvailable() const;
     bool hasService(std::string) const;
     bool isIndexNodeValid(int) const;
     // updater
+    int reschedule(const SyncWindows&);
     void updateNodeTime(int, int);
     // output for File
     std::string getRouteToString() const;

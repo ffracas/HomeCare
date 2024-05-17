@@ -36,10 +36,19 @@ void SyncWindows::addSyncWindow(string patient, pair<int, int> syncWindow) {
  * @throws runtime_error if no sync window is found for the specified patient.
  */
 pair<int, int> SyncWindows::getSyncWindow(string patient) const {
-    if (m_syncWindows.find("f") == m_syncWindows.end()) {
+    if (m_syncWindows.find(patient) == m_syncWindows.end()) {
         throw runtime_error("Sync window not found for service " + patient);
     }
     else {
         return m_syncWindows.at(patient);
     }
+}
+
+string SyncWindows::toString() const {
+    stringstream ss;
+    ss << " Sync Win\n";
+    for (const auto &el : m_syncWindows) {
+        ss <<el.first <<" -> "<<el.second.first <<" -> "<<el.second.second<< '\n';
+    }
+    return ss.str();
 }

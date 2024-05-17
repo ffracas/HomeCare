@@ -73,6 +73,7 @@ ScheduleOptimiser ALNSOptimisation::destroy(ScheduleOptimiser routes, int n_rout
         InfoNode otherNode = routes.getInterdependetInfo(deleted.getId(), deleted.getService(), n_route).second;
         routes.destroyNode(otherNode.getRoute(), otherNode.getPositionInRoute(), deleted.getId());
     }
+    routes.destroyPatientRef(deleted.getId());  
     return routes;
 }
 
@@ -103,7 +104,9 @@ ScheduleOptimiser ALNSOptimisation::repairSingle(ScheduleOptimiser routes, Patie
         throw out_of_range("[ALNSOptimisation] RepairSingle Error, route selected is out of range"); 
     }
     // Node's arrive time is not really important right now 
-    routes.repairNode(n_route, patient);
+    if (routes.repairNode(n_route, patient) == false) {
+        return ScheduleOptimiser();
+    }
     return routes;
 }
 

@@ -13,9 +13,10 @@
 namespace homecare {
 
 class Schedule {
-private:
+protected:
     std::vector<Route> m_routes;
-    
+
+private:
     // utils
     double calculateSupposedCost(int, Node) const;
     int getSupposedArrivalTime(int, int, int) const;
@@ -46,8 +47,6 @@ public:
     int greedyAppend(Patient);
 
     // update routes
-    void destroyNode(int, int, const SyncWindows&) noexcept (false);
-    void repairNode(int, Node, const SyncWindows&) noexcept (false);
     void replaceRoute(Route&, int) noexcept (false);
     void updateNodeTime(int, int, int) noexcept (false);
 };

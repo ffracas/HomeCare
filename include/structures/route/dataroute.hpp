@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../node.hpp"
+#include "../syncwindows/syncwindows.hpp"
 #include "../../readjson/hcdata.hpp"
 
 namespace homecare {
@@ -13,16 +14,18 @@ private:
     std::vector<Node> m_nodes;
     double m_cost;
 
-    void calcolateCost(int, int);
+    void calculateCost(int, int, const SyncWindows&);
 public:
     DataRoute();
-    DataRoute(Node, int, int);
+    DataRoute(Node, int, int, const SyncWindows&);
+    DataRoute(Node);
     ~DataRoute();
 
-    void addNode(Node, int, int);
+    void addNode(Node, int, int, const SyncWindows&);
 
     std::vector<Node> getNodes();
     double getCost();
+    int getFirstDistanceIndex();
 };
 
 

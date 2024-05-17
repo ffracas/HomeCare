@@ -36,7 +36,7 @@ SyncWindows ScheduleOptimiser::getServiceWindows(int n_route) const noexcept (fa
     SyncWindows result;
     for (auto& node : getRoute(n_route).getNodes()) {
         if (node.isInterdependent()) {
-            result.addSyncWindow(node.getService(), getSyncServiceWindow(node.getId(), node.getService(), n_route));
+            result.addSyncWindow(node.getId(), getSyncServiceWindow(node.getId(), node.getService(), n_route));
         }
     }
     return result;
@@ -55,16 +55,20 @@ SyncWindows ScheduleOptimiser::getServiceWindows(int n_route) const noexcept (fa
 pair<int, int> ScheduleOptimiser::getSyncServiceWindow(string patient, string service, int currentRoute) const {
     InfoNode otherNode(m_mapOfPatient.at(patient).getOtherServiceInfo(service, currentRoute).second);
     Patient p = HCData::getPatient(otherNode.getPatientIndex());
-    int late;
+    /*int late;  //fixme: se non serve droppa
     int soon;
     late = getRoute(otherNode.getRoute()).getNoChangeWindowCloseTime(otherNode.getPositionInRoute());
     soon = getRoute(otherNode.getRoute()).getNoChangeWindowOpenTime(otherNode.getPositionInRoute());
     if (soon > p.getWindowEndTime()) {
         soon = otherNode.getTime();
         late = soon;
+    }*/
+    // if service in route is the first 
+    if (p.isFirstService(service)) { 
+        return make_pair(max(otherNode.getTime() - p.getMaxWait(), 0), otherNode.getTime() - p.getMinWait()); 
     }
-    if (p.isFirstService(service)) { return make_pair(max(soon - p.getMaxWait(), 0), late - p.getMinWait()); }
-    else { return make_pair(soon + p.getMinWait(), late + p.getMaxWait()); }
+    // else the service is the second
+    return make_pair(otherNode.getTime() + p.getMinWait(), otherNode.getTime() + p.getMaxWait()); 
 }
 
 /**
@@ -115,22 +119,26 @@ void ScheduleOptimiser::destroyNode(int n_route, int pos_node, string patient) {
         throw out_of_range("[Schedule] Error: route index out of range");
     }
     SyncWindows sw = getServiceWindows(n_route);
-    Schedule::destroyNode(n_route, pos_node, sw);
-    m_mapOfPatient.at(patient).destroyAll();    
+    m_routes[n_route].deleteNode(pos_node, sw);
+    updateMapOfPatient(n_route);
 }
 
-void ScheduleOptimiser::repairNode(int n_route, const Patient& patient) {
+int ScheduleOptimiser::repairNode(int n_route, const Patient& patient) {
     if (!isIndexValid(n_route)) { throw out_of_range("[Schedule] Error: route index out of range"); }
     SyncWindows sw = getServiceWindows(n_route);
     volatile int time = getRoute(n_route).getFreeTime() + 100;
-    Node node = Node(patient, time);
-    Schedule::repairNode(n_route, node, sw);
-    updateMapOfPatient(getRoute(n_route), n_route);
+    Node node = Node(patient, time); 
+    int result = m_routes[n_route].addNodeInRoute(node, sw);
+    if (result != false) {
+        updateMapOfPatient(n_route);
+    }
+    cout<<"\nstca result: "<<result<<endl;
+    return result;
 }
 
-void ScheduleOptimiser::updateMapOfPatient(const Route &route, int n_route) {
-    for (int i = 1; i < route.getNumNodes(); ++i) {
-        Node node = route.getPatientNode(i);
+void ScheduleOptimiser::updateMapOfPatient(int n_route) {
+    for (int i = 1; i < m_routes[n_route].getNumNodes(); ++i) {
+        Node node = m_routes[n_route].getPatientNode(i);
         m_mapOfPatient[node.getId()].relocateNode(node.getService(), n_route, node.getArrivalTime(), i);
     }
 }
@@ -161,6 +169,10 @@ void ScheduleOptimiser::updateSyncServiceTime(string patient, string service, in
     }
     otherNode = m_mapOfPatient[patient].update(otherNode.first, otherNode.second.getRoute(), openWin, closeWin);
     updateNodeTime(otherNode.second.getRoute(), otherNode.second.getPositionInRoute(), otherNode.second.getTime());
+}
+
+void ScheduleOptimiser::destroyPatientRef(string patient) {
+  m_mapOfPatient.at(patient).destroyAll();
 }
 
 /////////////////////////////////////////////////////////////////////////////   CHECKER

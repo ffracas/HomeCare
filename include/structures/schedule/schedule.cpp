@@ -271,26 +271,6 @@ int Schedule::greedyAppend(Patient patient) {
 //////////////////////////////////////////////////////////////////////////////////////       UPDATER
 
 /**
- * Removes a node from the specified route.
- *
- * @param n_route The index of the route to remove the node from.
- * @param pos_node The index of the node to remove.
- * @param syncWin The synchronization windows for the schedule.
- * @throws std::out_of_range if the route index or node index is invalid.
- */
-void Schedule::destroyNode(int n_route, int pos_node, const SyncWindows &syncWin) {
-    if (!isIndexValid(n_route) || !m_routes[n_route].isIndexNodeValid(pos_node)) {
-        throw out_of_range("[Schedule] Error: route index out of range");
-    }
-    m_routes[n_route].deleteNode(pos_node, syncWin);
-}
-
-void Schedule::repairNode(int n_route, Node node, const SyncWindows& syncWin) {
-    if (!isIndexValid(n_route)) { throw out_of_range("[Schedule] Error: route index out of range"); }
-    m_routes[n_route].addNodeInRoute(node, syncWin);
-}
-
-/**
  * Replaces the route at the specified index in the schedule.
  *
  * @param route The new route to replace the existing one.

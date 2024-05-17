@@ -38,7 +38,7 @@ void ServiceManager::destroyAll() {
 
 int ServiceManager::relocateNode(string service, int route, int arrival, int routePos) {
     for (auto it = m_services.begin(); it != m_services.end(); ++it) {
-        if (it->first == service && !it->second.isAssigned()) {
+        if (it->first == service) {
             it->second.setInRoute(route, routePos, arrival);
             return 1;
         }

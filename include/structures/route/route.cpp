@@ -137,6 +137,7 @@ int Route::appendNode(Node newNode, int t_arrivalTime) {
         }
     }
     m_nodes.push_back(newNode);
+    m_nodes[0].setArrivalTime(m_nodes.back().getDeparturTime() + m_lastNode2DepotDistance);
     return arrivalTime;
 }
 
@@ -152,19 +153,23 @@ void Route::deleteNode(int nodeIndex, const SyncWindows& syncWin) {
         throw std::out_of_range("\n[Route] Error: Constraint on node destruction.\n");
     }
     m_nodes.erase(m_nodes.begin() + nodeIndex);
-    //m_nodes = RouteOps::rescheduleRoute(m_nodes, syncWin);
-    //m_nodes = RouteOps::rescheduleRoute(m_nodes);
-    //exploreData();
+    //reschedule(syncWin);
 }
 
-void Route::addNodeInRoute(Node newNode, const SyncWindows& syncWin) {
+int Route::addNodeInRoute(Node newNode, const SyncWindows& syncWin) {
     m_nodes.push_back(newNode);
-    //m_nodes = RouteOps::rescheduleRoute(m_nodes, syncWin);
-    m_nodes = RouteOps::rescheduleRoute(m_nodes);
-    exploreData();
+    return reschedule(syncWin);   
 }
 
-bool Route::validityControl(int node_pos) const { return node_pos > DEPOT || node_pos < m_nodes.size(); }
+int Route::reschedule(const SyncWindows& syncWin) {
+    vector<Node> newNodes = RouteOps::rescheduleRoute(m_nodes, syncWin);
+    if (newNodes.empty()) { return false; }
+    m_nodes = newNodes;
+    exploreData();
+    return true;
+}
+
+bool Route::validityControl(int node_pos) const { return node_pos > DEPOT && node_pos < m_nodes.size(); }
 
 bool Route::isAvailable() const { return m_caregiver.isWorking(this->getFreeTime()); }
 
@@ -176,7 +181,6 @@ bool Route::hasService(string request) const {
 bool Route::isIndexNodeValid(int index) const { return index > DEPOT && index < m_nodes.size(); }
 
 vector<Node> Route::getNodes() const { return m_nodes; }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////       READ FROM FILE
 

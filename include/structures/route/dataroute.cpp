@@ -5,73 +5,65 @@ using namespace homecare;
 
 DataRoute::DataRoute() : m_cost (HCData::MAX_COST) {}
 
-//todo: cambio logica di data route, valutare solo il costo dell'albero sottostante (togliere startTime e distance)
-DataRoute::DataRoute(Node node, int startTime, int distance, const SyncWindows& syncWindows) {
+DataRoute::DataRoute(Node node) {
     m_nodes.push_back(node);
-    calculateCost(startTime, distance, syncWindows);
+    m_cost = 0;
 }
 
 DataRoute::~DataRoute() {}
 
-void DataRoute::calculateCost(int startTime, int distance, const SyncWindows& syncWindows) {
-    int estimatedTime = startTime;
-    int maxTardiness = 0, maxIdleTime = 0;
-    int totalTardiness = 0, totalWaitingTime = 0;
-    int travelTime = 0;
-
-    for (auto it = m_nodes.begin(); it != m_nodes.end(); ++it) {
-        int startingTime = it->getTimeWindowOpen();
-
-        if (it->isInterdependent()) {
-            auto syncWindow = syncWindows.getSyncWindow(it->getId());
-            startingTime = std::max(startingTime, syncWindow.first);
-
-            if (syncWindow.second < estimatedTime) {
-                m_cost = HCData::MAX_COST;
-                return;
-            }
+void DataRoute::addNode(Node node, int nodeOpenWin, int nodeCloseWin, bool isLast) {
+    Node last = m_nodes.back();
+    int arrivingTime = last.getDeparturTime() + HCData::getDistance(last.getDistancesIndex(), node.getDistancesIndex());
+    // check validity
+    if (node.isInterdependent()) {
+        if (arrivingTime > nodeCloseWin) {
+            m_cost = HCData::MAX_COST;
+            m_nodes.clear();
+            return;
         }
-
-        travelTime += distance;
-
-        if (it->getTimeWindowClose() < estimatedTime) {
-            int tardiness = estimatedTime - it->getTimeWindowClose();
-            totalTardiness += tardiness;
-            maxTardiness = std::max(maxTardiness, tardiness);
-        } else if (startingTime > estimatedTime) {
-            int idleTime = startingTime - estimatedTime;
-            totalWaitingTime += idleTime;
-            maxIdleTime = std::max(maxIdleTime, idleTime);
-        }
-
-        it->setArrivalTime(estimatedTime);
-        estimatedTime = it->getDeparturTime();
-
-        // Update the distance for the next iteration, if not at the end
-        if (std::next(it) != m_nodes.end()) {
-            distance = HCData::getDistance(it->getDistancesIndex(), std::next(it)->getDistancesIndex());
+        else if (arrivingTime < nodeOpenWin) {
+            int waitingTime = nodeOpenWin - arrivingTime;
+            m_totalWaitingTime += waitingTime;
+            m_maxIdleTime = max(m_maxIdleTime, waitingTime);
+            arrivingTime = nodeOpenWin;
         }
     }
 
-    m_cost = HCData::MAX_WAIT_TIME_WEIGHT * maxIdleTime +
-             HCData::MAX_TARDINESS_WEIGHT * maxTardiness +
-             HCData::TARDINESS_WEIGHT * totalTardiness +
-             HCData::TOT_WAITING_TIME_WEIGHT * totalWaitingTime +
-             HCData::TRAVEL_TIME_WEIGHT * travelTime;
+    // calculate cost variables
+    m_travelTime += HCData::getDistance(last.getDistancesIndex(), node.getDistancesIndex());
+    if (arrivingTime > node.getTimeWindowClose()) {
+        int tardiness = arrivingTime - node.getTimeWindowClose();
+        m_totalTardiness += tardiness;
+        m_maxTardiness = max(m_maxTardiness, tardiness);
+    }
+    if (arrivingTime < node.getTimeWindowOpen()) {
+        int waitingTime = node.getTimeWindowOpen() - arrivingTime;
+        m_totalWaitingTime += waitingTime;
+        m_maxIdleTime = max(m_maxIdleTime, waitingTime);
+    }
+    if (!m_completed && isLast) {
+        // link last node to depot 
+        m_completed = true;
+        int lastToDepot = HCData::getDistance(node.getDistancesIndex(), m_nodes[0].getDistancesIndex());
+        int returnToDepot = node.getDeparturTime() + lastToDepot;
+        m_nodes[0].setArrivalTime(returnToDepot);
+        m_extraTime = max(0, returnToDepot);
+        // calculate cost of the route only after the last node is added
+        m_cost = HCData::MAX_WAIT_TIME_WEIGHT * m_maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * m_maxTardiness 
+        + HCData::TARDINESS_WEIGHT * m_totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime 
+        + HCData::EXTRA_TIME_WEIGHT * m_extraTime + HCData::TRAVEL_TIME_WEIGHT * m_travelTime; 
+    }
+    // push the node to the route
+    node.setArrivalTime(arrivingTime);
+    m_nodes.push_back(node);
 }
 
-//todo: cambio logica di data route, valutare solo il costo dell'albero sottostante (togliere startTime e distance)
-void DataRoute::addNode(Node node, int startTime, int distance, const SyncWindows& syncWindows) {
-    m_nodes.insert(m_nodes.begin(), node);
-    if (m_cost == HCData::MAX_COST) { return; }
-    calculateCost(startTime, distance, syncWindows);
+vector<Node> DataRoute::getNodes() { 
+    if (m_completed) {
+        return m_nodes;
+    }
+    return vector<Node>(); 
 }
-
-vector<Node> DataRoute::getNodes() { return m_nodes; }
 
 double DataRoute::getCost() { return m_cost; }
-
-int DataRoute::getFirstDistanceIndex() {
-  if (m_nodes.empty()) { return -1; }
-  return m_nodes[0].getDistancesIndex();
-}

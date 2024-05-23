@@ -96,7 +96,7 @@ bool HCValidation::checkSolution() {
                 Node prev = route_nodes[i - 1];
                 if (prev.getDeparturTime() + HCData::getDistance(prev.getDistancesIndex(), node.getDistancesIndex()) 
                         > node.getArrivalTime()) {
-                cout<<endl<<route.getCaregiver()<<"->"<<i<<endl;
+                cout<<endl<<route.getCaregiver()<<"->"<<i<<node.toString()<<endl;
                 cout<<prev.getDeparturTime()<<"+ "<<HCData::getDistance(prev.getDistancesIndex(), node.getDistancesIndex()) << " > " <<node.getArrivalTime()<<endl;
                     cout<<"Some data can be wrong\n"; 
                     return false; 

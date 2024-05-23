@@ -5,6 +5,7 @@
 
 #include "../optimisation_structures/alnsoptimisation.hpp"
 #include "../optimisation_structures/costcoord.hpp"
+#include "../../hc/hcvalidation.hpp"
 
 namespace homecare {
 

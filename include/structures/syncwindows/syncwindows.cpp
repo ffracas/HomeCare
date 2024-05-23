@@ -44,6 +44,24 @@ pair<int, int> SyncWindows::getSyncWindow(string patient) const {
     }
 }
 
+int SyncWindows::getOpenSyncTime(string patient) const noexcept(false) {
+    if (m_syncWindows.find(patient) == m_syncWindows.end()) {
+        throw runtime_error("Sync window not found for service " + patient);
+    }
+    else {
+        return m_syncWindows.at(patient).first;
+    }
+}
+
+int SyncWindows::getCloseSyncTime(string patient) const noexcept(false) {
+    if (m_syncWindows.find(patient) == m_syncWindows.end()) {
+        throw runtime_error("Sync window not found for service " + patient);
+    }
+    else {
+        return m_syncWindows.at(patient).second;
+    }
+}
+
 string SyncWindows::toString() const {
     stringstream ss;
     ss << " Sync Win\n";

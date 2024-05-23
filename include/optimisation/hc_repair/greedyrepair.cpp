@@ -22,14 +22,14 @@ int GreedyRepair::repairNodes() {
         ScheduleOptimiser bestRoute;
         double bestCost = HCData::MAX_COST;
         // find patient
-        string s;
-        cin>>s;
         Patient patient(HCData::getPatient(m_data->popNodeToRepair()));
-        cout << patient.getID()<<endl;
+        cout << patient.getID()<<endl; //todo: debug print
         // indipendet service
         if (!patient.hasNextService()) {
             for (int i = 0; i < routesToTest.getNumberOfRoutes(); ++i) {
-                if (routesToTest.isServiceAvailableInRoute(patient.getCurrentService().getService(), i)) {
+                if (routesToTest.isServiceAvailableInRoute(patient.getCurrentService().getService(), i) 
+                    && patient.isCaregiverValid(routesToTest.getRoute(i).getCaregiver())) {
+                    cout<<"scheduling c"<<i<<endl;
                     ScheduleOptimiser newRoutes = m_data->repairSingle(routesToTest, patient, i);
                     if (!newRoutes.isEmpty()) {
                         cout<<"riuscito";
@@ -73,6 +73,10 @@ int GreedyRepair::repairNodes() {
     }
     cout<<"\nCurrent cost: "<<routesToTest.getCost()<<"\n";
 
-    m_data->saveRepair(routesToTest);
-    return 1;
+    // todo: vedere se è il posto migliore
+    if (HCValidation(routesToTest.getSchedule()).checkSolution()) {
+        m_data->saveRepair(routesToTest);
+        return 1;
+    }
+    return 0;
 }

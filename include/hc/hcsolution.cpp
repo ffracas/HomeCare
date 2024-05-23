@@ -69,7 +69,6 @@ void homecare::HCSolution::updateCostData()
     }
 }
 
-// FIXME: Aggiornare HCOptimisation 
 int HCSolution::optimizeSolution() {
     m_schedule = HCOptimisation(m_schedule, calculateCost()).optimise();
     updateCostData();

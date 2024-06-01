@@ -32,30 +32,34 @@ bool ValidatioNode::isCompleted() const {
 string ValidatioNode::getPatient() const { return m_patientID; }
 
 bool ValidatioNode::checkService(string t_service, int t_arrivalTime, int t_departureTime, int serviceI, int otherI) {
-    if (!m_services[serviceI].m_completed && t_arrivalTime >= m_services[serviceI].m_openWindow 
-                && t_departureTime == t_arrivalTime + m_services[serviceI].m_duration) {
-            m_services[serviceI].m_completed = true;
-            m_services[serviceI].m_arrivalTime = t_arrivalTime;
-            m_services[serviceI].m_departureTime = t_departureTime;
-            if (m_services.size() > 1) {
-                if (m_services[otherI].m_completed) {
-                    //TODO assicurarsi servizio 2 controllo tempi
-                    if (m_sync == Simultaneous) {
-                        if (m_services[SECOND].m_arrivalTime == m_services[FIRST].m_arrivalTime 
-                                && m_services[SECOND].m_departureTime == m_services[FIRST].m_departureTime) {
-                            return true;        
-                        }
-                    } else if (m_sync == Sequential) {
-                        if (m_services[SECOND].m_arrivalTime >= m_services[FIRST].m_arrivalTime + m_minWait &&
-                            m_services[SECOND].m_arrivalTime <= m_services[FIRST].m_arrivalTime + m_maxWait) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }         
-            } 
-            return true;
-        }
+    bool isServiceValid = !m_services[serviceI].m_completed &&
+                          t_arrivalTime >= m_services[serviceI].m_openWindow &&
+                          t_departureTime == t_arrivalTime + m_services[serviceI].m_duration;
+    if (!isServiceValid) { return false; }
+    // flag completed service and update times
+    m_services[serviceI].m_completed = true;
+    m_services[serviceI].m_arrivalTime = t_arrivalTime;
+    m_services[serviceI].m_departureTime = t_departureTime;
+    // only one serveice available
+    if (m_services.size() == 1) { return true; }
+
+    if (!m_services[otherI].m_completed) {
+        return true;
+    }
+    
+    if (m_sync == Simultaneous) {
+        cout<<"Simultaneous "<<m_patientID<<" first "<<m_services[FIRST].m_service<<" second "<<m_services[SECOND].m_service<<"time is ok "<<(m_services[SECOND].m_arrivalTime == m_services[FIRST].m_arrivalTime 
+                && m_services[SECOND].m_departureTime == m_services[FIRST].m_departureTime)<<endl;
+        return (m_services[SECOND].m_arrivalTime == m_services[FIRST].m_arrivalTime 
+                && m_services[SECOND].m_departureTime == m_services[FIRST].m_departureTime);      
+    } else if (m_sync == Sequential) {
+        cout<<"sequential "<<m_patientID<<
+        " first "<<m_services[FIRST].m_service<<" arrival time"<<m_services[FIRST].m_arrivalTime<<
+        " wait min"<<m_minWait<<" wait max "<<m_maxWait<<
+        " second "<<m_services[SECOND].m_service<<" arrival time"<<m_services[SECOND].m_arrivalTime <<endl;
+        return (m_services[SECOND].m_arrivalTime >= m_services[FIRST].m_arrivalTime + m_minWait &&
+            m_services[SECOND].m_arrivalTime <= m_services[FIRST].m_arrivalTime + m_maxWait);
+    }      
     return false;
 }
 

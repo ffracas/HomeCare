@@ -14,13 +14,11 @@ namespace homecare {
 
 class RouteOps {
     public:
-        static const int BASE_ROUTE_LEN;
+        static const int BASE_ROUTE_LEN = 2;
+        static const int MAX_ROUTE_LEN_DINAMIC_P = 7;
         static std::vector<Node> rescheduleRoute(std::vector<Node>&, const SyncWindows&);
-        //static std::vector<Node> scheduleRoute(std::vector<Node>&, const SyncWindows&);
-        //static DataRoute scheduleRoute(std::vector<Node>, const SyncWindows&, Node, int, int);
         static DataRoute scheduleRoute(DataRoute, std::vector<Node>&, int, int, const SyncWindows&);
-        static std::vector<Node> excludeNode(const std::vector<Node>&, const Node&);
-        static bool validityControl(const std::vector<Node>&, int, int, const SyncWindows&);
+        static DataRoute linKernighan(DataRoute, const SyncWindows&);
 };
 
     

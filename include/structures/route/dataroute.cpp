@@ -7,19 +7,40 @@ DataRoute::DataRoute() : m_cost (HCData::MAX_COST) {}
 
 DataRoute::DataRoute(Node node) {
     m_nodes.push_back(node);
-    m_cost = 0;
+}
+
+DataRoute::DataRoute(std::vector<Node>& nodes, const SyncWindows& sw) {
+    m_nodes.push_back(nodes[0]);
+    for (int i = 1; i < nodes.size(); ++i) {
+        if (nodes[i].isInterdependent()) {
+            this->addNode(nodes[i], 
+                        sw.getOpenSyncTime(nodes[i].getId()), 
+                        sw.getCloseSyncTime(nodes[i].getId()),
+                        i == nodes.size() - 1);
+        }
+        else {
+            this->addNode(nodes[i], -1, -1, i == nodes.size() - 1);
+        }
+    }
+
 }
 
 DataRoute::~DataRoute() {}
 
 void DataRoute::addNode(Node node, int nodeOpenWin, int nodeCloseWin, bool isLast) {
+    // if route is invalid
+    if (m_cost == HCData::MAX_COST) { 
+        m_nodes.push_back(node);
+        return;
+    }
+    //else route is valid
     Node last = m_nodes.back();
     int arrivingTime = last.getDeparturTime() + HCData::getDistance(last.getDistancesIndex(), node.getDistancesIndex());
     // check validity
     if (node.isInterdependent()) {
         if (arrivingTime > nodeCloseWin) {
             m_cost = HCData::MAX_COST;
-            m_nodes.clear();
+            m_nodes.push_back(node);
             return;
         }
         else if (arrivingTime < nodeOpenWin) {
@@ -29,7 +50,6 @@ void DataRoute::addNode(Node node, int nodeOpenWin, int nodeCloseWin, bool isLas
             arrivingTime = nodeOpenWin;
         }
     }
-
     // calculate cost variables
     m_travelTime += HCData::getDistance(last.getDistancesIndex(), node.getDistancesIndex());
     if (arrivingTime > node.getTimeWindowClose()) {
@@ -59,11 +79,46 @@ void DataRoute::addNode(Node node, int nodeOpenWin, int nodeCloseWin, bool isLas
     m_nodes.push_back(node);
 }
 
-vector<Node> DataRoute::getNodes() { 
-    if (m_completed) {
-        return m_nodes;
+void DataRoute::twoOptSwap(int xi, int yi, const SyncWindows& sw) {
+    if (xi < 1 || yi < 2 || xi >= m_nodes.size() || yi >= m_nodes.size() || xi == yi) {
+        throw runtime_error("[DataRoute]: Error: invalid index");
     }
-    return vector<Node>(); 
+    vector<Node> oldNodes(m_nodes);
+    m_nodes.clear();
+    resetCost();
+    m_nodes.push_back(oldNodes[0]);
+    for (int k = 1; k < xi; ++k) {
+        addNode(oldNodes[k], sw, false);
+    }
+    for (int k = yi; k >= xi; --k) {
+        addNode(oldNodes[k], sw, (xi == k && yi == oldNodes.size() - 1));
+    }
+    for (int k = yi + 1; k < oldNodes.size(); ++k) {
+        addNode(oldNodes[k], sw, k == oldNodes.size() - 1); 
+    }
+}
+
+void DataRoute::addNode(Node& node, const SyncWindows& sw, bool isLast) {
+    if (node.isInterdependent()) {
+        addNode(node, sw.getOpenSyncTime(node.getId()), sw.getCloseSyncTime(node.getId()), isLast);
+    } else {
+        addNode(node, -1, -1, isLast);
+    }
+}
+
+void DataRoute::resetCost() {
+    m_cost = 0;
+    m_maxIdleTime = 0;
+    m_maxTardiness = 0;
+    m_totalTardiness = 0;
+    m_totalWaitingTime = 0;
+    m_travelTime = 0;
+    m_extraTime = 0;
+    m_completed = false;
+}
+
+vector<Node> DataRoute::getNodes() { 
+    return m_completed ? m_nodes : vector<Node>();
 }
 
 double DataRoute::getCost() { return m_cost; }

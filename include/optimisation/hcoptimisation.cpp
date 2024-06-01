@@ -22,14 +22,14 @@ Schedule HCOptimisation::optimise() {
     ScheduleOptimiser r1(m_ops->destroy(routes, 6, 4));
     m_ops->saveDestruction(r1,6,4);
     cout<<"--------------\n";
-    ScheduleOptimiser r2(m_ops->destroy(routes, 12, 1));
+    ScheduleOptimiser r2(m_ops->destroy(m_ops->getCurrentSchedule(), 12, 1));
     m_ops->saveDestruction(r2,12,1);
     cout<<"--------------\n";
-    ScheduleOptimiser r3(m_ops->destroy(r2, 4, 2));
+    ScheduleOptimiser r3(m_ops->destroy(m_ops->getCurrentSchedule(), 4, 2));
     m_ops->saveDestruction(r3,4,2);
     cout<<"--------------\n";
-    ScheduleOptimiser r4(m_ops->destroy(r3, 6, 4));
-    m_ops->saveDestruction(r4,12,1);
+    ScheduleOptimiser r4(m_ops->destroy(m_ops->getCurrentSchedule(), 6, 4));
+    m_ops->saveDestruction(r4,6,4);
     cout<<"--------------\n";
 
 

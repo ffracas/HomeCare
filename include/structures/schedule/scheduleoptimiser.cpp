@@ -132,7 +132,6 @@ int ScheduleOptimiser::repairNode(int n_route, const Patient& patient) {
     if (result != false) {
         updateMapOfPatient(n_route);
     }
-    cout<<"\nstca result: "<<result<<endl;
     return result;
 }
 

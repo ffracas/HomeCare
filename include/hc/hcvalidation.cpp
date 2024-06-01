@@ -88,8 +88,8 @@ bool HCValidation::checkSolution() {
             }
             if (service -> setTime(node.getService(), node.getArrivalTime(), node.getDeparturTime()) 
                     != ValidatioNode::OK) { 
-                cout<<endl<<route.getCaregiver()<<"->"<<i<<endl;
-                cout<<"Not all patients were examined\n"; 
+                cout<<"node "<<node.getId()<<" service "<<node.getService()<<"\n";
+                cout<<"Some times have bad synchronization\n"; 
                 return false; 
             }
             if (i > 0) {

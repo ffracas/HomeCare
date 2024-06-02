@@ -80,25 +80,6 @@ ScheduleOptimiser ALNSOptimisation::destroy(ScheduleOptimiser routes, int n_rout
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////        REPAIR 1
 
-/*ScheduleOptimiser ALNSOptimisation::repairSingle(ScheduleOptimiser routes, Patient patient, int n_route) {
-    Node n1(patient, 0);
-    // fixme: sostituisci con nuovo metodo statico
-    vector<Route> routes(routes.getRoutes());
-    tuple<Node, vector<Node>, vector<Node>> data(routes[n_route].addNodeInRoute(patient, routes, n_route)); 
-    // todo: static route adding
-    Node node(std::get<0>(data));
-    vector<Node> first (std::get<1>(data));
-    node.setArrivalTime(first.back().getDeparturTime() 
-                        + HCData::getDistance(first.back().getDistancesIndex(), node.getDistancesIndex()));
-    first.push_back(node);
-    vector<Node> second (std::get<2>(data));   
-    vector<Node> completed (Route::mergeLists(first, second, routes, n_route)); 
-    routes[n_route].updateRoute(completed);
-    ScheduleOptimiser repaired(routes);
-    return repaired;
-    return routes;
-}*/
-
 ScheduleOptimiser ALNSOptimisation::repairSingle(ScheduleOptimiser routes, Patient patient, int n_route) {
     if (!routes.isIndexValid(n_route)) { 
         throw out_of_range("[ALNSOptimisation] RepairSingle Error, route selected is out of range"); 
@@ -111,7 +92,6 @@ ScheduleOptimiser ALNSOptimisation::repairSingle(ScheduleOptimiser routes, Patie
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////        REPAIR 2
-// TODO: riscrivere sta merda
 
 ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patient patient, 
                                             int first_route, int second_route) {

@@ -32,6 +32,7 @@ bool ValidatioNode::isCompleted() const {
 string ValidatioNode::getPatient() const { return m_patientID; }
 
 bool ValidatioNode::checkService(string t_service, int t_arrivalTime, int t_departureTime, int serviceI, int otherI) {
+    // check if service is valid
     bool isServiceValid = !m_services[serviceI].m_completed &&
                           t_arrivalTime >= m_services[serviceI].m_openWindow &&
                           t_departureTime == t_arrivalTime + m_services[serviceI].m_duration;
@@ -40,23 +41,15 @@ bool ValidatioNode::checkService(string t_service, int t_arrivalTime, int t_depa
     m_services[serviceI].m_completed = true;
     m_services[serviceI].m_arrivalTime = t_arrivalTime;
     m_services[serviceI].m_departureTime = t_departureTime;
-    // only one serveice available
+    // only one service available
     if (m_services.size() == 1) { return true; }
-
-    if (!m_services[otherI].m_completed) {
-        return true;
-    }
-    
+    // if patient analysis is not completed, return true
+    if (!m_services[otherI].m_completed) { return true; }
+    // if patient analysis is completed, check if the services are in sync
     if (m_sync == Simultaneous) {
-        cout<<"Simultaneous "<<m_patientID<<" first "<<m_services[FIRST].m_service<<" second "<<m_services[SECOND].m_service<<"time is ok "<<(m_services[SECOND].m_arrivalTime == m_services[FIRST].m_arrivalTime 
-                && m_services[SECOND].m_departureTime == m_services[FIRST].m_departureTime)<<endl;
         return (m_services[SECOND].m_arrivalTime == m_services[FIRST].m_arrivalTime 
                 && m_services[SECOND].m_departureTime == m_services[FIRST].m_departureTime);      
     } else if (m_sync == Sequential) {
-        cout<<"sequential "<<m_patientID<<
-        " first "<<m_services[FIRST].m_service<<" arrival time"<<m_services[FIRST].m_arrivalTime<<
-        " wait min"<<m_minWait<<" wait max "<<m_maxWait<<
-        " second "<<m_services[SECOND].m_service<<" arrival time"<<m_services[SECOND].m_arrivalTime <<endl;
         return (m_services[SECOND].m_arrivalTime >= m_services[FIRST].m_arrivalTime + m_minWait &&
             m_services[SECOND].m_arrivalTime <= m_services[FIRST].m_arrivalTime + m_maxWait);
     }      

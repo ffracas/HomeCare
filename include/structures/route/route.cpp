@@ -153,7 +153,7 @@ void Route::deleteNode(int nodeIndex, const SyncWindows& syncWin) {
         throw std::out_of_range("\n[Route] Error: Constraint on node destruction.\n");
     }
     m_nodes.erase(m_nodes.begin() + nodeIndex);
-    //reschedule(syncWin);
+    reschedule(syncWin);
 }
 
 int Route::addNodeInRoute(Node newNode, const SyncWindows& syncWin) {

@@ -84,10 +84,10 @@ ScheduleOptimiser ALNSOptimisation::repairSingle(ScheduleOptimiser routes, Patie
     if (!routes.isIndexValid(n_route)) { 
         throw out_of_range("[ALNSOptimisation] RepairSingle Error, route selected is out of range"); 
     }
-    // Node's arrive time is not really important right now 
     if (routes.repairNode(n_route, patient) == false) {
         return ScheduleOptimiser();
     }
+    
     return routes;
 }
 
@@ -95,7 +95,18 @@ ScheduleOptimiser ALNSOptimisation::repairSingle(ScheduleOptimiser routes, Patie
 
 ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patient patient, 
                                             int first_route, int second_route) {
-    /*Node n1(patient, 0);
+    if (!routes.isIndexValid(first_route) ||!routes.isIndexValid(second_route)) {
+        throw out_of_range("[ALNSOptimisation] RepairDouble Error, route selected is out of range");
+    }
+
+    // TODO: implementation repair n1, repair n2 with window
+
+    return routes;
+}
+    
+/*ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patient patient, 
+                                            int first_route, int second_route) {
+    Node n1(patient, 0);
     vector<Route> routes(routes.getRoutes());
     tuple<Node, vector<Node>, vector<Node>> data1(routes[first_route]
                                                 .addNodeInRoute(patient, routes, first_route));
@@ -124,9 +135,9 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
     routes[second_route].updateRoute(route2);
     
     ScheduleOptimiser repaired(routes);
-    return repaired;*/
+    return repaired;
     return routes;
-}
+}*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////      SAVE
 

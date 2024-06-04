@@ -111,9 +111,7 @@ Route Schedule::getRoute(int n_route) const noexcept(false) {
     if (!isEmpty() && isIndexValid(n_route)) {
         return m_routes[n_route];
     }
-    else {
-        throw out_of_range("\n[Schedule] ERROR: Index out of range");
-    }
+    throw out_of_range("\n[Schedule] ERROR: Index out of range");
 }
 
 /**
@@ -128,9 +126,7 @@ Node Schedule::getNodeFromRoute(int n_route, int n_node) const noexcept(false) {
     if (!isEmpty() && isIndexValid(n_route)) {
         return m_routes[n_route].getPatientNode(n_node);
     }
-    else {
-        throw out_of_range("\n[Schedule] ERROR: Index out of range");
-    }
+    throw out_of_range("\n[Schedule] ERROR: Index out of range");
 }
 
 /**
@@ -141,12 +137,10 @@ Node Schedule::getNodeFromRoute(int n_route, int n_node) const noexcept(false) {
  * @throws std::out_of_range If the specified route index is out of range.
  */
 std::string Schedule::getCaregiverOfRoute(int n_route) const noexcept(false) {
-    if (!isIndexValid(n_route)) {
+    if (isIndexValid(n_route)) {
         return m_routes[n_route].getCaregiver();
     }
-    else {
-        throw out_of_range("\n[Schedule] ERROR: Index out of range");
-    }
+    throw out_of_range("\n[Schedule] ERROR: Index out of range");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////       GET DATA
@@ -196,9 +190,7 @@ int Schedule::getNumberOfNodesInRoute(int n_route) const noexcept(false) {
     if (!isEmpty() && isIndexValid(n_route)) {
         return m_routes[n_route].getNumNodes();
     }
-    else {
-        throw out_of_range("\n[Schedule] ERROR: Index out of range");
-    }
+    throw out_of_range("\n[Schedule] ERROR: Index out of range");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////       CHECKER
@@ -215,9 +207,7 @@ bool Schedule::isServiceAvailableInRoute(string service, int n_route) const noex
     if (!isEmpty() && isIndexValid(n_route)) {
         return m_routes[n_route].hasService(service);
     }
-    else {
-        throw out_of_range("\n[Schedule] ERROR: Index out of range");
-    }
+    throw out_of_range("\n[Schedule] ERROR: Index out of range");
 }
 
 /**

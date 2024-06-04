@@ -7,7 +7,8 @@ namespace homecare {
 
 class GreedyRepair : public NodeRepair {
 private:
-    
+    ScheduleOptimiser repairIndependentService(ScheduleOptimiser&, Patient&, double&);
+    ScheduleOptimiser repairInterdependentService(ScheduleOptimiser&, Patient&, double&);  
 public:
     GreedyRepair();
     ~GreedyRepair();

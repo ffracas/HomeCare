@@ -37,7 +37,6 @@ private:
     //int addNode(Node, int, int, int);
     //void recalculateRoute(const int = 1);
     //static std::vector<Node>::iterator nextNode(std::vector<Node>&, std::vector<Node>::iterator, bool);
-    bool validityControl(int) const;
     void exploreData();
 
 public:
@@ -47,24 +46,31 @@ public:
     Route(Caregiver);
     ~Route();
     
-    // getter
+    // GETTERS
+    // last
     int getFreeTime() const;
     int getLastPatientDistanceIndex() const;
+    int getLastNode2DepotDistance() const;
+    // services and caregivers
     std::vector<std::string> getAvilableServices() const;
     std::string getCaregiver() const;
+    // nodes
     std::vector<Node> getNodes() const;
-    Node getPatientNode(int) const noexcept (false);
-    int getLastNode2DepotDistance() const;
     int getNumNodes() const;
+    Node getPatientNode(int) const noexcept (false);
+    int getNodeArrivalTime(std::string) const noexcept (false);
+    // costs
     int getMaxTardiness() const;
     int getMaxIdleTime() const;
     int getTotalTardiness() const;
     int getTotalWaitingTime() const;
     int getTravelTime() const;
     int getExtraTime() const;
-    int getDeltaTime() const;
-    std::string getHash() const;
     double getCost() const;
+    // hash
+    std::string getHash() const;
+    //todo: metodo che ritorna il tempo di arrivo ad un determinato nodo
+    // time window
     int getNoChangeWindowCloseTime(int) const noexcept (false);
     int getNoChangeWindowOpenTime(int) const noexcept (false);
 
@@ -74,7 +80,6 @@ public:
     void deleteNode(int, const SyncWindows&);
     int addNodeInRoute(Node, const SyncWindows&);
     // checker
-    bool isAvailable() const;
     bool hasService(std::string) const;
     bool isIndexNodeValid(int) const;
     // updater

@@ -31,7 +31,9 @@ Schedule HCOptimisation::optimise() {
     ScheduleOptimiser r4(m_ops->destroy(m_ops->getCurrentSchedule(), 6, 4));
     m_ops->saveDestruction(r4,6,4);
     cout<<"--------------\n";
-
+    ScheduleOptimiser r5(m_ops->destroy(m_ops->getCurrentSchedule(), 0, 4));
+    m_ops->saveDestruction(r5,0,4);
+    cout<<"--------------\n";
 
 
     //todo: to delete

@@ -44,6 +44,7 @@ public:
     Service getCurrentService() const;
     Service getNextService() const;
     Patient getPatientAndNextService(int = 0) const noexcept (false);
+    Patient getPatientforS2Sync() const noexcept (false);
     bool hasNextService() const;
     bool isFirstService(std::string) const;
     bool isCaregiverValid(std::string) const;

@@ -58,6 +58,15 @@ Node Route::getPatientNode(int pos) const {
     return m_nodes[pos];
 }
 
+int Route::getNodeArrivalTime(string PatientId) const {
+    auto node = find_if(m_nodes.begin(), m_nodes.end(), 
+                        [PatientId](const Node& node) { return node.getId() == PatientId; });
+    if (node == m_nodes.end()) {
+        return -1;
+    }
+    return node->getArrivalTime();
+}
+
 /**
  * Returns the maximum tardiness for the route.
  * @return The maximum tardiness for the route.
@@ -169,10 +178,6 @@ int Route::reschedule(const SyncWindows& syncWin) {
     return true;
 }
 
-bool Route::validityControl(int node_pos) const { return node_pos > DEPOT && node_pos < m_nodes.size(); }
-
-bool Route::isAvailable() const { return m_caregiver.isWorking(this->getFreeTime()); }
-
 bool Route::hasService(string request) const {
     vector<string> availableServices = m_caregiver.getServicesList();
     return find(availableServices.begin(), availableServices.end(), request) != availableServices.end();
@@ -220,7 +225,7 @@ int Route::readNodesFromJson(Json::Value t_patientsInJson, vector<Patient> t_pat
 ////////////////////////////////////////////////////////////////////////////////////////////////          UTILS
 
 int Route::getNoChangeWindowCloseTime(int n_node) const {
-    if (!validityControl(n_node)) {
+    if (!isIndexNodeValid(n_node)) {
         throw std::out_of_range("[route] Constraint on route selection.");
     }
     // if last node return max(arrival, close)
@@ -234,7 +239,7 @@ int Route::getNoChangeWindowCloseTime(int n_node) const {
 }
 
 int Route::getNoChangeWindowOpenTime(int n_node) const {
-    if (!validityControl(n_node)) {
+    if (!isIndexNodeValid(n_node)) {
         throw std::out_of_range("[route] Constraint on route selection.");
     }
     int time = max(m_nodes[n_node].getArrivalTime(), m_nodes[n_node].getTimeWindowOpen());
@@ -243,7 +248,7 @@ int Route::getNoChangeWindowOpenTime(int n_node) const {
 }
 
 void Route::updateNodeTime(int n_node, int arrival) {
-    if (!validityControl(n_node)) {
+    if (!isIndexNodeValid(n_node)) {
         throw std::out_of_range("[route] Constraint on route selection.");
     }
     m_nodes[n_node].setArrivalTime(arrival);

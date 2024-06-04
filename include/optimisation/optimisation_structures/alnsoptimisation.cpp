@@ -99,7 +99,13 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
         throw out_of_range("[ALNSOptimisation] RepairDouble Error, route selected is out of range");
     }
 
-    // TODO: implementation repair n1, repair n2 with window
+    if (routes.repairNode(first_route, patient, true) == false) {
+        return ScheduleOptimiser();
+    }
+    int time1 = routes.getRoute(first_route).getNodeArrivalTime(patient.getID());
+    if (routes.repairNode(second_route, patient.getPatientAndNextService(time1), true) == false) {
+        return ScheduleOptimiser();
+    }
 
     return routes;
 }

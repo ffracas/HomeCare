@@ -29,7 +29,7 @@ public:
     void replaceRoute(Route&, int) noexcept (false); 
     void updateSyncServiceTime(std::string, std::string, int, int); 
     void destroyNode(int, int, std::string) noexcept (false);
-    int repairNode(int, const Patient&) noexcept (false);
+    int repairNode(int, const Patient&, bool = false) noexcept (false);
     
     void updateMapOfPatient(int);
     void destroyPatientRef(std::string);

@@ -202,8 +202,19 @@ Patient Patient::getPatientforS2Sync() const {
         throw std::runtime_error("Errore! Non è possibile attivare il prossimo servizio per questo paziente");
     }
     if (m_sync == Simultaneous && !hasNextService()) { return *this; }
+    vector<Service> next(m_services.begin() + 1, m_services.end());
     return Patient(m_id, m_x, m_y, m_timeWindowOpen + m_minWait, m_timeWindowClose + m_maxWait, m_distanceIndex,
-            m_invalidCaregivers, m_services, m_sync, m_minWait, m_maxWait);
+            m_invalidCaregivers, next, m_sync, m_minWait, m_maxWait);
+}
+
+Patient Patient::getPatientforS1Sync(int time) const {
+    if (m_sync == NoSync) {
+        throw std::runtime_error("Errore! Non è possibile attivare il prossimo servizio per questo paziente");
+    }
+    if (m_sync == Simultaneous && !hasNextService()) { return *this; }
+    vector<Service> first(m_services.begin(), m_services.begin() + 1);
+    return Patient(m_id, m_x, m_y, max(time - m_maxWait, m_timeWindowOpen), time - m_minWait, m_distanceIndex,
+            m_invalidCaregivers, first, m_sync, m_minWait, m_maxWait);
 }
 
 bool Patient::hasNextService() const {

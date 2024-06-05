@@ -87,7 +87,6 @@ ScheduleOptimiser ALNSOptimisation::repairSingle(ScheduleOptimiser routes, Patie
     if (routes.repairNode(n_route, patient) == false) {
         return ScheduleOptimiser();
     }
-    
     return routes;
 }
 
@@ -98,55 +97,27 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
     if (!routes.isIndexValid(first_route) ||!routes.isIndexValid(second_route)) {
         throw out_of_range("[ALNSOptimisation] RepairDouble Error, route selected is out of range");
     }
-
-    if (routes.repairNode(first_route, patient, true) == false) {
-        return ScheduleOptimiser();
+    cout<<"\nTrying the first------------\n";
+    if (routes.repairNode(first_route, patient, true)) {
+        int time_s1 = routes.getRoute(first_route).getNodeArrivalTime(patient.getID());
+        cout << "time_s1: " << time_s1 << endl;
+        if (routes.repairNode(second_route, patient.getPatientAndNextService(time_s1), true)) {
+            return routes;
+        }
     }
-    int time1 = routes.getRoute(first_route).getNodeArrivalTime(patient.getID());
-    if (routes.repairNode(second_route, patient.getPatientAndNextService(time1), true) == false) {
-        return ScheduleOptimiser();
+    cout<<"\nTrying the second------------\n";
+    if (routes.repairNode(second_route, patient.getPatientforS2Sync(), true)) {
+        int time_s2 = routes.getRoute(second_route).getNodeArrivalTime(patient.getID());
+        cout << "time_s2: " << time_s2 << endl;
+        if (routes.repairNode(first_route, patient.getPatientforS1Sync(time_s2), true)) {
+            return routes;
+        }
     }
-
-    return routes;
+    return ScheduleOptimiser();
 }
-    
-/*ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patient patient, 
-                                            int first_route, int second_route) {
-    Node n1(patient, 0);
-    vector<Route> routes(routes.getRoutes());
-    tuple<Node, vector<Node>, vector<Node>> data1(routes[first_route]
-                                                .addNodeInRoute(patient, routes, first_route));
-    Node node1(std::get<0>(data1));
-    vector<Node> *first1  = &std::get<1>(data1);
-    vector<Node> *second1 = &std::get<2>(data1);
-    tuple<Node, vector<Node>, vector<Node>> data2(routes[second_route]
-                                        .addNodeInRoute(patient.getPatientAndNextService(node1.getArrivalTime()),       
-                                                                                    routes, second_route));
-    Node node2(std::get<0>(data2));
-    vector<Node> *first2  = &std::get<1>(data2);
-    vector<Node> *second2 = &std::get<2>(data2);
-    // aggiusta se non va bene
-    if (node2.getArrivalTime() < node1.getArrivalTime() + patient.getMinWait()) {
-        node2.setArrivalTime(node1.getArrivalTime() + patient.getMinWait());
-    }
-    else if (node2.getArrivalTime() > node1.getArrivalTime() + patient.getMaxWait()) {
-        node1.setArrivalTime(node2.getArrivalTime() - patient.getMaxWait());
-    }
-    //inserisci i dati
-    first1 -> push_back(node1);
-    first2 -> push_back(node2);
-    vector<Node> route1(Route::mergeLists(*first1, *second1, routes, first_route));
-    vector<Node> route2(Route::mergeLists(*first2, *second2, routes, second_route));
-    routes[first_route].updateRoute(route1);
-    routes[second_route].updateRoute(route2);
-    
-    ScheduleOptimiser repaired(routes);
-    return repaired;
-    return routes;
-}*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////      SAVE
-
+//todo: aggiungere ritorno del punteggio della soluzione per roulette wheel +3,+2,+1,0,-1 (da mettere come costanti) 
 void ALNSOptimisation::saveRepair(ScheduleOptimiser& repaired) {
     double cost = repaired.getCost();
     string hash = ALNSOptimisation::makeHash(repaired.getSchedule());

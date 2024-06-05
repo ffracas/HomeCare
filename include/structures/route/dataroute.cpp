@@ -9,8 +9,14 @@ DataRoute::DataRoute(Node node) {
     m_nodes.push_back(node);
 }
 
-DataRoute::DataRoute(std::vector<Node>& nodes, const SyncWindows& sw) {
+DataRoute::DataRoute(vector<Node>& nodes, const SyncWindows& sw) {
     m_nodes.push_back(nodes[0]);
+    
+    if (nodes.back().isInterdependent() && nodes.back().getArrivalTime() > nodes.back().getTimeWindowClose()) {
+        resetToValid(nodes, sw);
+        cout<< this->getCost() << endl;
+        return;
+    }
     for (int i = 1; i < nodes.size(); ++i) {
         if (nodes[i].isInterdependent()) {
             this->addNode(nodes[i], 
@@ -22,7 +28,35 @@ DataRoute::DataRoute(std::vector<Node>& nodes, const SyncWindows& sw) {
             this->addNode(nodes[i], -1, -1, i == nodes.size() - 1);
         }
     }
+}
 
+void DataRoute::resetToValid(vector<Node>& nodes, const SyncWindows& sw) {
+    vector<Node> interdep;
+    vector<Node> indep;
+    for (int i = 1; i < nodes.size(); ++i) {
+        if (nodes[i].isInterdependent()) {
+            interdep.push_back(nodes[i]);
+        }
+        else {
+            indep.push_back(nodes[i]);
+        }
+    }
+    sort(interdep.begin(), interdep.end(), 
+        [&sw](const Node& a, const Node& b) { return sw.getCloseSyncTime(a.getId()) < sw.getCloseSyncTime(b.getId()); });
+    //todo: delete
+    for (auto& node : interdep) {
+        for (auto& node : m_nodes) {
+            cout<<node.getId()<<" arrivo "<<node.getArrivalTime()<<" partenza "<<node.getDeparturTime()<<"->";
+        }
+        cout<<endl;
+        this->addNode(node,
+                    sw.getOpenSyncTime(node.getId()),
+                    sw.getCloseSyncTime(node.getId()),
+                    false);
+    }
+    for (int i = 0; i < indep.size(); ++i) {
+        this->addNode(indep[i], -1, -1, i == indep.size() - 1);
+    }
 }
 
 DataRoute::~DataRoute() {}

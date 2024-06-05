@@ -37,6 +37,7 @@ public:
     double getCost() const;
     int getNumberOfRoutes() const;
     int getNumberOfNodesInRoute(int) const noexcept (false);
+    int getNumberOfCaregiversFor(std::string) const;
 
     // checker
     bool isServiceAvailableInRoute(std::string, int) const noexcept (false); 

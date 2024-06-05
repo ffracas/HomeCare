@@ -151,6 +151,9 @@ std::string Schedule::getCaregiverOfRoute(int n_route) const noexcept(false) {
  * @return The total cost of the schedule.
  */
 double Schedule::getCost() const {
+    if (m_routes.empty()) {
+        return HCData::MAX_COST;
+    }
     int maxIdleTime = 0;
     int maxTardiness = 0;
     int totalTardiness = 0;
@@ -167,7 +170,9 @@ double Schedule::getCost() const {
         totalExtraTime += route.getExtraTime();
     }
     // calculate cost and return
-    return HCData::MAX_WAIT_TIME_WEIGHT * maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * maxTardiness + HCData::TARDINESS_WEIGHT * totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * totalWaitingTime + HCData::EXTRA_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
+    return HCData::MAX_WAIT_TIME_WEIGHT * maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * maxTardiness +
+        HCData::TARDINESS_WEIGHT * totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * totalWaitingTime +
+        HCData::EXTRA_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
 }
 
 /**
@@ -191,6 +196,11 @@ int Schedule::getNumberOfNodesInRoute(int n_route) const noexcept(false) {
         return m_routes[n_route].getNumNodes();
     }
     throw out_of_range("\n[Schedule] ERROR: Index out of range");
+}
+
+int Schedule::getNumberOfCaregiversFor(string service) const {
+  return std::count_if(m_routes.begin(), m_routes.end(),
+                       [service](const Route& route) { return route.hasService(service); });
 }
 
 //////////////////////////////////////////////////////////////////////////////////////       CHECKER

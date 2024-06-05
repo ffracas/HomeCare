@@ -64,8 +64,7 @@ int GreedyRepair::repairNodes()
     }
     cout << "\nCurrent cost: " << routesToTest.getCost() << "\n";
 
-    if (HCValidation(routesToTest.getSchedule()).checkSolution())
-    {
+    if (HCValidation(routesToTest.getSchedule()).checkSolution()) {
         m_data->saveRepair(routesToTest);
         return 1;
     }

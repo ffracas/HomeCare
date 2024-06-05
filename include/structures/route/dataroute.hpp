@@ -23,6 +23,7 @@ private:
 
     void resetCost();
     void addNode(Node&, const SyncWindows&, bool = false);
+    void resetToValid(std::vector<Node>&, const SyncWindows&);
 
 public:
     DataRoute();

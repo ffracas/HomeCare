@@ -12,6 +12,7 @@ namespace homecare {
 class ScheduleOptimiser : public Schedule {
 private:
     std::map<std::string, ServiceManager> m_mapOfPatient;
+    //todo: aggiungere variabile di costo
 
 public:
     ScheduleOptimiser();

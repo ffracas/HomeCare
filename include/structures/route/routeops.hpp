@@ -17,8 +17,8 @@ class RouteOps {
         static const int BASE_ROUTE_LEN = 2;
         static const int MAX_ROUTE_LEN_DINAMIC_P = 7;
         static std::vector<Node> rescheduleRoute(std::vector<Node>&, const SyncWindows&);
-        static DataRoute scheduleRoute(DataRoute, std::vector<Node>&, int, int, const SyncWindows&);
-        static DataRoute linKernighan(DataRoute, const SyncWindows&);
+        static DataRoute dinamicScheduling(DataRoute, std::vector<Node>&, int, int, const SyncWindows&);
+        static DataRoute twoOpt(DataRoute, const SyncWindows&);
 };
 
     

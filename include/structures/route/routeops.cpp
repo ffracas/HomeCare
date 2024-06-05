@@ -5,23 +5,20 @@ using namespace homecare;
 
 vector<Node> RouteOps::rescheduleRoute(vector<Node>& route, const SyncWindows& syncWindows) {
     if (route.empty()) { throw runtime_error("[Route]: Error: list to schedule is empty"); }
-    // schedule the route
-    // if is too short (only depot and one node scheduled at max)
-    //if (route.size() <= BASE_ROUTE_LEN) { return route; }
-    // else calculate schedule
+
     DataRoute newSchedule;
     if (route.size() > MAX_ROUTE_LEN_DINAMIC_P) {
-        DataRoute initialSol(route, syncWindows);
-        newSchedule = linKernighan(initialSol, syncWindows);
+        newSchedule = twoOpt(DataRoute (route, syncWindows), syncWindows);
     }
     else {
-        newSchedule = scheduleRoute(DataRoute(route[0]), route, (1 << route.size()) - 1, 0, syncWindows);
+        newSchedule = dinamicScheduling(DataRoute(route[0]), route, (1 << route.size()) - 1, 0, syncWindows);
     }
     if (newSchedule.getCost() == HCData::MAX_COST) { return vector<Node>(); }   //dovrebbe funzionare anche senza
     return newSchedule.getNodes();
 }
 
-DataRoute RouteOps::scheduleRoute(DataRoute solution, vector<Node>& nodes, int mask, int current, const SyncWindows& sw){
+DataRoute RouteOps::dinamicScheduling(DataRoute solution, vector<Node>& nodes, int mask, int current, 
+                                    const SyncWindows& sw){
     // base case: only one node and return to depot to schedule
     if (mask == (1 << current)) {
         Node node = nodes[current];
@@ -46,7 +43,7 @@ DataRoute RouteOps::scheduleRoute(DataRoute solution, vector<Node>& nodes, int m
     // iterate over all possible options
     for (int i = 1; i < nodes.size(); ++i) {
         if ((mask & (1 << i)) && i != current) {
-            DataRoute newSolution = scheduleRoute(solution, nodes, mask & (~(1 << current)) , i, sw);
+            DataRoute newSolution = dinamicScheduling(solution, nodes, mask & (~(1 << current)) , i, sw);
             if (newSolution.getCost() < best.getCost()) {
                 best = newSolution;
             }
@@ -55,7 +52,7 @@ DataRoute RouteOps::scheduleRoute(DataRoute solution, vector<Node>& nodes, int m
     return best;
 }
 
-DataRoute RouteOps::linKernighan(DataRoute best, const SyncWindows& sw) {
+DataRoute RouteOps::twoOpt(DataRoute best, const SyncWindows& sw) {
     bool improved = true;
     int n_nodes = best.getNodes().size();
     while (improved) {

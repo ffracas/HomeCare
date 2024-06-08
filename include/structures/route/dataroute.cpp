@@ -12,7 +12,7 @@ DataRoute::DataRoute(Node node) {
 DataRoute::DataRoute(vector<Node>& nodes, const SyncWindows& sw) {
     m_nodes.push_back(nodes[0]);
     
-    if (nodes.back().isInterdependent() && nodes.back().getArrivalTime() > nodes.back().getTimeWindowClose()) {
+    if (nodes.back().isInterdependent() && nodes.back().getArrivalTime() > sw.getCloseSyncTime(nodes.back().getId())) {
         resetToValid(nodes, sw);
         return;
     }
@@ -41,13 +41,13 @@ void DataRoute::resetToValid(vector<Node>& nodes, const SyncWindows& sw) {
         }
     }
 
-    for(auto node : interdep) {
+    /*for(auto node : interdep) {
         cout<<"n "<<node.getId()<<"->";
     }
     cout<<"\n----\n";
     for(auto node : indep) {
         cout<<"n "<<node.getId()<<"->";
-    }
+    }*/
 
     sort(interdep.begin(), interdep.end(), 
         [&sw](const Node& a, const Node& b) { return sw.getCloseSyncTime(a.getId()) < sw.getCloseSyncTime(b.getId()); });

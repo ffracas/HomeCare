@@ -16,23 +16,20 @@ Schedule HCOptimisation::optimise() {
     RandomRemoval rr;
     GreedyRepair  gr; 
     
-    int i = 0;
-    while (m_ops->startIteration() < 10) {
-        cout<<i<<"-";
-        i++;
-    }
+    m_ops->resetIteration();
     
     cout<<"\n-----\nIterarion "<<m_ops->startIteration()<<endl;
     cout<<"\nrem\n";
-    //rr.removeNodes(ELEMENT_TO_DESTROY);
-    ScheduleOptimiser routes(m_ops->getCurrentSchedule());
+    rr.removeNodes(ELEMENT_TO_DESTROY);
+
+    /*ScheduleOptimiser routes(m_ops->getCurrentSchedule());
     ScheduleOptimiser r1(m_ops->destroy(routes, 0, 3));
     m_ops->saveDestruction(r1,0,3);
     cout<<"--------------\n";
     ScheduleOptimiser r2(m_ops->destroy(m_ops->getCurrentSchedule(), 12,1));
     m_ops->saveDestruction(r2,12,1);
     cout<<"--------------\n";
-    /*ScheduleOptimiser r3(m_ops->destroy(m_ops->getCurrentSchedule(), 7,4));
+    ScheduleOptimiser r3(m_ops->destroy(m_ops->getCurrentSchedule(), 7,4));
     m_ops->saveDestruction(r3,7,4);
     cout<<"--------------\n";
     ScheduleOptimiser r4(m_ops->destroy(m_ops->getCurrentSchedule(), 12,1));
@@ -42,19 +39,22 @@ Schedule HCOptimisation::optimise() {
     m_ops->saveDestruction(r5,5,3);
     cout<<"--------------\n";*/
 
-
     //todo: to delete
+    cout<<endl;
+    for (const string& nodeToTest : m_ops->getNodesToRepair()) {
+        cout<<nodeToTest<<" - ";
+    }
+    cout<<endl;
     for (auto route : m_ops->getCurrentSchedule().getSchedule()) {
         for (auto node : route.getNodes()) {
             cout<<node.getId()<<"->";
         }
         cout<<endl;
     }
-    //cout<<"\nCurrent cost: "<<m_ops->getCurrentCost()<<"\n";
 
     cout<<"\nrep\n";
     int points = gr.repairNodes();
-    cout<<"Points: "<<points<<endl;
+    cout<<"\nPoints: "<<points<<endl;
 
     cout<<"\n----------\n";
     //todo: to delete

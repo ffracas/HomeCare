@@ -97,18 +97,18 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
     if (!routes.isIndexValid(first_route) ||!routes.isIndexValid(second_route)) {
         throw out_of_range("[ALNSOptimisation] RepairDouble Error, route selected is out of range");
     }
-    cout<<"\nTrying the first------------\n";
+    //cout<<"\nTrying the first------------\n"; //fixme: delete
     if (routes.repairNode(first_route, patient)) {
         int time_s1 = routes.getRoute(first_route).getNodeArrivalTime(patient.getID());
-        cout << "time_s1: " << time_s1 << endl;
+        //cout << "time_s1: " << time_s1 << endl;//fixme: delete
         if (routes.repairNode(second_route, patient.getPatientAndNextService(time_s1), true)) {
             return routes;
         }
     }
-    cout<<"\nTrying the second------------\n";
+    //cout<<"\nTrying the second------------\n";//fixme: delete
     if (routes.repairNode(second_route, patient.getPatientforS2Sync())) {
         int time_s2 = routes.getRoute(second_route).getNodeArrivalTime(patient.getID());
-        cout << "time_s2: " << time_s2 << endl;
+        //cout << "time_s2: " << time_s2 << endl;//fixme: delete
         if (routes.repairNode(first_route, patient.getPatientforS1Sync(time_s2), true)) {
             return routes;
         }

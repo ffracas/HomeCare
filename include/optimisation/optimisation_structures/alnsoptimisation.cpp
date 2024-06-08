@@ -98,7 +98,7 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
         throw out_of_range("[ALNSOptimisation] RepairDouble Error, route selected is out of range");
     }
     cout<<"\nTrying the first------------\n";
-    if (routes.repairNode(first_route, patient, true)) {
+    if (routes.repairNode(first_route, patient)) {
         int time_s1 = routes.getRoute(first_route).getNodeArrivalTime(patient.getID());
         cout << "time_s1: " << time_s1 << endl;
         if (routes.repairNode(second_route, patient.getPatientAndNextService(time_s1), true)) {
@@ -106,7 +106,7 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
         }
     }
     cout<<"\nTrying the second------------\n";
-    if (routes.repairNode(second_route, patient.getPatientforS2Sync(), true)) {
+    if (routes.repairNode(second_route, patient.getPatientforS2Sync())) {
         int time_s2 = routes.getRoute(second_route).getNodeArrivalTime(patient.getID());
         cout << "time_s2: " << time_s2 << endl;
         if (routes.repairNode(first_route, patient.getPatientforS1Sync(time_s2), true)) {
@@ -116,57 +116,54 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
     return ScheduleOptimiser();
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////      ITER
+
+int ALNSOptimisation::startIteration() {
+    return m_iteration ++;
+}
+
+int ALNSOptimisation::resetIteration() {
+    m_iteration = 0;
+    return m_iteration;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////      SAVE
-//todo: aggiungere ritorno del punteggio della soluzione per roulette wheel +3,+2,+1,0,-1 (da mettere come costanti) 
-void ALNSOptimisation::saveRepair(ScheduleOptimiser& repaired) {
+
+int ALNSOptimisation::saveRepair(ScheduleOptimiser& repaired) {
     double cost = repaired.getCost();
     string hash = ALNSOptimisation::makeHash(repaired.getSchedule());
-    //salva soluzione
-    m_solutionsDump.insert({hash, repaired});
-    //classifica soluzioni
-    m_solutionsRank.push_back(make_pair(cost, hash));
-    sort(m_solutionsRank.begin(), m_solutionsRank.end(), 
+    // evaluation of the solution
+    int points = OTHERWISE;
+    if (m_solutionsDump.find(hash) == m_solutionsDump.end()) {
+        m_solutionsDump.insert({hash, repaired});
+        if (m_solutionsRank[0].first > cost) {
+            points = BEST_SOLUTION;
+        }
+        else if (m_currentCost > cost) {
+            points = BETTER_THAN_CURRENT;
+        }
+        else if (isAccepted(m_solutionsRank[0].first, cost)) {
+            points = NO_BETTER_BUT_CURRENT;
+        }
+        // insert solution into the rank
+        m_solutionsRank.push_back(make_pair(cost, hash));
+        sort(m_solutionsRank.begin(), m_solutionsRank.end(), 
             [] (pair<double, string> e1, pair<double, string> e2) { return e1.first < e2.first; });
-    m_currentSol = m_solutionsRank[0].second;
-    m_currentCost = m_solutionsRank[0].first;
+    }
+    if (points == NO_BETTER_BUT_CURRENT) {
+        m_currentSol = hash;
+        m_currentCost = cost;
+    } else {
+         m_currentSol = m_solutionsRank[0].second;
+        m_currentCost = m_solutionsRank[0].first;
+    }
     resetOperation();
+    return points;
 }
 
 void ALNSOptimisation::saveDestruction(ScheduleOptimiser& destructed, int n_route, int n_node) {
     m_nodeToRelocate.push_back(m_ops.getNodeFromRoute(n_route, n_node).getId());
     m_ops = destructed;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////    COST
-
-/**
- * Calculates the cost based on the provided routes.
- * The cost is calculated by considering various factors such as maximum idle time, maximum tardiness,
- * total tardiness, total waiting time, travel time, and total extra time of the routes.
- * 
- * @param t_routes The routes for which the cost is to be calculated.
- * @return The calculated cost.
- */
-double ALNSOptimisation::calculateCost(const vector<Route>& t_routes) {
-    int maxIdleTime       = 0;
-    int maxTardiness      = 0;
-    int totalTardiness    = 0;
-    int totalWaitingTime  = 0;
-    int travelTime        = 0;
-    int totalExtraTime    = 0;
-
-    for (Route route : t_routes) {
-        maxIdleTime = route.getMaxIdleTime() > maxIdleTime ? route.getMaxIdleTime() : maxIdleTime;
-        maxTardiness = route.getMaxTardiness() > maxTardiness ? route.getMaxTardiness() : maxTardiness;
-        totalTardiness += route.getTotalTardiness();
-        totalWaitingTime += route.getTotalWaitingTime();
-        travelTime += route.getTravelTime();
-        totalExtraTime += route.getExtraTime();
-    }
-
-    return HCData::MAX_WAIT_TIME_WEIGHT * maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * maxTardiness 
-        + HCData::TARDINESS_WEIGHT * totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * totalWaitingTime  
-        + HCData::EXTRA_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////// LIST NODE TO REPAIR
@@ -176,6 +173,21 @@ double ALNSOptimisation::calculateCost(const vector<Route>& t_routes) {
  * @return True if there are nodes to repair, false otherwise.
  */
 bool ALNSOptimisation::hasNodeToRepair() { return !m_nodeToRelocate.empty(); }
+
+vector<string> ALNSOptimisation::getNodesToRepair() const {
+    return m_nodeToRelocate;
+}
+
+string ALNSOptimisation::scheduledNode(string scheduled) {
+    if (!m_nodeToRelocate.empty()) {
+        auto ip = find(m_nodeToRelocate.begin(), m_nodeToRelocate.end(), scheduled);
+        if (ip != m_nodeToRelocate.end()) { 
+            m_nodeToRelocate.erase(ip);
+            return *ip; 
+        }
+    }
+    throw runtime_error("[NodeToRelocate]Error: No " + scheduled + " node found");
+}
 
 string ALNSOptimisation::popNodeToRepair() {
     if (!m_nodeToRelocate.empty()) {
@@ -199,15 +211,15 @@ ScheduleOptimiser ALNSOptimisation::getBestSol() {
 double ALNSOptimisation::getCurrentCost() { return m_currentCost; }
 
 /**
- * Generates a random double between 0 and 0.999.
+ * Generates a random double between 0 and 1.0.
  * Uses the Mersenne Twister pseudo-random number generator.
  * 
- * @return A random double between 0 and 0.999.
+ * @return A random double between 0 and 1.0.
  */
 double ALNSOptimisation::generateRandom() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0.0, 0.999);
+    std::uniform_real_distribution<> dis(0.0, 1.0);
 
     // Genera un numero casuale tra 0 e 1
     return dis(gen);
@@ -224,3 +236,12 @@ string ALNSOptimisation::makeHash(const vector<Route>& t_routes) {
     return hash.str();
 }
 
+bool ALNSOptimisation::isAccepted(double bestCost, double newCost) { 
+    int T0 = 1000;
+    double c = 0.5;
+    double Tk = (double) T0 / (1 + c * log(1 + m_iteration));
+    double expn = - (newCost - bestCost) / Tk;
+    double target = exp(expn);
+    double random = generateRandom();
+    return random < target; 
+}

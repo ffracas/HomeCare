@@ -123,14 +123,19 @@ void ScheduleOptimiser::destroyNode(int n_route, int pos_node, string patient) {
     updateMapOfPatient(n_route);
 }
 
-int ScheduleOptimiser::repairNode(int n_route, const Patient& patient, bool hasSync) {
+int ScheduleOptimiser::repairNode(int n_route, const Patient& patient, bool isSecond) {
     if (!isIndexValid(n_route)) { throw out_of_range("[Schedule] Error: route index out of range"); }
     SyncWindows sw = getServiceWindows(n_route);
     volatile int time = m_routes[n_route].getFreeTime() 
             + HCData::getDistance(m_routes[n_route].getLastPatientDistanceIndex(), patient.getDistancesIndex());
     Node node = Node(patient, time); 
-    if (hasSync) {
-        sw.addSyncWindow(patient.getID(), make_pair(patient.getWindowStartTime(), patient.getWindowEndTime()));
+    if (patient.isInterdependent()) {
+        if (isSecond) {
+            sw.addSyncWindow(patient.getID(), make_pair(patient.getWindowStartTime(), patient.getWindowEndTime()));
+        }
+        else {
+            sw.addSyncWindow(patient.getID(), make_pair(-1, -1));
+        }
     }
     int result = m_routes[n_route].addNodeInRoute(node, sw);
     if (result != false) {

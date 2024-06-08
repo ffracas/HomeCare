@@ -14,7 +14,6 @@ DataRoute::DataRoute(vector<Node>& nodes, const SyncWindows& sw) {
     
     if (nodes.back().isInterdependent() && nodes.back().getArrivalTime() > nodes.back().getTimeWindowClose()) {
         resetToValid(nodes, sw);
-        cout<< this->getCost() << endl;
         return;
     }
     for (int i = 1; i < nodes.size(); ++i) {
@@ -34,21 +33,25 @@ void DataRoute::resetToValid(vector<Node>& nodes, const SyncWindows& sw) {
     vector<Node> interdep;
     vector<Node> indep;
     for (int i = 1; i < nodes.size(); ++i) {
-        if (nodes[i].isInterdependent()) {
+        if (nodes[i].isInterdependent() && sw.getCloseSyncTime(nodes[i].getId()) > 0) {
             interdep.push_back(nodes[i]);
         }
         else {
             indep.push_back(nodes[i]);
         }
     }
+
+    for(auto node : interdep) {
+        cout<<"n "<<node.getId()<<"->";
+    }
+    cout<<"\n----\n";
+    for(auto node : indep) {
+        cout<<"n "<<node.getId()<<"->";
+    }
+
     sort(interdep.begin(), interdep.end(), 
         [&sw](const Node& a, const Node& b) { return sw.getCloseSyncTime(a.getId()) < sw.getCloseSyncTime(b.getId()); });
-    //todo: delete
     for (auto& node : interdep) {
-        for (auto& node : m_nodes) {
-            cout<<node.getId()<<" arrivo "<<node.getArrivalTime()<<" partenza "<<node.getDeparturTime()<<"->";
-        }
-        cout<<endl;
         this->addNode(node,
                     sw.getOpenSyncTime(node.getId()),
                     sw.getCloseSyncTime(node.getId()),
@@ -71,7 +74,7 @@ void DataRoute::addNode(Node node, int nodeOpenWin, int nodeCloseWin, bool isLas
     Node last = m_nodes.back();
     int arrivingTime = last.getDeparturTime() + HCData::getDistance(last.getDistancesIndex(), node.getDistancesIndex());
     // check validity
-    if (node.isInterdependent()) {
+    if (node.isInterdependent() && nodeOpenWin > 0 && nodeCloseWin > 0) {
         if (arrivingTime > nodeCloseWin) {
             m_cost = HCData::MAX_COST;
             m_nodes.push_back(node);

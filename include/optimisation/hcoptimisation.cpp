@@ -16,24 +16,31 @@ Schedule HCOptimisation::optimise() {
     RandomRemoval rr;
     GreedyRepair  gr; 
     
+    int i = 0;
+    while (m_ops->startIteration() < 10) {
+        cout<<i<<"-";
+        i++;
+    }
+    
+    cout<<"\n-----\nIterarion "<<m_ops->startIteration()<<endl;
     cout<<"\nrem\n";
     //rr.removeNodes(ELEMENT_TO_DESTROY);
     ScheduleOptimiser routes(m_ops->getCurrentSchedule());
-    ScheduleOptimiser r1(m_ops->destroy(routes, 6, 4));
-    m_ops->saveDestruction(r1,6,4);
+    ScheduleOptimiser r1(m_ops->destroy(routes, 0, 3));
+    m_ops->saveDestruction(r1,0,3);
     cout<<"--------------\n";
-    ScheduleOptimiser r2(m_ops->destroy(m_ops->getCurrentSchedule(), 12, 1));
+    ScheduleOptimiser r2(m_ops->destroy(m_ops->getCurrentSchedule(), 12,1));
     m_ops->saveDestruction(r2,12,1);
     cout<<"--------------\n";
-    ScheduleOptimiser r3(m_ops->destroy(m_ops->getCurrentSchedule(), 4, 2));
-    m_ops->saveDestruction(r3,4,2);
+    /*ScheduleOptimiser r3(m_ops->destroy(m_ops->getCurrentSchedule(), 7,4));
+    m_ops->saveDestruction(r3,7,4);
     cout<<"--------------\n";
-    ScheduleOptimiser r4(m_ops->destroy(m_ops->getCurrentSchedule(), 6, 4));
-    m_ops->saveDestruction(r4,6,4);
+    ScheduleOptimiser r4(m_ops->destroy(m_ops->getCurrentSchedule(), 12,1));
+    m_ops->saveDestruction(r4,12,1);
     cout<<"--------------\n";
-    ScheduleOptimiser r5(m_ops->destroy(m_ops->getCurrentSchedule(), 0, 4));
-    m_ops->saveDestruction(r5,0,4);
-    cout<<"--------------\n";
+    ScheduleOptimiser r5(m_ops->destroy(m_ops->getCurrentSchedule(), 5,3));
+    m_ops->saveDestruction(r5,5,3);
+    cout<<"--------------\n";*/
 
 
     //todo: to delete
@@ -46,7 +53,9 @@ Schedule HCOptimisation::optimise() {
     //cout<<"\nCurrent cost: "<<m_ops->getCurrentCost()<<"\n";
 
     cout<<"\nrep\n";
-    gr.repairNodes();
+    int points = gr.repairNodes();
+    cout<<"Points: "<<points<<endl;
+
     cout<<"\n----------\n";
     //todo: to delete
     for (auto route : m_ops->getCurrentSchedule().getSchedule()) {

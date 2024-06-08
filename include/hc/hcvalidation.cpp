@@ -105,7 +105,7 @@ bool HCValidation::checkSolution() {
         }
     }
     for (const ValidatioNode& node : nodes) {
-        if (!node.isCompleted()) { cout<<node.getPatient();return false; }
+        if (!node.isCompleted()) { cout<<node.getPatient(); return false; }
     }
     return true;
 }

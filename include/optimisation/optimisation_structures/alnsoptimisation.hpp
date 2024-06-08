@@ -18,6 +18,7 @@ class ALNSOptimisation {
 private:
     static std::optional<ALNSOptimisation*> m_instance;
 
+    int m_iteration = 0;
     double m_currentCost;
     std::string m_currentSol;
     std::vector<std::string> m_nodeToRelocate;
@@ -28,9 +29,16 @@ private:
     ALNSOptimisation(Schedule, double);
     ALNSOptimisation(const ALNSOptimisation&) = delete;
     ALNSOptimisation& operator=(const ALNSOptimisation&) = delete;
+
+    bool isAccepted(double, double);
    
 public:
     ~ALNSOptimisation();
+
+    static const int BEST_SOLUTION = 3;
+    static const int BETTER_THAN_CURRENT = 2;
+    static const int NO_BETTER_BUT_CURRENT = 1;
+    static const int OTHERWISE = 0;
 
     static ALNSOptimisation* getInstance(Schedule&, double);
     static ALNSOptimisation* getInstance() noexcept (false);
@@ -39,10 +47,12 @@ public:
     ScheduleOptimiser destroy(ScheduleOptimiser, int, int) noexcept (false);    
     ScheduleOptimiser repairDouble(ScheduleOptimiser, Patient, int, int);
     ScheduleOptimiser repairSingle(ScheduleOptimiser, Patient, int);
+    int startIteration();
+    int resetIteration();
 
     // save operation
     void saveDestruction(ScheduleOptimiser&, int, int);
-    void saveRepair(ScheduleOptimiser&);
+    int saveRepair(ScheduleOptimiser&);
     void resetOperation();
 
     // getter
@@ -51,11 +61,12 @@ public:
     ScheduleOptimiser getBestSol();
 
     // Node to repiar
-    bool hasNodeToRepair();                                  // Node to repair
-    std::string popNodeToRepair() noexcept (false);          // Node to repair
+    bool hasNodeToRepair();                                  
+    std::vector<std::string> getNodesToRepair() const;
+    std::string scheduledNode(std::string) noexcept (false);
+    std::string popNodeToRepair() noexcept (false);          
 
     // other utilities
-    static double calculateCost(const std::vector<Route>&);  //Fixme: non mi sembra necessaria
     static std::string makeHash(const std::vector<Route>&);   //Fixme: non mi sembra necessaria
     static double generateRandom();                                 // Random generator
 };

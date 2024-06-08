@@ -28,29 +28,40 @@ int GreedyRepair::repairNodes()
     ScheduleOptimiser routesToTest(m_data->getCurrentSchedule());
 
     while (m_data->hasNodeToRepair()) {
+        cout<<endl;
+        for (const string& nodeToTest : m_data->getNodesToRepair()) {
+            cout<<nodeToTest<<" - ";
+        }
+        cout<<endl;
+
         // Best route initialization
-        ScheduleOptimiser bestRoute;
+        ScheduleOptimiser bestSolution;
         double bestCost = HCData::MAX_COST;
+        string bestNode = "";
 
-        // Get the next patient to repair
-        Patient patient(HCData::getPatient(m_data->popNodeToRepair()));
-        cout << patient.getID() << endl; // Debug print
-
-        // Handle independent service
-        if (!patient.hasNextService()) {
-            bestRoute = repairIndependentService(routesToTest, patient, bestCost);
-        } 
-        // Handle interdependent service
-        else {
-            bestRoute = repairInterdependentService(routesToTest, patient, bestCost);
+        for (const string& nodeToTest : m_data->getNodesToRepair()) {
+            ScheduleOptimiser solution;
+            double cost = 0;
+            Patient patient(HCData::getPatient(nodeToTest));
+            cout<<endl<<patient.getID()<<endl; //fixme: delete debug print
+            if (patient.isInterdependent()) {
+                solution = repairInterdependentService(routesToTest, patient, cost);
+            } else {
+                solution = repairIndependentService(routesToTest, patient, bestCost);
+            }
+            if (cost < bestCost) {
+                bestCost = cost;
+                bestNode = nodeToTest;
+                bestSolution = solution;
+            }
         }
 
-        cout << "best cost: " << bestCost << endl;
-        if (bestCost != HCData::MAX_COST) {
-            routesToTest = bestRoute;
-        } else {
-            throw runtime_error("Failed to find a solution");
+        if (bestCost == HCData::MAX_COST) {
+            return ALNSOptimisation::OTHERWISE;
         }
+        // update data
+        routesToTest = bestSolution;
+        m_data->scheduledNode(bestNode);
     }
 
     // fixme: debug print
@@ -65,10 +76,9 @@ int GreedyRepair::repairNodes()
     cout << "\nCurrent cost: " << routesToTest.getCost() << "\n";
 
     if (HCValidation(routesToTest.getSchedule()).checkSolution()) {
-        m_data->saveRepair(routesToTest);
-        return 1;
+        return m_data->saveRepair(routesToTest);
     }
-    return 0;
+    return ALNSOptimisation::OTHERWISE;
 }
 
 ScheduleOptimiser GreedyRepair::repairIndependentService(ScheduleOptimiser& routes, Patient& patient, double& bestCost) {

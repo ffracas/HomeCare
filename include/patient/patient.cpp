@@ -222,6 +222,10 @@ bool Patient::hasNextService() const {
     return true; 
 }
 
+bool Patient::isInterdependent() const {
+    return m_sync != NoSync;
+}
+
 bool Patient::isFirstService(string service) const {
     return m_services[0].getService() == service;
 }

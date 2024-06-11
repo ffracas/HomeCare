@@ -13,14 +13,17 @@ HCOptimisation::HCOptimisation(Schedule t_schedule, double t_cost)
 HCOptimisation::~HCOptimisation() {}
 
 Schedule HCOptimisation::optimise() {
-    RandomRemoval rr;
+    RandomRemoval rare;
+    RelatedRemoval rere;
     GreedyRepair  gr; 
     
     m_ops->resetIteration();
     
     cout<<"\n-----\nIterarion "<<m_ops->startIteration()<<endl;
     cout<<"\nrem\n";
-    rr.removeNodes(ELEMENT_TO_DESTROY);
+    
+    //rare.removeNodes(ELEMENT_TO_DESTROY); // fixme: insert in roulette
+    rere.removeNodes(ELEMENT_TO_DESTROY);
 
     /*ScheduleOptimiser routes(m_ops->getCurrentSchedule());
     ScheduleOptimiser r1(m_ops->destroy(routes, 0, 3));

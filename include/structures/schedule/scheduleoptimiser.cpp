@@ -32,7 +32,7 @@ vector<InfoNode> ScheduleOptimiser::getPatientServices(string patient) const {
 }
 
 SyncWindows ScheduleOptimiser::getServiceWindows(int n_route) const noexcept (false) {
-    if (!isIndexValid(n_route)) { throw out_of_range("No route"); }
+    if (!isIndexValid(n_route)) { throw out_of_range("[ScheduleOptimiser] No route"); }
     SyncWindows result;
     for (auto& node : getRoute(n_route).getNodes()) {
         if (node.isInterdependent()) {

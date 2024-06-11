@@ -51,11 +51,10 @@ int Route::getNumNodes() const { return m_nodes.size(); }
  * @throws std::runtime_error if the route contains only one node.
  */
 Node Route::getPatientNode(int pos) const {
-    int nNodes = m_nodes.size();
-    if (nNodes < 1 || pos >= nNodes || pos <= DEPOT) {
-        throw std::out_of_range("\n[route] Error: Out of range of route\n");
+    if (isIndexNodeValid(pos)) {
+        return m_nodes[pos];
     }
-    return m_nodes[pos];
+     throw std::out_of_range(" [Route] Error: Constraint on node's position.\n");
 }
 
 int Route::getNodeArrivalTime(string PatientId) const {

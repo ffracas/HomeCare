@@ -34,7 +34,6 @@ int GreedyRepair::repairNodes()
         double bestCost = HCData::MAX_COST;
         string bestNode = "no";
 
-        cout<<"--------------------\n";
         for (const string& nodeToTest : m_data->getNodesToRepair()) {
             ScheduleOptimiser solution;
             double cost = HCData::MAX_COST;
@@ -48,17 +47,14 @@ int GreedyRepair::repairNodes()
             if (cost < bestCost) {
                 bestCost = cost;
                 bestNode = nodeToTest;
-                cout <<"best node "<< bestNode<<endl;
                 bestSolution = solution;
             }
         }
-        cout<<"bestCost "<<bestCost<<endl;
         if (bestCost == HCData::MAX_COST) {
             return ALNSOptimisation::OTHERWISE;
         }
         // update data
         routesToTest = bestSolution;
-        cout <<"best node "<< bestNode<<endl;
         m_data->scheduledNode(bestNode);
     }
 

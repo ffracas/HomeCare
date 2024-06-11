@@ -3,7 +3,7 @@
 using namespace std;
 using namespace homecare;
 
-const double RelatedRemoval::m_related = 5.0;
+const double RelatedRemoval::m_related_exp_coef = 5.0;
 const double RelatedRemoval::m_distanceWeight = 5.0;
 const double RelatedRemoval::m_windowWeight = 5.0;
 const double RelatedRemoval::m_serviceWeight = 5.0;
@@ -48,37 +48,40 @@ double RelatedRemoval::calculateSimilarity(int distance, int difOpenWin, int dif
             + m_serviceWeight * abs(1.0 - (double(sharedCaregivers) / caregiversDenominator));
 }
 
-pair<int, int> RelatedRemoval::getRandomNode(vector<pair<int, int>> list) {
-    if (list.size() == 0) { throw runtime_error("error in get random node"); }
+//fixme: const e & in parametri
+Node RelatedRemoval::getRandomNode(const vector<Node>& list) {
+    if (list.empty()) { throw runtime_error("[Coord] error in get random node"); }
     if (list.size() == 1) { return list[0]; }
-    int pos = rand() % list.size();
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(0, list.size() - 1);
+    int pos = dist(gen);
     return list[pos];
 }
 
 void RelatedRemoval::removeNodes(int elementsToDestroy) {
-    /*//resetOperation();
-    ScheduleOptimiser routes(ALNSOptimisation::getCurrentSchedule());
+    //resetOperation();
+    ScheduleOptimiser routes(m_data->getCurrentSchedule());
     int n_route = chooseRandomRoute(routes);
+    if (n_route == NO_INDEX) { return; }
     int n_pos   = chooseRandomNode(routes, n_route);
     if (n_pos == NO_INDEX) { return; }
     Node seed = routes.getNodeFromRoute(n_route, n_pos);
 
-    vector<CostCoord> similarityRank;
-    vector<pair<int, int>> nodesToRemove;
-    nodesToRemove.push_back({n_route, n_pos});
-    while (nodesToRemove.size() < elementsToDestroy) {
-        similarityRank.clear();
-        pair<int, int> coord = getRandomNode(nodesToRemove);
-        seed = routes.getNodeFromRoute(coord.first, coord.second);
-        for (int i = 0; i < ALNSOptimisation::getNumberOfRoutes(); ++i) {
+    vector<Node> deletedNodes;
+    while (deletedNodes.size() < elementsToDestroy) {
+        routes = m_data->getCurrentSchedule();
+        vector<CostCoord> similarityRank;
+        for (int i = 0; i < routes.getNumberOfRoutes(); ++i) {
             for (int j = 1; j < routes.getNumberOfNodesInRoute(i); ++j) {
                 if (i != n_route && j != n_pos) {
-                    Node p = routes.getNodeInRoute(i, j);
+                    Node p = routes.getNodeFromRoute(i, j);
                     int distance    = HCData::getDistance(seed.getDistancesIndex(), p.getDistancesIndex());
-                    int difOpenWin  = abs(p.getTimeWindowOpen() - seed.getTimeWindowOpen());
-                    int difCloseWin = abs(p.getTimeWindowClose()   - seed.getTimeWindowClose()); 
+                    int difOpenWin  = abs(p.getTimeWindowOpen()  - seed.getTimeWindowOpen() );
+                    int difCloseWin = abs(p.getTimeWindowClose() - seed.getTimeWindowClose()); 
                     double similarity = 
                             calculateSimilarity(distance, difOpenWin, difCloseWin, seed.getService(), p.getService());
+                            
                     similarityRank.push_back(CostCoord(similarity, i, j));
                     sort(similarityRank.begin(), similarityRank.end(), [] (CostCoord cc1, CostCoord cc2) { 
                                                                     return cc1.getCost() < cc2.getCost();
@@ -86,11 +89,19 @@ void RelatedRemoval::removeNodes(int elementsToDestroy) {
                 }
             }
         }
-        int pos = floor(pow(ALNSOptimisation::generateRandom(), m_related) * similarityRank.size());
-        nodesToRemove.push_back({similarityRank[pos].getRouteNumber(), similarityRank[pos].getNodePosition()});
-        ScheduleOptimiser newRoutes(ALNSOptimisation::destroy(routes, n_route, pos));
+        int pos = floor(pow(ALNSOptimisation::generateRandom(), m_related_exp_coef) * similarityRank.size());
+        Node toDelete =
+            routes.getNodeFromRoute(similarityRank[pos].getRouteNumber(), similarityRank[pos].getNodePosition());
+        cout<<"\n rank ["<<pos<<"] n route "<<similarityRank[pos].getRouteNumber()<<" n node "<<
+            similarityRank[pos].getNodePosition()<<"------";
+        ScheduleOptimiser newRoutes(
+            m_data->destroy(routes, similarityRank[pos].getRouteNumber(), similarityRank[pos].getNodePosition()));
         if (!newRoutes.isEmpty()) {
-            routes = newRoutes;
+            deletedNodes.push_back(toDelete);
+            seed = getRandomNode(deletedNodes);
+            cout<<toDelete.getId()<<" cancellato\n";
+            m_data->saveDestruction(newRoutes, 
+                                similarityRank[pos].getRouteNumber(), similarityRank[pos].getNodePosition());
         }
-    }*/
+    }
 }

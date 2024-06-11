@@ -41,21 +41,15 @@ void DataRoute::resetToValid(vector<Node>& nodes, const SyncWindows& sw) {
         }
     }
 
-    /*for(auto node : interdep) {
-        cout<<"n "<<node.getId()<<"->";
-    }
-    cout<<"\n----\n";
-    for(auto node : indep) {
-        cout<<"n "<<node.getId()<<"->";
-    }*/
-
     sort(interdep.begin(), interdep.end(), 
         [&sw](const Node& a, const Node& b) { return sw.getCloseSyncTime(a.getId()) < sw.getCloseSyncTime(b.getId()); });
+    int k = 0;
     for (auto& node : interdep) {
         this->addNode(node,
                     sw.getOpenSyncTime(node.getId()),
                     sw.getCloseSyncTime(node.getId()),
-                    false);
+                    k == (nodes.size() - 1));
+        k++;
     }
     for (int i = 0; i < indep.size(); ++i) {
         this->addNode(indep[i], -1, -1, i == indep.size() - 1);

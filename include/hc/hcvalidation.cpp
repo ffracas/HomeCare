@@ -70,7 +70,8 @@ bool HCValidation::checkSolution() {
             Node node(route_nodes[i]);
             //controlla se il servizio è disponibile per questo caregiver
             if (find(services.begin(), services.end(), node.getService()) == services.end()) { 
-                cout<<"Some caregivers were assigned a service that cannot be provided\n"; 
+                cout<<"Some caregivers have been assigned a service that cannot be provided\n"; 
+                cout<<route.getCaregiver()<<" - "<<node.getId()<<" - "<<node.getService();
                 return false; 
             }
             //controlla se il caregiver non è stato rifiutato dal paziente

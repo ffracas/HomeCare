@@ -7,12 +7,12 @@ namespace homecare {
 
 class RelatedRemoval : public NodeRemoval {
 private:
-    static const double m_related;                                             //parametro related removal
+    static const double m_related_exp_coef;                                             //parametro related removal
     static const double m_distanceWeight;                                      //parametro related removal
     static const double m_windowWeight;                                        //parametro related removal
     static const double m_serviceWeight;                                       //parametro related removal
 
-    std::pair<int, int> getRandomNode(std::vector<std::pair<int, int>>) noexcept (false);
+    Node getRandomNode(const std::vector<Node>&) noexcept (false);
     static int calculateSharedCaregivers(std::string, std::string, int&, int&);
     
 public:

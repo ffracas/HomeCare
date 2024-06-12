@@ -9,7 +9,7 @@ const double RelatedRemoval::m_windowWeight = 5.0;
 const double RelatedRemoval::m_serviceWeight = 5.0;
 
 RelatedRemoval::RelatedRemoval()
-        : NodeRemoval (5) {}
+        : NodeRemoval (1) {}
 
 RelatedRemoval::~RelatedRemoval() {}
 

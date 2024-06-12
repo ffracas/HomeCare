@@ -15,6 +15,7 @@ HCOptimisation::~HCOptimisation() {}
 Schedule HCOptimisation::optimise() {
     RandomRemoval rare;
     RelatedRemoval rere;
+    WorstRemoval wore;
     GreedyRepair  gr; 
     
     m_ops->resetIteration();
@@ -22,8 +23,9 @@ Schedule HCOptimisation::optimise() {
     cout<<"\n-----\nIterarion "<<m_ops->startIteration()<<endl;
     cout<<"\nrem\n";
     
-    //rare.removeNodes(ELEMENT_TO_DESTROY); // fixme: insert in roulette
-    rere.removeNodes(ELEMENT_TO_DESTROY);
+    //rare.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
+    //rere.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
+    wore.removeNodes(ELEMENT_TO_DESTROY);
 
     /*ScheduleOptimiser routes(m_ops->getCurrentSchedule());
     ScheduleOptimiser r1(m_ops->destroy(routes, 0, 3));

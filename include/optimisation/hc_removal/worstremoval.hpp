@@ -7,9 +7,10 @@ namespace homecare {
     
 class WorstRemoval : public NodeRemoval {
 private:
-    //const double p_worst;                                               //parametro worst removal
+    const double p_worst = 5.0;                                               //parametro worst removal
+
 public:
-    WorstRemoval(double);
+    WorstRemoval();
     ~WorstRemoval();
     void removeNodes(int) override;
 };

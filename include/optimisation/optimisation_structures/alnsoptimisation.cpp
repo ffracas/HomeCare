@@ -219,7 +219,7 @@ double ALNSOptimisation::getCurrentCost() { return m_currentCost; }
 double ALNSOptimisation::generateRandom() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0.0, 1.0);
+    std::uniform_real_distribution<> dis(0.0, 0.870); // fixme: the round is not equal 1 - or multiply result |list|-1
 
     // Genera un numero casuale tra 0 e 1
     return dis(gen);

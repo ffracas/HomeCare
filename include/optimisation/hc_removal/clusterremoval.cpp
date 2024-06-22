@@ -3,48 +3,53 @@
 using namespace std;
 using namespace homecare;
 
-ClusterRemoval::ClusterRemoval(int t_minNodesN) 
-        : NodeRemoval (t_minNodesN) {}
+ClusterRemoval::ClusterRemoval() : NodeRemoval (7) {}
 
 ClusterRemoval::~ClusterRemoval() {}
 
-void ClusterRemoval::removeNodes(int elementsToDestroy) {
-    /*vector<pair<int, int>> nodesToRemove;
-    // Select random node
-    ScheduleOptimiser routes(ALNSOptimisation::getCurrentSchedule());
+void ClusterRemoval::removeNodes(int elementsToDestroyTarget) {
+    vector<string> destroyedNodes;
+    ScheduleOptimiser routes(m_data->getCurrentSchedule());
+
     int n_route = chooseRandomRoute(routes);
-    while (n_route != NO_INDEX) {
-        KruskalGraph edges(routes.getNumberOfNodesInRoute(n_route));
-        generateGraph(routes, n_route, edges);
-        for(const int& node : edges.getKruskalRank(elementsToDestroy - nodesToRemove.size())) {
-            nodesToRemove.push_back(make_pair(n_route, node));
+    while (n_route != NO_INDEX && destroyedNodes.size() < elementsToDestroyTarget) {
+        cout << "----" << destroyedNodes.size() << "----\n";
+
+        vector<string> nodesToRemove;
+        KruskalGraph kruskalGraph(routes.getNumberOfNodesInRoute(n_route) - 1);
+        generateGraph(routes, n_route, kruskalGraph);
+        int numElementsToDestroyInRoute = elementsToDestroyTarget - destroyedNodes.size();
+
+        //todo: passare la posizione del nodo e restituire il ramo del cluster da cancellare
+        for (const int& pos_node : kruskalGraph.getKruskalRank(numElementsToDestroyInRoute)) {
+            nodesToRemove.push_back(routes.getNodeFromRoute(n_route, pos_node).getId());
         }
-        if (nodesToRemove.size() < elementsToDestroy) 
-        {   n_route = chooseRandomRoute(routes); }
-        else { n_route = NO_INDEX; }
+
+        for (const string& node : nodesToRemove) {
+            int n_pos = routes.getNodePositionInRoute(n_route, node);
+            ScheduleOptimiser newRoutes = m_data->destroy(routes, n_route, n_pos);
+            if (!newRoutes.isEmpty()) {
+                m_data->saveDestruction(newRoutes, n_route, n_pos);
+                routes = newRoutes;
+                destroyedNodes.push_back(node);
+            }
+        }
+
+        if (destroyedNodes.size() < elementsToDestroyTarget) {
+            n_route = chooseRandomRoute(routes);
+        } else {
+            n_route = NO_INDEX;
+        }
     }
-    for (const pair<int, int> & node : nodesToRemove) {
-        ScheduleOptimiser newRoutes = ALNSOptimisation::destroy(routes, node.first, node.second);
-        if (!newRoutes.isEmpty()) {
-            routes = newRoutes;
-        }
-    }*/
 }
 
 void ClusterRemoval::generateGraph(ScheduleOptimiser& routes, int n_route, KruskalGraph & edges) {
-    /*for (int i = 1; i < routes.getNumberOfNodesInRoute(n_route); ++i) {
-        Node n_i = routes.getNodeInRoute(n_route, i);
-        for (int j = i; j < routes.getNumberOfNodesInRoute(n_route); ++j) {
-            double likelihood = 99999.9;
-            if (i != j) {
-                Node n_j = routes.getNodeInRoute(n_route, j);
-                likelihood = RelatedRemoval::calculateSimilarity(
-                    HCData::getDistance(n_i.getDistancesIndex(), n_j.getDistancesIndex()),
-                    abs(n_i.getTimeWindowOpen() - n_j.getTimeWindowOpen()),
-                    abs(n_i.getTimeWindowClose() - n_j.getTimeWindowClose()),
-                    n_i.getService(), n_j.getService());
-            }
-            edges.addWeightedEdge(likelihood, i, j);
+    for (int i = 1; i < routes.getNumberOfNodesInRoute(n_route) - 1; ++i) {
+        Node n_i = routes.getNodeFromRoute(n_route, i);
+        for (int j = i + 1; j < routes.getNumberOfNodesInRoute(n_route); ++j) {
+            Node n_j = routes.getNodeFromRoute(n_route, j);
+            double distance = HCData::getDistance(n_i.getDistancesIndex(), n_j.getDistancesIndex());
+            edges.addWeightedEdge(i, j, distance);
         }
-    }*/
+    }
 }

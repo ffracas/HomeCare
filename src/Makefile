@@ -35,7 +35,8 @@ LIBOPT = $(LIBDIR)/optimisation/hcoptimisation.cpp \
          $(LIBDIR)/optimisation/hc_removal/relatedremoval.cpp \
          $(LIBDIR)/optimisation/hc_removal/clusterremoval.cpp \
          $(LIBDIR)/optimisation/hc_repair/noderepair.cpp \
-         $(LIBDIR)/optimisation/hc_repair/greedyrepair.cpp
+         $(LIBDIR)/optimisation/hc_repair/greedyrepair.cpp \
+         $(LIBDIR)/optimisation/hc_repair/regretrepair.cpp 
 	   
 TARGETS = HomeCare Validate
 

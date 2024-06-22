@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <sstream>
+#include <algorithm>
 #include <cmath>
 #include <random>
 

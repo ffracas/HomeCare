@@ -27,6 +27,16 @@ int ScheduleOptimiser::getNPatientServices(string patient) const {
     } else { return 0; }
 }
 
+int ScheduleOptimiser::getNodePositionInRoute(int n_route, string nodeId) const {
+    if (!isIndexValid(n_route)) { throw out_of_range("[ScheduleOptimiser] No route"); }
+    vector<Node> route = getRoute(n_route).getNodes();
+    std::vector<Node>::iterator iter = std::find_if(route.begin(), route.end(), 
+            [nodeId] (const Node& node) { return node.getId() == nodeId; });
+    size_t index = std::distance(route.begin(), iter);
+    if(index == route.size()) { return HCData::NO_INDEX; }
+    return index;
+}
+
 vector<InfoNode> ScheduleOptimiser::getPatientServices(string patient) const {
     return m_mapOfPatient.at(patient).getAllService();
 }
@@ -55,14 +65,6 @@ SyncWindows ScheduleOptimiser::getServiceWindows(int n_route) const noexcept (fa
 pair<int, int> ScheduleOptimiser::getSyncServiceWindow(string patient, string service, int currentRoute) const {
     InfoNode otherNode(m_mapOfPatient.at(patient).getOtherServiceInfo(service, currentRoute).second);
     Patient p = HCData::getPatient(otherNode.getPatientIndex());
-    /*int late;  //fixme: se non serve droppa
-    int soon;
-    late = getRoute(otherNode.getRoute()).getNoChangeWindowCloseTime(otherNode.getPositionInRoute());
-    soon = getRoute(otherNode.getRoute()).getNoChangeWindowOpenTime(otherNode.getPositionInRoute());
-    if (soon > p.getWindowEndTime()) {
-        soon = otherNode.getTime();
-        late = soon;
-    }*/
     // if service in route is the first 
     if (p.isFirstService(service)) { 
         return make_pair(max(otherNode.getTime() - p.getMaxWait(), 0), otherNode.getTime() - p.getMinWait()); 
@@ -114,7 +116,7 @@ void ScheduleOptimiser::replaceRoute(Route &route, int n_route) {
  * @param patient The patient associated with the node to be destroyed.
  * @throws std::out_of_range If the route index or node position is invalid.
  */
-void ScheduleOptimiser::destroyNode(int n_route, int pos_node, string patient) {
+void ScheduleOptimiser::destroyNode(int n_route, int pos_node) {
     if (!isIndexValid(n_route) || !isNodeIndexValid(n_route, pos_node)) {
         throw out_of_range("[Schedule] Error: route index out of range");
     }

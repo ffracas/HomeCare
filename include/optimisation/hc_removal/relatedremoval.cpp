@@ -92,8 +92,6 @@ void RelatedRemoval::removeNodes(int elementsToDestroy) {
         int pos = floor(pow(ALNSOptimisation::generateRandom(), m_related_exp_coef) * similarityRank.size());
         Node toDelete =
             routes.getNodeFromRoute(similarityRank[pos].getRouteNumber(), similarityRank[pos].getNodePosition());
-        cout<<"\n rank ["<<pos<<"] n route "<<similarityRank[pos].getRouteNumber()<<" n node "<<
-            similarityRank[pos].getNodePosition()<<"------";
         ScheduleOptimiser newRoutes(
             m_data->destroy(routes, similarityRank[pos].getRouteNumber(), similarityRank[pos].getNodePosition()));
         if (!newRoutes.isEmpty()) {

@@ -5,7 +5,7 @@ using namespace homecare;
 
 vector<Node> RouteOps::rescheduleRoute(vector<Node>& route, const SyncWindows& syncWindows) {
     if (route.empty()) { throw runtime_error("[Route]: Error: list to schedule is empty"); }
-
+    if (route.size() <= 2) { return route; } //if there are depot and at max one node, return the list
     DataRoute newSchedule;
     if (route.size() > MAX_ROUTE_LEN_DINAMIC_P) {
         newSchedule = twoOpt(DataRoute (route, syncWindows), syncWindows);

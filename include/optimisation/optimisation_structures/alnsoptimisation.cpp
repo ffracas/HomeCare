@@ -68,15 +68,14 @@ ScheduleOptimiser ALNSOptimisation::destroy(ScheduleOptimiser routes, int n_rout
     // save a copy of the node to delete
     Node deleted(routes.getNodeFromRoute(n_route, n_node));
     // delete the node
-    routes.destroyNode(n_route, n_node, deleted.getId());
+    routes.destroyNode(n_route, n_node);
     if (deleted.isInterdependent()) {
         InfoNode otherNode = routes.getInterdependetInfo(deleted.getId(), deleted.getService(), n_route).second;
-        routes.destroyNode(otherNode.getRoute(), otherNode.getPositionInRoute(), deleted.getId());
+        routes.destroyNode(otherNode.getRoute(), otherNode.getPositionInRoute());
     }
     routes.destroyPatientRef(deleted.getId());  
     return routes;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////        REPAIR 1
 
@@ -97,18 +96,14 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
     if (!routes.isIndexValid(first_route) ||!routes.isIndexValid(second_route)) {
         throw out_of_range("[ALNSOptimisation] RepairDouble Error, route selected is out of range");
     }
-    //cout<<"\nTrying the first------------\n"; //fixme: delete
     if (routes.repairNode(first_route, patient)) {
         int time_s1 = routes.getRoute(first_route).getNodeArrivalTime(patient.getID());
-        //cout << "time_s1: " << time_s1 << endl;//fixme: delete
         if (routes.repairNode(second_route, patient.getPatientAndNextService(time_s1), true)) {
             return routes;
         }
     }
-    //cout<<"\nTrying the second------------\n";//fixme: delete
     if (routes.repairNode(second_route, patient.getPatientforS2Sync())) {
         int time_s2 = routes.getRoute(second_route).getNodeArrivalTime(patient.getID());
-        //cout << "time_s2: " << time_s2 << endl;//fixme: delete
         if (routes.repairNode(first_route, patient.getPatientforS1Sync(time_s2), true)) {
             return routes;
         }

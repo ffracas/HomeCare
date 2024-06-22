@@ -126,7 +126,7 @@ Node Schedule::getNodeFromRoute(int n_route, int n_node) const noexcept(false) {
     if (!isEmpty() && isIndexValid(n_route)) {
         return m_routes[n_route].getPatientNode(n_node);
     }
-    throw out_of_range("\n[Schedule] ERROR: Index out of range");
+    throw out_of_range("\n[Schedule] ERROR: Index route out of range");
 }
 
 /**

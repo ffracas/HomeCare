@@ -54,7 +54,7 @@ Node Route::getPatientNode(int pos) const {
     if (isIndexNodeValid(pos)) {
         return m_nodes[pos];
     }
-     throw std::out_of_range(" [Route] Error: Constraint on node's position.\n");
+     throw std::out_of_range(" [Route] Error: Constraint on node's position violation.\n");
 }
 
 int Route::getNodeArrivalTime(string PatientId) const {

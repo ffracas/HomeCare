@@ -3,7 +3,7 @@
 using namespace std;
 using namespace homecare;
 
-WorstRemoval::WorstRemoval() : NodeRemoval(1) {}
+WorstRemoval::WorstRemoval() : NodeRemoval(7) {}
 
 WorstRemoval::~WorstRemoval() {}
 

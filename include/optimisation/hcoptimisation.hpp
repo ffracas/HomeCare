@@ -14,6 +14,7 @@
 #include "hc_removal/relatedremoval.hpp"
 #include "hc_removal/clusterremoval.hpp"
 #include "hc_repair/greedyrepair.hpp"
+#include "hc_repair/regretrepair.hpp"
 
 
 namespace homecare {

@@ -21,6 +21,7 @@ public:
 
     // getter
     int getNPatientServices(std::string) const;
+    int getNodePositionInRoute(int, std::string) const;
     std::vector<InfoNode> getPatientServices(std::string) const;
     SyncWindows getServiceWindows(int) const noexcept (false);
     std::pair<int, int> getSyncServiceWindow(std::string, std::string, int) const noexcept(false); 
@@ -29,7 +30,7 @@ public:
     // update structures
     void replaceRoute(Route&, int) noexcept (false); 
     void updateSyncServiceTime(std::string, std::string, int, int); 
-    void destroyNode(int, int, std::string) noexcept (false);
+    void destroyNode(int, int) noexcept (false);
     int repairNode(int, const Patient&, bool = false) noexcept (false);
     
     void updateMapOfPatient(int);

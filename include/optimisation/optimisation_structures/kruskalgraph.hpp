@@ -3,17 +3,18 @@
 
 #include <vector>
 #include <iostream>
+#include <string>
 
 namespace homecare {
 
-#define edge std::pair<int, int>
+using edge = std::pair<int, int>;
 
 class KruskalGraph {
 private:
-  std::vector<std::pair<int, edge> > G;     // graph
-  std::vector<std::pair<int, edge> > T;     // mst
+  std::vector<std::pair<int, edge>> graph;      // graph
+  std::vector<std::pair<int, edge>> mst;        // mst
   int *parent;
-  int N;                                    // number of nodes in graph
+  int nNodes;                                   // number of nodes in graph
   
   void addIfNotPresent(std::vector<int>&, int);
 

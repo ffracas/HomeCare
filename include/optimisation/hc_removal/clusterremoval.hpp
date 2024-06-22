@@ -1,18 +1,20 @@
 #ifndef CLUSTERREMOVAL_HPP
 #define CLUSTERREMOVAL_HPP
 
+#include <vector>
+#include <iostream>
+#include <string>
+
 #include "noderemoval.hpp"
-#include "relatedremoval.hpp"
 #include "../optimisation_structures/kruskalgraph.hpp"
 
 namespace homecare {
 
-// Creating shortcut for an integer pair 
-typedef std::pair<int, int> iPair; 
-
 class ClusterRemoval : public NodeRemoval {
+private:
+    //const int m_minClusterDim = 7;
 public:
-    ClusterRemoval(int);
+    ClusterRemoval();
     ~ClusterRemoval();
     void removeNodes(int) override;
     void generateGraph(ScheduleOptimiser&, int, KruskalGraph &);

@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <algorithm>
+#include <utility>
 
 namespace homecare {
 
@@ -13,8 +15,8 @@ class KruskalGraph {
 private:
   std::vector<std::pair<int, edge>> graph;      // graph
   std::vector<std::pair<int, edge>> mst;        // mst
-  int *parent;
-  int nNodes;                                   // number of nodes in graph
+  std::vector<int> parent;
+  //int nNodes;                                   // number of nodes in graph
   
   void addIfNotPresent(std::vector<int>&, int);
 

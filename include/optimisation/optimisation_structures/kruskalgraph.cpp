@@ -4,15 +4,16 @@ using namespace std;
 using namespace homecare;
 
 KruskalGraph::KruskalGraph(int N) {
-    parent = new int[N];
-    this -> nNodes = N;
-    for (int i = 0; i < N; i++) { parent[i] = i; }
+    parent.push_back(0);
+    for (int i = 1; i <= N; ++i) {
+        parent.push_back(i);
+    }
     graph.clear();
     mst.clear();
 }
 
 void KruskalGraph::addWeightedEdge(int u, int v, int w) {
-    graph.push_back(make_pair(w, edge(u, v)));
+    graph.emplace_back(w, edge(u, v));
 }
 
 int KruskalGraph::findSet(int i) {
@@ -21,7 +22,6 @@ int KruskalGraph::findSet(int i) {
     while (representative != parent[representative]) {
         representative = parent[representative];
     }
-    // If i is the parent of itself
     return representative;
 }
 
@@ -30,14 +30,23 @@ void KruskalGraph::mergeSet(int u, int v) {
 }
 
 void KruskalGraph::generateKruskalTree() {
-    int i, uRep, vRep;
-    sort(graph.begin(), graph.end());  // increasing weight
+    cout << "Graph size: " << graph.size() << endl;
+    for (const auto& edge : graph) {
+        cout << "(" << edge.second.first << ", " << edge.second.second << ") : " << edge.first << endl;
+    }
+    cout << "Parent array: ";
+    for (int i = 0; i < parent.size(); ++i) {
+        cout << parent[i] << " ";
+    }
+cout << endl;
+    sort(graph.begin(), graph.end(),                                                                // increasing weight
+        [] (const pair<int, edge>& lhs, const pair<int, edge>& rhs) {return lhs.first < rhs.first; });  
 
-    for (i = 0; i < graph.size(); i++) {
-        uRep = findSet(graph[i].second.first);
-        vRep = findSet(graph[i].second.second);
+    for (const auto& edge : graph) {
+        int uRep = findSet(edge.second.first);
+        int vRep = findSet(edge.second.second);
         if (uRep != vRep) {
-            mst.push_back(graph[i]);  // add to tree
+            mst.push_back(edge);  // add to tree
             mergeSet(uRep, vRep);
         }
     }
@@ -45,10 +54,9 @@ void KruskalGraph::generateKruskalTree() {
 
 void KruskalGraph::print() {
     cout << "Edge :" << " Weight" << '\n';
-    for (int i = 0; i < mst.size(); i++) {
-        cout << mst[i].second.first << " - " << mst[i].second.second << " : "
-        << mst[i].first;
-        cout << '\n';
+    for (const auto& edge : mst) {
+        cout << edge.second.first << " - " << edge.second.second << " : "
+             << edge.first << '\n';
     }
 }
 
@@ -57,16 +65,18 @@ vector<int> KruskalGraph::getKruskalRank(int elementToDestroy) {
     vector<int> sorted;
     sorted.push_back(mst[0].second.first);
 
-    for (int i = 0; i < sorted.size(); ++i) {
-        for (int j = 0; j < mst.size(); ++j) {
-            if (mst[j].second.first == sorted[i]) {
-                addIfNotPresent(sorted, mst[j].second.second);
-            } else if (mst[j].second.second == sorted[i]) {
-                addIfNotPresent(sorted, mst[j].second.first);
+    for (size_t i = 0; i < sorted.size(); ++i) {
+        for (const auto& edge : mst) {
+            if (edge.second.first == sorted[i]) {
+                addIfNotPresent(sorted, edge.second.second);
+            } else if (edge.second.second == sorted[i]) {
+                addIfNotPresent(sorted, edge.second.first);
             }
         }
     }
-    if (sorted.size() <= elementToDestroy) { return sorted; }
+    if (sorted.size() <= elementToDestroy) {
+        return sorted;
+    }
     vector<int> rankedElements(sorted.begin(), sorted.begin() + elementToDestroy);
     return rankedElements;
 }

@@ -1,5 +1,11 @@
 #include "hcoptimisation.hpp"
 
+#include <csignal>
+#include <iostream>
+#include <cstdlib>
+#include <execinfo.h>
+#include <unistd.h>
+
 using namespace std;
 using namespace homecare;
 
@@ -12,6 +18,27 @@ HCOptimisation::HCOptimisation(Schedule t_schedule, double t_cost)
 
 HCOptimisation::~HCOptimisation() {}
 
+void signalHandler(int signal) {
+    if (signal == SIGSEGV) {
+        std::cerr << "Segmentation Fault detected (signal " << signal << ")." << std::endl;
+
+        // Ottenere il backtrace
+        void* array[10];
+        size_t size = backtrace(array, 10);
+
+        // Stampare il backtrace
+        std::cerr << "Backtrace:\n";
+        char** messages = backtrace_symbols(array, size);
+        for (size_t i = 0; i < size; i++) {
+            std::cerr << messages[i] << std::endl;
+        }
+        free(messages);
+
+        // Puoi aggiungere azioni di pulizia qui
+        std::_Exit(EXIT_FAILURE);  // Termina il programma in modo sicuro
+    }
+}
+
 Schedule HCOptimisation::optimise() {
     RandomRemoval rare;
     RelatedRemoval rere;
@@ -22,6 +49,8 @@ Schedule HCOptimisation::optimise() {
     RegretRepair rr;
     
     m_ops->resetIteration();
+
+    signal(SIGSEGV, signalHandler);
     
     cout<<"\n-----\nIterarion "<<m_ops->startIteration()<<endl;
     cout<<"\nrem\n";
@@ -29,24 +58,24 @@ Schedule HCOptimisation::optimise() {
     //rare.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
     //rere.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
     //wore.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
-    //clre.removeNodes(ELEMENT_TO_DESTROY);
+    clre.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
 
-    ScheduleOptimiser routes(m_ops->getCurrentSchedule());
+    /*ScheduleOptimiser routes(m_ops->getCurrentSchedule());
     ScheduleOptimiser r1(m_ops->destroy(routes, 0, 3));
     m_ops->saveDestruction(r1,0,3);
     cout<<"--------------\n";
     ScheduleOptimiser r2(m_ops->destroy(m_ops->getCurrentSchedule(), 12,1));
     m_ops->saveDestruction(r2,12,1);
     cout<<"--------------\n";
-    /*ScheduleOptimiser r3(m_ops->destroy(m_ops->getCurrentSchedule(), 7,4));
+    ScheduleOptimiser r3(m_ops->destroy(m_ops->getCurrentSchedule(), 7,4));
     m_ops->saveDestruction(r3,7,4);
     cout<<"--------------\n";
     ScheduleOptimiser r4(m_ops->destroy(m_ops->getCurrentSchedule(), 12,1));
     m_ops->saveDestruction(r4,12,1);
-    cout<<"--------------\n";*/
+    cout<<"--------------\n";
     ScheduleOptimiser r5(m_ops->destroy(m_ops->getCurrentSchedule(), 5,3));
     m_ops->saveDestruction(r5,5,3);
-    cout<<"--------------\n";
+    cout<<"--------------\n";*/
 
     //todo: to delete
     cout<<endl;

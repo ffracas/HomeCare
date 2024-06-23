@@ -20,7 +20,6 @@ void ClusterRemoval::removeNodes(int elementsToDestroyTarget) {
         generateGraph(routes, n_route, kruskalGraph);
         int numElementsToDestroyInRoute = elementsToDestroyTarget - destroyedNodes.size();
 
-        //todo: passare la posizione del nodo e restituire il ramo del cluster da cancellare
         for (const int& pos_node : kruskalGraph.getKruskalRank(numElementsToDestroyInRoute)) {
             nodesToRemove.push_back(routes.getNodeFromRoute(n_route, pos_node).getId());
         }

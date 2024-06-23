@@ -62,13 +62,11 @@ ScheduleOptimiser RegretRepair::regret2(const std::vector<std::string>& nodesToR
             bestInsertion2 = result.solution2;
         }
     }
-    cout<<"---------------------------"<<bestNode<<endl;
     // schedule the best node
     vector<string> updateToRepair (nodesToRepair);
     updateToRepair.erase(remove(updateToRepair.begin(), updateToRepair.end(), bestNode), updateToRepair.end());
 
     if (updateToRepair.empty()) {
-        cout<<"ultimo giro di giostra\n";
         if (HCValidation(bestInsertion1.getSchedule()).checkSolution()) {
             return bestInsertion1;        
         }

@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
         }
         HCValidation validaiton(input, solution);
         if(validaiton.checkSolution()) { cout << "Soluzione valida"; } 
-        else { cout<< "Soluzione non valida"; }
+        else { cout<< "Soluzione non valida\n"; }
     } catch (const exception& e) {
         cerr << "Errore " << e.what();
     }

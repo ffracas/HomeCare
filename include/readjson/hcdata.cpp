@@ -30,7 +30,7 @@ void HCData::setData(string t_dataPath) {
     const string PATIENTS_FIELD     ("patients");
     const string SERVICES_FIELD     ("services");
     const string CAREGIVERS_FIELD   ("caregivers"); 
-    const string DEPOTS_FIELD       ("departing_points"); 
+    const string DEPOTS_FIELD       ("central_offices"); 
 
     //reading JSON
     std::ifstream file(t_dataPath);

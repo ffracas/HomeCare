@@ -49,7 +49,7 @@ HomeCare: main.cpp
 
 Validate: validation.cpp
 	rm -f $@
-	$(CC) $(CFLAGS) $^ $(LIBSTR) $(LIBHCO) $(LIBSER) -o $@ $(LIB)
+	$(CC) $(CFLAGS) $^ $(LIBSTR) $(LIBHCO) $(LIBSER) $(LIBOPT) -o $@ $(LIB)
 
 debug: main.cpp
 	$(CC) $(DFLAGS) $^ $(LIBSTR) $(LIBHCO) $(LIBSER) $(LIBOPT) -o $@ $(LIB)

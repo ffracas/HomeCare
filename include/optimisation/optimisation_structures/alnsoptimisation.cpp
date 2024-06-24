@@ -114,6 +114,7 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
 //////////////////////////////////////////////////////////////////////////////////////////////////////////      ITER
 
 int ALNSOptimisation::startIteration() {
+    resetOperation();
     return m_iteration ++;
 }
 
@@ -149,7 +150,7 @@ int ALNSOptimisation::saveRepair(ScheduleOptimiser& repaired) {
         m_currentSol = hash;
         m_currentCost = cost;
     } else {
-         m_currentSol = m_solutionsRank[0].second;
+        m_currentSol = m_solutionsRank[0].second;
         m_currentCost = m_solutionsRank[0].first;
     }
     resetOperation();
@@ -221,6 +222,7 @@ double ALNSOptimisation::generateRandom() {
 }
 
 void ALNSOptimisation::resetOperation() {
+    m_nodeToRelocate.clear();
     ScheduleOptimiser routes(m_solutionsDump[m_currentSol]);
     m_ops = routes;
 }

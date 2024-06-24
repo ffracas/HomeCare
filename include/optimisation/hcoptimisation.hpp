@@ -9,6 +9,7 @@
 #include "../structures/route/route.hpp"
 #include "../structures/schedule/schedule.hpp"
 #include "optimisation_structures/alnsoptimisation.hpp"
+#include "roulette/roulette.hpp"
 #include "hc_removal/randomremoval.hpp"
 #include "hc_removal/worstremoval.hpp"
 #include "hc_removal/relatedremoval.hpp"
@@ -23,9 +24,12 @@ class HCOptimisation {
 private:
     Schedule m_solution;
     ALNSOptimisation* m_ops;
-    static const int ELEMENT_TO_DESTROY;
-    static const int PERIOD;
-    //TODO variabili per meccanismi di scelta dell'algoritmo
+    static const int ELEMENT_TO_DESTROY = 7;
+    static const int PERIOD = 10;
+    static const int MAX_ITERATIONS = 100;
+    //static const int MAX_ITERATIONS_WITHOUT_IMPROVEMENT = 10;
+    
+    void destroyPilot();
 
 public:
     HCOptimisation(Schedule, double);

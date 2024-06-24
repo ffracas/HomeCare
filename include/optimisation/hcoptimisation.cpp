@@ -9,10 +9,6 @@
 using namespace std;
 using namespace homecare;
 
-const int HCOptimisation::ELEMENT_TO_DESTROY = 7;
-const int HCOptimisation::PERIOD = 10;
-
-
 HCOptimisation::HCOptimisation(Schedule t_schedule, double t_cost) 
         : m_solution (t_schedule), m_ops (ALNSOptimisation::getInstance(t_schedule, t_cost)) {}
 
@@ -47,20 +43,100 @@ Schedule HCOptimisation::optimise() {
 
     GreedyRepair gr; 
     RegretRepair rr;
-    
-    m_ops->resetIteration();
+
+    Roulette roulette;
 
     signal(SIGSEGV, signalHandler);
     
-    cout<<"\n-----\nIterarion "<<m_ops->startIteration()<<endl;
-    cout<<"\nrem\n";
-    
-    //rare.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
-    //rere.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
-    //wore.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
-    clre.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
+    //cout<<"\n-----\nIterarion "<<m_ops->startIteration()<<endl;
+    m_ops->resetIteration();
+    while (m_ops->startIteration() < MAX_ITERATIONS) {
+        
+        int pairIndex = roulette.selectPair();
+        int points = 0;
+        switch (pairIndex)
+        {
+        case Roulette::RANDOM_GREEDY:
+            rare.removeNodes(ELEMENT_TO_DESTROY);
+            points = gr.repairNodes();
+            break;
+        case Roulette::WORST_GREEDY:
+            wore.removeNodes(ELEMENT_TO_DESTROY);
+            points = gr.repairNodes();
+            break;
+        case Roulette::RELATED_GREEDY:
+            rere.removeNodes(ELEMENT_TO_DESTROY);
+            points = gr.repairNodes();
+            break;
+        case Roulette::CLUSTER_GREEDY:
+            clre.removeNodes(ELEMENT_TO_DESTROY);
+            points = gr.repairNodes();
+            break;
+        case Roulette::RANDOM_REGRET:
+            rare.removeNodes(ELEMENT_TO_DESTROY);
+            points = rr.repairNodes();
+            break;
+        case Roulette::WORST_REGRET:
+            wore.removeNodes(ELEMENT_TO_DESTROY);
+            points = rr.repairNodes();
+            break;
+        case Roulette::RELATED_REGRET:
+            rere.removeNodes(ELEMENT_TO_DESTROY);
+            points = rr.repairNodes();
+            break;
+        case Roulette::CLUSTER_REGRET:
+            clre.removeNodes(ELEMENT_TO_DESTROY);
+            points = rr.repairNodes();
+            break;
+        
+        default:
+            break;
+        }
+        
+        cout<<"\nPoints: "<<points<<endl;
+        roulette.updatePoints(pairIndex, points);
+        //cout<<"\nrem\n";
+        //rare.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
+        //rere.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
+        //wore.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
+        //clre.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
 
-    /*ScheduleOptimiser routes(m_ops->getCurrentSchedule());
+        
+
+        //todo: to delete
+        /*cout<<endl;
+        for (const string& nodeToTest : m_ops->getNodesToRepair()) {
+            cout<<nodeToTest<<" - ";
+        }
+        cout<<endl;
+        for (auto route : m_ops->getCurrentSchedule().getSchedule()) {
+            for (auto node : route.getNodes()) {
+                cout<<node.getId()<<"->";
+            }
+            cout<<endl;
+        }*/
+
+        //cout<<"\nrep\n";
+        //int points = gr.repairNodes();
+        //int points = rr.repairNodes();
+        //cout<<"\nPoints: "<<points<<endl;
+    }
+
+    cout<<"\n----------\n";
+    //todo: to delete
+    for (auto route : m_ops->getCurrentSchedule().getSchedule()) {
+        for (auto node : route.getNodes()) {
+            cout<<node.getId()<<"->";
+        }
+        cout<<endl;
+    }
+       
+    return m_ops->getBestSol();
+}
+
+// pilotated destroy for testing purposes
+void HCOptimisation::destroyPilot() {
+    ScheduleOptimiser routes(m_ops->getCurrentSchedule());
     ScheduleOptimiser r1(m_ops->destroy(routes, 0, 3));
     m_ops->saveDestruction(r1,0,3);
     cout<<"--------------\n";
@@ -75,34 +151,6 @@ Schedule HCOptimisation::optimise() {
     cout<<"--------------\n";
     ScheduleOptimiser r5(m_ops->destroy(m_ops->getCurrentSchedule(), 5,3));
     m_ops->saveDestruction(r5,5,3);
-    cout<<"--------------\n";*/
-
-    //todo: to delete
-    cout<<endl;
-    for (const string& nodeToTest : m_ops->getNodesToRepair()) {
-        cout<<nodeToTest<<" - ";
-    }
-    cout<<endl;
-    for (auto route : m_ops->getCurrentSchedule().getSchedule()) {
-        for (auto node : route.getNodes()) {
-            cout<<node.getId()<<"->";
-        }
-        cout<<endl;
-    }
-
-    cout<<"\nrep\n";
-    //int points = gr.repairNodes();
-    int points = rr.repairNodes();
-    cout<<"\nPoints: "<<points<<endl;
-
-    cout<<"\n----------\n";
-    //todo: to delete
-    for (auto route : m_ops->getCurrentSchedule().getSchedule()) {
-        for (auto node : route.getNodes()) {
-            cout<<node.getId()<<"->";
-        }
-        cout<<endl;
-    }
-       
-    return m_ops->getBestSol();
+    cout<<"--------------\n";
 }
+   

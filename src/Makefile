@@ -26,6 +26,7 @@ LIBSER = $(LIBDIR)/patient/patient.cpp \
          $(LIBDIR)/depot/depot.cpp
 
 LIBOPT = $(LIBDIR)/optimisation/hcoptimisation.cpp \
+         $(LIBDIR)/optimisation/roulette/roulette.cpp \
 		 $(LIBDIR)/optimisation/optimisation_structures/alnsoptimisation.cpp \
          $(LIBDIR)/optimisation/optimisation_structures/costcoord.cpp \
          $(LIBDIR)/optimisation/optimisation_structures/kruskalgraph.cpp \

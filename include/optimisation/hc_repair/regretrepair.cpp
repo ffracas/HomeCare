@@ -20,7 +20,7 @@ int RegretRepair::repairNodes() {
         return ALNSOptimisation::OTHERWISE;
     }
     if (HCValidation(solution.getSchedule()).checkSolution()) {
-        cout<<"cost: "<<solution.getCost()<<endl;
+        //cout<<"cost: "<<solution.getCost()<<endl;
         return m_data->saveRepair(solution);
     }
     return ALNSOptimisation::OTHERWISE;
@@ -39,7 +39,7 @@ ScheduleOptimiser RegretRepair::regret2(const std::vector<std::string>& nodesToR
     // look for the pair with the biggest difference
     for (const string &nodeToTest : nodesToRepair) {
         Patient patient(HCData::getPatient(nodeToTest));
-        cout<<patient.getID()<<endl; // fixme: delete debug print
+        //cout<<patient.getID()<<endl; // fixme: delete debug print
         RepairResult result = patient.isInterdependent() 
             ? repairInterdependentService(schedule, patient) 
             : repairIndependentService(schedule, patient);
@@ -99,13 +99,13 @@ RepairResult RegretRepair::repairIndependentService(ScheduleOptimiser& routes, P
     for (int i = 0; i < routes.getNumberOfRoutes(); ++i) {
         if (routes.isServiceAvailableInRoute(patient.getCurrentService().getService(), i) &&
             patient.isCaregiverValid(routes.getRoute(i).getCaregiver())) {
-            cout << "scheduling c" << i << "  ";//fixme: delete
+            //cout << "scheduling c" << i << "  ";//fixme: delete
             ScheduleOptimiser newRoutes = m_data->repairSingle(routes, patient, i);
             if (!newRoutes.isEmpty()) {
-                cout << "successful\n";//fixme: delete
+                //cout << "successful\n";//fixme: delete
                 double cost = newRoutes.getCost();
-                cout << "cost: " << cost << endl;//fixme: delete
-                cout << "bestPair cost1: " << bestPair.cost1 << endl;//fixme: delete
+                //cout << "cost: " << cost << endl;//fixme: delete
+                //cout << "bestPair cost1: " << bestPair.cost1 << endl;//fixme: delete
                 if (cost < bestPair.cost1) {
                     bestPair.cost2 = bestPair.cost1;
                     bestPair.solution2 = bestPair.solution1;
@@ -132,10 +132,10 @@ RepairResult RegretRepair::repairInterdependentService(ScheduleOptimiser& routes
                 routes.isServiceAvailableInRoute(patient.getNextService().getService(), j) &&
                 patient.isCaregiverValid(routes.getCaregiverOfRoute(i)) &&
                 patient.isCaregiverValid(routes.getCaregiverOfRoute(j))) {
-                cout << "scheduling c" << i << " c"<<j<<"  ";//fixme: delete
+                //cout << "scheduling c" << i << " c"<<j<<"  ";//fixme: delete
                 ScheduleOptimiser newRoutes = m_data->repairDouble(routes, patient, i, j);
                 if (!newRoutes.isEmpty()) {
-                    cout << "successful\n";//fixme: delete
+                    //cout << "successful\n";//fixme: delete
                     double cost = newRoutes.getCost();
                     if (cost < bestPair.cost1) {
                         bestPair.cost2 = bestPair.cost1;

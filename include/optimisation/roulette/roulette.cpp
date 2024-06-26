@@ -33,6 +33,7 @@ void Roulette::updateProbabilities() {
     m_probabilities.push_back(m_scores[0] / totScore);
     for (int i = 1; i < PAIRS_NUM; ++i) {
         m_probabilities.push_back(m_probabilities[i - 1] + (m_scores[i] / (double) totScore));
+        cout<<i<<": "<<m_probabilities[i]<<endl;
     }
 }
 

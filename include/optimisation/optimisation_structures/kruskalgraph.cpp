@@ -30,15 +30,6 @@ void KruskalGraph::mergeSet(int u, int v) {
 }
 
 void KruskalGraph::generateKruskalTree() {
-    cout << "Graph size: " << graph.size() << endl;
-    for (const auto& edge : graph) {
-        cout << "(" << edge.second.first << ", " << edge.second.second << ") : " << edge.first << endl;
-    }
-    cout << "Parent array: ";
-    for (int i = 0; i < parent.size(); ++i) {
-        cout << parent[i] << " ";
-    }
-cout << endl;
     sort(graph.begin(), graph.end(),                                                                // increasing weight
         [] (const pair<int, edge>& lhs, const pair<int, edge>& rhs) {return lhs.first < rhs.first; });  
 
@@ -55,8 +46,7 @@ cout << endl;
 void KruskalGraph::print() {
     cout << "Edge :" << " Weight" << '\n';
     for (const auto& edge : mst) {
-        cout << edge.second.first << " - " << edge.second.second << " : "
-             << edge.first << '\n';
+        cout << edge.second.first << " - " << edge.second.second << " : "<< edge.first << '\n';
     }
 }
 

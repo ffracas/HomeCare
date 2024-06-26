@@ -30,8 +30,7 @@ int GreedyRepair::repairNodes()
             ScheduleOptimiser solution;
             double cost = HCData::MAX_COST;
             Patient patient(HCData::getPatient(nodeToTest));
-            cout << endl
-                 << patient.getID() << endl; // fixme: delete debug print
+            //cout << endl<< patient.getID() << endl; // fixme: delete debug print
             if (patient.isInterdependent()) {
                 solution = repairInterdependentService(routesToTest, patient, cost);
             }
@@ -56,11 +55,11 @@ int GreedyRepair::repairNodes()
     // fixme: debug print
     for (auto route : routesToTest.getSchedule()) {
         for (auto node : route.getNodes()) {
-            cout << node.getId() << "->";
+            //cout << node.getId() << "->";
         }
-        cout << endl;
+        //cout << endl;
     }
-    cout << "\nCurrent cost: " << routesToTest.getCost() << "\n";
+    //cout << "\nCurrent cost: " << routesToTest.getCost() << "\n";
 
     if (HCValidation(routesToTest.getSchedule()).checkSolution()) {
         return m_data->saveRepair(routesToTest);
@@ -74,10 +73,10 @@ ScheduleOptimiser GreedyRepair::repairIndependentService(ScheduleOptimiser& rout
     for (int i = 0; i < routes.getNumberOfRoutes(); ++i) {
         if (routes.isServiceAvailableInRoute(patient.getCurrentService().getService(), i) &&
             patient.isCaregiverValid(routes.getRoute(i).getCaregiver())) {
-            cout << "scheduling c" << i << "  ";//fixme: delete
+            //cout << "scheduling c" << i << "  ";//fixme: delete
             ScheduleOptimiser newRoutes = m_data->repairSingle(routes, patient, i);
             if (!newRoutes.isEmpty()) {
-                cout << "successful\n";//fixme: delete
+                //cout << "successful\n";//fixme: delete
                 double cost = newRoutes.getCost();
                 if (cost < bestCost) {
                     bestCost = cost;
@@ -100,10 +99,10 @@ ScheduleOptimiser GreedyRepair::repairInterdependentService(ScheduleOptimiser& r
                 routes.isServiceAvailableInRoute(patient.getNextService().getService(), j) &&
                 patient.isCaregiverValid(routes.getCaregiverOfRoute(i)) &&
                 patient.isCaregiverValid(routes.getCaregiverOfRoute(j))) {
-                cout << "scheduling c" << i << " c"<<j<<"  ";//fixme: delete
+                //cout << "scheduling c" << i << " c"<<j<<"  ";//fixme: delete
                 ScheduleOptimiser newRoutes = m_data->repairDouble(routes, patient, i, j);
                 if (!newRoutes.isEmpty()) {
-                    cout << "successful\n";//fixme: delete
+                    //cout << "successful\n";//fixme: delete
                     double cost = newRoutes.getCost();
                     if (cost < bestCost) {
                         bestCost = cost;

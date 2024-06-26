@@ -97,7 +97,7 @@ void RelatedRemoval::removeNodes(int elementsToDestroy) {
         if (!newRoutes.isEmpty()) {
             deletedNodes.push_back(toDelete);
             seed = getRandomNode(deletedNodes);
-            cout<<toDelete.getId()<<" cancellato\n";
+            //cout<<toDelete.getId()<<" cancellato\n";
             m_data->saveDestruction(newRoutes, 
                                 similarityRank[pos].getRouteNumber(), similarityRank[pos].getNodePosition());
         }

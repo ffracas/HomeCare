@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
         HCSolution el;
         el.generateISolution();
         cout << "I soluzione -> ALNS";
-        //el.optimizeSolution();
+        el.optimizeSolution();
     } catch (const exception& e) {
         cerr << "Errore " << e.what() << '\n';
     }

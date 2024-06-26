@@ -182,7 +182,7 @@ string ALNSOptimisation::scheduledNode(string scheduled) {
             return *ip; 
         }
     }
-    throw runtime_error("[NodeToRelocate]Error: No " + scheduled + " node found");
+    throw runtime_error("[NodeToRelocate] Error: No " + scheduled + " node found");
 }
 
 string ALNSOptimisation::popNodeToRepair() {

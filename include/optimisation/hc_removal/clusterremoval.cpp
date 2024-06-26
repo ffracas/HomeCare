@@ -13,7 +13,7 @@ void ClusterRemoval::removeNodes(int elementsToDestroyTarget) {
 
     int n_route = chooseRandomRoute(routes);
     while (n_route != NO_INDEX && destroyedNodes.size() < elementsToDestroyTarget) {
-        cout << "----" << destroyedNodes.size() << "----\n";
+        //cout << "----" << destroyedNodes.size() << "----\n";
 
         vector<string> nodesToRemove;
         KruskalGraph kruskalGraph(routes.getNumberOfNodesInRoute(n_route) - 1);

@@ -50,76 +50,60 @@ Schedule HCOptimisation::optimise() {
     
     //cout<<"\n-----\nIterarion "<<m_ops->startIteration()<<endl;
     m_ops->resetIteration();
-    while (m_ops->startIteration() < MAX_ITERATIONS) {
-        
-        int pairIndex = roulette.selectPair();
-        int points = 0;
-        switch (pairIndex)
-        {
-        case Roulette::RANDOM_GREEDY:
-            rare.removeNodes(ELEMENT_TO_DESTROY);
-            points = gr.repairNodes();
-            break;
-        case Roulette::WORST_GREEDY:
-            wore.removeNodes(ELEMENT_TO_DESTROY);
-            points = gr.repairNodes();
-            break;
-        case Roulette::RELATED_GREEDY:
-            rere.removeNodes(ELEMENT_TO_DESTROY);
-            points = gr.repairNodes();
-            break;
-        case Roulette::CLUSTER_GREEDY:
-            clre.removeNodes(ELEMENT_TO_DESTROY);
-            points = gr.repairNodes();
-            break;
-        case Roulette::RANDOM_REGRET:
-            rare.removeNodes(ELEMENT_TO_DESTROY);
-            points = rr.repairNodes();
-            break;
-        case Roulette::WORST_REGRET:
-            wore.removeNodes(ELEMENT_TO_DESTROY);
-            points = rr.repairNodes();
-            break;
-        case Roulette::RELATED_REGRET:
-            rere.removeNodes(ELEMENT_TO_DESTROY);
-            points = rr.repairNodes();
-            break;
-        case Roulette::CLUSTER_REGRET:
-            clre.removeNodes(ELEMENT_TO_DESTROY);
-            points = rr.repairNodes();
-            break;
-        
-        default:
-            break;
-        }
-        
-        cout<<"\nPoints: "<<points<<endl;
-        roulette.updatePoints(pairIndex, points);
-        //cout<<"\nrem\n";
-        //rare.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
-        //rere.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
-        //wore.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
-        //clre.removeNodes(ELEMENT_TO_DESTROY); // todo: corretto insert in roulette
-
-        
-
-        //todo: to delete
-        /*cout<<endl;
-        for (const string& nodeToTest : m_ops->getNodesToRepair()) {
-            cout<<nodeToTest<<" - ";
-        }
-        cout<<endl;
-        for (auto route : m_ops->getCurrentSchedule().getSchedule()) {
-            for (auto node : route.getNodes()) {
-                cout<<node.getId()<<"->";
+    for (int i = 0; i < PERIOD; i++) {
+        cout<< "\n periodo "<<i<<endl;
+        while (m_ops->startIteration() < MAX_ITERATIONS) {
+            cout<< "\n nuova iterazione\n";
+            int pairIndex = roulette.selectPair();
+            int points = 0;
+            switch (pairIndex)
+            {
+            case Roulette::RANDOM_GREEDY:
+                rare.removeNodes(ELEMENT_TO_DESTROY);
+                points = gr.repairNodes();
+                break;
+            case Roulette::WORST_GREEDY:
+                wore.removeNodes(ELEMENT_TO_DESTROY);
+                points = gr.repairNodes();
+                break;
+            case Roulette::RELATED_GREEDY:
+                rere.removeNodes(ELEMENT_TO_DESTROY);
+                points = gr.repairNodes();
+                break;
+            case Roulette::CLUSTER_GREEDY:
+                clre.removeNodes(ELEMENT_TO_DESTROY);
+                points = gr.repairNodes();
+                break;
+            case Roulette::RANDOM_REGRET:
+                rare.removeNodes(ELEMENT_TO_DESTROY);
+                points = rr.repairNodes();
+                break;
+            case Roulette::WORST_REGRET:
+                wore.removeNodes(ELEMENT_TO_DESTROY);
+                points = rr.repairNodes();
+                break;
+            case Roulette::RELATED_REGRET:
+                rere.removeNodes(ELEMENT_TO_DESTROY);
+                points = rr.repairNodes();
+                break;
+            case Roulette::CLUSTER_REGRET:
+                clre.removeNodes(ELEMENT_TO_DESTROY);
+                points = rr.repairNodes();
+                break;
+            
+            default:
+                break;
             }
-            cout<<endl;
-        }*/
-
-        //cout<<"\nrep\n";
-        //int points = gr.repairNodes();
-        //int points = rr.repairNodes();
-        //cout<<"\nPoints: "<<points<<endl;
+            
+            cout<<"\nPoints: "<<points<<endl;
+            roulette.updatePoints(pairIndex, points);
+        }
+        vector<int> occ = roulette.getOccurrences();
+        for (int i = 0; i < occ.size(); ++i) {
+            cout<<i<<": "<<occ[i]<<endl;
+        }
+        roulette.updateProbabilities();
+        m_ops->resetIteration();
     }
 
     cout<<"\n----------\n";

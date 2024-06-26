@@ -19,6 +19,7 @@ private:
     static std::optional<ALNSOptimisation*> m_instance;
 
     int m_iteration = 0;
+    double m_t_start = 1000.5;
     double m_currentCost;
     std::string m_currentSol;
     std::vector<std::string> m_nodeToRelocate;

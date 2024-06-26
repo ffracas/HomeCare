@@ -115,6 +115,7 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
 
 int ALNSOptimisation::startIteration() {
     resetOperation();
+    m_t_start = m_t_start * 0.7;  // update temperature with cooling rate
     return m_iteration ++;
 }
 
@@ -234,10 +235,7 @@ string ALNSOptimisation::makeHash(const vector<Route>& t_routes) {
 }
 
 bool ALNSOptimisation::isAccepted(double bestCost, double newCost) { 
-    int T0 = 1000;
-    double c = 0.5;
-    double Tk = (double) T0 / (1 + c * log(1 + m_iteration));
-    double expn = - (newCost - bestCost) / Tk;
+    double expn = - (newCost - bestCost) / (double) m_t_start;
     double target = exp(expn);
     double random = generateRandom();
     return random < target; 

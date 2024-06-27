@@ -170,9 +170,9 @@ double Schedule::getCost() const {
         totalExtraTime += route.getExtraTime();
     }
     // calculate cost and return
-    return HCData::MAX_WAIT_TIME_WEIGHT * maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * maxTardiness +
-        HCData::TARDINESS_WEIGHT * totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * totalWaitingTime +
-        HCData::EXTRA_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
+    return maxTardiness   / HCData::MAX_TARDINESS_WEIGHT + 
+        totalTardiness    / HCData::TARDINESS_WEIGHT     + 
+        travelTime        / HCData::TRAVEL_TIME_WEIGHT;
 }
 
 /**

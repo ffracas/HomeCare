@@ -15,12 +15,12 @@ std::vector<Caregiver>        HCData::m_caregivers;
 const int    HCData::EMPTY_ROUTE             = -1;
 const int    HCData::NO_INDEX                = -1;
 const double HCData::MAX_COST                = 1.79769313486231570e+308;
-const double HCData::TRAVEL_TIME_WEIGHT      = 0.2;
-const double HCData::EXTRA_TIME_WEIGHT       = 0.5;
-const double HCData::MAX_TARDINESS_WEIGHT    = 0.5;
-const double HCData::TARDINESS_WEIGHT        = 0.2;
-const double HCData::MAX_WAIT_TIME_WEIGHT    = 0.5;
-const double HCData::TOT_WAITING_TIME_WEIGHT = 0.17;
+const double HCData::TRAVEL_TIME_WEIGHT      = 3;
+const double HCData::EXTRA_TIME_WEIGHT       = 0;
+const double HCData::MAX_TARDINESS_WEIGHT    = 3;
+const double HCData::TARDINESS_WEIGHT        = 3;
+const double HCData::MAX_WAIT_TIME_WEIGHT    = 0;
+const double HCData::TOT_WAITING_TIME_WEIGHT = 0;
 
 HCData::~HCData() {}
 
@@ -73,8 +73,10 @@ void HCData::setData(string t_dataPath) {
     }
 
     /////////////////// Parsing Patients
+    int distanceIndex = 1;
     for (const auto& patient : root[PATIENTS_FIELD]) {
-        m_patients.push_back(Patient(patient, m_services));
+        m_patients.push_back(Patient(patient, m_services, distanceIndex));
+        distanceIndex ++;
     }
 
     /////////////////// Parsing Depots

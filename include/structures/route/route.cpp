@@ -22,7 +22,7 @@ Route::~Route() {}
 
 int Route::getFreeTime() const { return m_nodes[m_nodes.size() - 1].getDeparturTime(); }
 
-int Route::getLastPatientDistanceIndex() const { return m_nodes[m_nodes.size() - 1].getDistancesIndex(); }
+int Route::getLastPatientDistanceIndex() const { return m_nodes.back().getDistancesIndex(); }
 
 int Route::getLastNode2DepotDistance() const { return m_lastNode2DepotDistance; }
 
@@ -103,9 +103,9 @@ int Route::getExtraTime() const {
 
 double Route::getCost() const {
     if (m_nodes.size() < RouteOps::BASE_ROUTE_LEN) { return 0; }
-    return HCData::MAX_WAIT_TIME_WEIGHT * m_maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * m_maxTardiness 
-        + HCData::TARDINESS_WEIGHT * m_totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime 
-        + HCData::EXTRA_TIME_WEIGHT * getExtraTime() + HCData::TRAVEL_TIME_WEIGHT * m_travelTime;
+    return m_maxTardiness   / HCData::MAX_TARDINESS_WEIGHT + 
+        m_totalTardiness    / HCData::TARDINESS_WEIGHT     + 
+        m_travelTime        / HCData::TRAVEL_TIME_WEIGHT;
 }
 
 string Route::getHash() const {

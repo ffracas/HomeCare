@@ -19,7 +19,7 @@ Patient::Patient(string t_id, double t_x, double t_y, int t_timeWindowOpen, int 
  * 
  * @throws std::runtime_error if the JSON object is not formatted correctly.
  */
-Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices) {
+Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices, int t_distanceIndex) {
     //patient object fields
     const string ID                 ("id");                         //String
     const string LOCATION           ("location");                   //Array of double
@@ -27,7 +27,6 @@ Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices) {
     const string CARES              ("required_caregivers");        //Array of obj
     const string SERVICE            ("service");                    //string
     const string DURATION           ("duration");                   //int
-    const string DIS_MATRIX_INDEX   ("distance_matrix_index");      //Int distance matrix index
     const string SYNC_TYPE          ("synchronization");            //obj
     const string SYNC_TYPE_FIELD    ("type");                       //field type
     const string SYNC_WINDOW_FIELD  ("distance");                   //field window
@@ -37,8 +36,7 @@ Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices) {
     if (!t_patient.isMember(ID)                     || !t_patient[ID].isString()        || 
             !t_patient.isMember(LOCATION)           || !t_patient[LOCATION].isArray()   || 
             !t_patient.isMember(TIME_WINDOW)        || !t_patient[TIME_WINDOW].isArray()|| 
-            !t_patient.isMember(CARES)              || !t_patient[CARES].isArray()      || 
-            !t_patient.isMember(DIS_MATRIX_INDEX)   || !t_patient[ID].isString() ) {
+            !t_patient.isMember(CARES)              || !t_patient[CARES].isArray()      ) {
         throw std::runtime_error("Errore nel formato del file di configurazione del sistema. Campi principali di patiente.");
         return;
     }
@@ -47,7 +45,7 @@ Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices) {
     m_y = t_patient[LOCATION][1].asDouble();
     m_timeWindowOpen  = t_patient[TIME_WINDOW][0].asInt();
     m_timeWindowClose = t_patient[TIME_WINDOW][1].asInt();
-    m_distanceIndex = t_patient[DIS_MATRIX_INDEX].asInt();
+    m_distanceIndex = t_distanceIndex;
     m_minWait = 0;
     m_maxWait = 0;
     m_sync = NoSync;

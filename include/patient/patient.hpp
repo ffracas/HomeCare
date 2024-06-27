@@ -28,7 +28,7 @@ private:
     int m_maxWait;
     
 public:
-    Patient(Json::Value, std::vector<Service>) noexcept (false);
+    Patient(Json::Value, std::vector<Service>, int) noexcept (false);
     Patient(std::string, double, double, int, int, int, std::vector<std::string>, std::vector<Service>, SyncType, int, int);
     ~Patient();
     std::string toString();

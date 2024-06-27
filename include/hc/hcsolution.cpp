@@ -85,9 +85,9 @@ int HCSolution::optimizeSolution() {
 }
 
 double HCSolution::calculateCost() {
-    return HCData::MAX_WAIT_TIME_WEIGHT * m_maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * m_maxTardiness 
-        + HCData::TARDINESS_WEIGHT * m_totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * m_totalWaitingTime  
-        + HCData::EXTRA_TIME_WEIGHT * m_totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * m_travelTime;
+    return m_maxTardiness   / HCData::MAX_TARDINESS_WEIGHT + 
+        m_totalTardiness    / HCData::TARDINESS_WEIGHT     + 
+        m_travelTime        / HCData::TRAVEL_TIME_WEIGHT;
 }
 
 //TODO: static da spostare da qualche parte forse HCData
@@ -106,9 +106,9 @@ double HCSolution::calculateCost(std::vector<Route>& routes) {
         travelTime += route.getTravelTime();
         totalExtraTime += route.getExtraTime();
     }
-    return HCData::MAX_WAIT_TIME_WEIGHT * maxIdleTime + HCData::MAX_TARDINESS_WEIGHT * maxTardiness +  
-        HCData::TARDINESS_WEIGHT * totalTardiness + HCData::TOT_WAITING_TIME_WEIGHT * totalWaitingTime +    
-        HCData::EXTRA_TIME_WEIGHT * totalExtraTime + HCData::TRAVEL_TIME_WEIGHT * travelTime;
+    return maxTardiness   / HCData::MAX_TARDINESS_WEIGHT + 
+        totalTardiness    / HCData::TARDINESS_WEIGHT     + 
+        travelTime        / HCData::TRAVEL_TIME_WEIGHT;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////     OUTPUT

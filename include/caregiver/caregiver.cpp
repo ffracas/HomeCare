@@ -28,24 +28,18 @@ Caregiver::Caregiver(string t_id, vector<string> t_services, string t_depot, int
 Caregiver::Caregiver(Json::Value t_caregivers) {
     const string ID                     ("id");                     //String
     const string SERVICES               ("abilities");              //Array of string
-    const string DEPOT_DISTANCES_INDEX  ("distance_matrix_index");  //int
-    const string DEPOT                  ("starting_point_id");      //string
-    const string SHIFT                  ("working_shift");          //Array of int
 
-    if (!t_caregivers.isMember(DEPOT_DISTANCES_INDEX)   || !t_caregivers[DEPOT_DISTANCES_INDEX].isInt() ||
-            !t_caregivers.isMember(ID)                  || !t_caregivers[ID].isString()                 || 
-            !t_caregivers.isMember(SERVICES)            || !t_caregivers[SERVICES].isArray()            ||
-            !t_caregivers.isMember(DEPOT)               || !t_caregivers[DEPOT].isString()              ||
-            !t_caregivers.isMember(SHIFT)               || !t_caregivers[SHIFT].isArray() ) {
+    if (!t_caregivers.isMember(ID)                  || !t_caregivers[ID].isString()         || 
+        !t_caregivers.isMember(SERVICES)            || !t_caregivers[SERVICES].isArray()    ) {
         throw std::runtime_error("Errore nel formato del file di configurazione del sistema.");
         return;
     }
 
     m_id = t_caregivers[ID].asString();
-    m_depot = t_caregivers[DEPOT].asString();
-    m_shiftStartTime = t_caregivers[SHIFT][0].asInt();
-    m_shiftEndTime = t_caregivers[SHIFT][1].asInt();
-    m_depotDistanceIndex = t_caregivers[DEPOT_DISTANCES_INDEX].asInt();
+    m_depot = "d1";
+    m_shiftStartTime = 0;
+    m_shiftEndTime = 480;
+    m_depotDistanceIndex = 0;
 
     for (const auto& ability : t_caregivers[SERVICES]) {
         if (!ability.isString()) {

@@ -35,7 +35,7 @@ void HCData::setData(string t_dataPath) {
     //reading JSON
     std::ifstream file(t_dataPath);
     if (!file.is_open()) {
-        throw std::runtime_error("Errore nell'apertura del file di configurazione del sistema. Controllare Percorso.");
+        throw std::runtime_error("File non trovato. Controllare Percorso.");
     }
     string content = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     file.close();  // Chiudi il file
@@ -45,7 +45,7 @@ void HCData::setData(string t_dataPath) {
     Json::Reader reader;
 
     if (!reader.parse(content, root)) {
-        throw std::runtime_error("Errore nell'apertura del file di configurazione del sistema.");
+        throw std::runtime_error("Il file non è in formato JSON. Controllare sintassi.");
     }
 
     if ( !root.isMember(DISTANCES_FIELD)    || !root[DISTANCES_FIELD].isArray() || 
@@ -53,7 +53,7 @@ void HCData::setData(string t_dataPath) {
             !root.isMember(PATIENTS_FIELD)  || !root[PATIENTS_FIELD].isArray()  ||
             !root.isMember(DEPOTS_FIELD)    || !root[DEPOTS_FIELD].isArray()    ||
             !root.isMember(CAREGIVERS_FIELD)|| !root[CAREGIVERS_FIELD].isArray()) {
-        throw std::runtime_error("Errore nel formato del file di configurazione del sistema.");
+        throw std::runtime_error("Errore nel formato del file di configurazione del sistema. Campi principali");
     }
     /////////////////// Parsing distances
     for (const auto& distances : root[DISTANCES_FIELD]){

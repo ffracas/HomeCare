@@ -39,7 +39,7 @@ Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices) {
             !t_patient.isMember(TIME_WINDOW)        || !t_patient[TIME_WINDOW].isArray()|| 
             !t_patient.isMember(CARES)              || !t_patient[CARES].isArray()      || 
             !t_patient.isMember(DIS_MATRIX_INDEX)   || !t_patient[ID].isString() ) {
-        throw std::runtime_error("Errore nel formato del file di configurazione del sistema.");
+        throw std::runtime_error("Errore nel formato del file di configurazione del sistema. Campi principali di patiente.");
         return;
     }
     m_id = t_patient[ID].asString();
@@ -57,7 +57,7 @@ Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices) {
             m_minWait = t_patient[SYNC_TYPE][SYNC_WINDOW_FIELD][0].asInt();
             m_maxWait = t_patient[SYNC_TYPE][SYNC_WINDOW_FIELD][1].asInt();
             if (m_minWait >= m_maxWait){
-                throw std::runtime_error("Errore nel formato del file di configurazione del sistema.");
+                throw std::runtime_error("Errore nel formato del file di configurazione del sistema. Sync");
                 return;
             }
         }
@@ -72,7 +72,7 @@ Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices) {
     
     for (auto& service : t_patient[CARES]) {
         if (!service.isMember(SERVICE) || !service[SERVICE].isString()) {
-            throw std::runtime_error("Errore nel formato del file di configurazione del sistema.");
+            throw std::runtime_error("Errore nel formato del file di configurazione del sistema. Servizi del paziente.");
             return;
         }
         string serv(service[SERVICE].asString());
@@ -83,7 +83,7 @@ Patient::Patient(Json::Value t_patient, vector<Service> t_defaultServices) {
             auto it = find_if(t_defaultServices.begin(), t_defaultServices.end(), 
                         [&serv] (const Service& obj) { return obj.getService() == serv; });
             if (it == t_defaultServices.end()) {
-                throw std::runtime_error("Errore nel formato del file di configurazione del sistema.");
+                throw std::runtime_error("Errore nel formato del file di configurazione del sistema. Durata dei serv");
                 return;
             }
             m_services.push_back(Service(serv, it->getDuration()));

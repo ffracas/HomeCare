@@ -27,7 +27,7 @@ Depot::Depot(Json::Value t_depot) {
 
     if (!t_depot.isMember(ID)             || !t_depot[ID].isString()    ||
             !t_depot.isMember(LOCATION)   || !t_depot[LOCATION].isArray()) {
-        throw std::runtime_error("Errore nel formato del file di configurazione del sistema.");
+        throw std::runtime_error("Errore nel formato del file di configurazione del sistema. DEPOT");
         return;
     }
 

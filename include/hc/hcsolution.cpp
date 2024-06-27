@@ -80,7 +80,7 @@ int HCSolution::optimizeSolution() {
     m_solCost = calculateCost();
     cout << m_solCost << "\n";
     //write json
-    writeSolutionOnFile("salcazzi.json");
+    writeSolutionOnFile("../resources/hr_solutions/output.json");
     return m_solCost;
 }
 

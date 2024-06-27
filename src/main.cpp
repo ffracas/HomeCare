@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
         HCData::setData(input);
         HCSolution el;
         el.generateISolution();
-        cout << "I soluzione -> ALNS";
+        cout << "Ottimizzazione dei percorsi in corso...\n";
         el.optimizeSolution();
     } catch (const exception& e) {
         cerr << "Errore " << e.what() << '\n';

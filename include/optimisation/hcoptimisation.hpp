@@ -24,9 +24,9 @@ class HCOptimisation {
 private:
     Schedule m_solution;
     ALNSOptimisation* m_ops;
-    static const int ELEMENT_TO_DESTROY = 7;
     static const int PERIOD = 5;
     static const int MAX_ITERATIONS = 10;
+    int element_to_destroy = 1;
     //static const int MAX_ITERATIONS_WITHOUT_IMPROVEMENT = 10;
     
     void destroyPilot();

@@ -128,6 +128,7 @@ int ALNSOptimisation::resetIteration() {
 
 int ALNSOptimisation::saveRepair(ScheduleOptimiser& repaired) {
     double cost = repaired.getCost();
+    // initialise T_i
     string hash = ALNSOptimisation::makeHash(repaired.getSchedule());
     // evaluation of the solution
     int points = OTHERWISE;
@@ -136,18 +137,18 @@ int ALNSOptimisation::saveRepair(ScheduleOptimiser& repaired) {
         if (m_solutionsRank[0].first > cost) {
             points = BEST_SOLUTION;
         }
+        else if (isAccepted(m_solutionsRank[0].first, cost)) {
+                points = NO_BEST_BUT_CURRENT;
+        }
         else if (m_currentCost > cost) {
             points = BETTER_THAN_CURRENT;
-        }
-        else if (isAccepted(m_solutionsRank[0].first, cost)) {
-            points = NO_BETTER_BUT_CURRENT;
         }
         // insert solution into the rank
         m_solutionsRank.push_back(make_pair(cost, hash));
         sort(m_solutionsRank.begin(), m_solutionsRank.end(), 
             [] (pair<double, string> e1, pair<double, string> e2) { return e1.first < e2.first; });
     }
-    if (points == NO_BETTER_BUT_CURRENT) {
+    if (points == NO_BEST_BUT_CURRENT) {
         m_currentSol = hash;
         m_currentCost = cost;
     } else {
@@ -216,7 +217,7 @@ double ALNSOptimisation::getCurrentCost() { return m_currentCost; }
 double ALNSOptimisation::generateRandom() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0.0, 0.870); // fixme: the round is not equal 1 - or multiply result |list|-1
+    std::uniform_real_distribution<> dis(0.0, 0.999); // fixme: the round is not equal 1 - or multiply result |list|-1
 
     // Genera un numero casuale tra 0 e 1
     return dis(gen);

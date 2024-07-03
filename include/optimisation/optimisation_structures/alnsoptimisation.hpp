@@ -37,8 +37,8 @@ public:
     ~ALNSOptimisation();
 
     static const int BEST_SOLUTION = 3;
-    static const int BETTER_THAN_CURRENT = 2;
-    static const int NO_BETTER_BUT_CURRENT = 1;
+    static const int BETTER_THAN_CURRENT = 1;
+    static const int NO_BEST_BUT_CURRENT = 2;
     static const int OTHERWISE = 0;
 
     static ALNSOptimisation* getInstance(Schedule&, double);

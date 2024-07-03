@@ -59,35 +59,35 @@ Schedule HCOptimisation::optimise() {
             switch (pairIndex)
             {
             case Roulette::RANDOM_GREEDY:
-                rare.removeNodes(ELEMENT_TO_DESTROY);
+                rare.removeNodes(element_to_destroy);
                 points = gr.repairNodes();
                 break;
             case Roulette::WORST_GREEDY:
-                wore.removeNodes(ELEMENT_TO_DESTROY);
+                wore.removeNodes(element_to_destroy);
                 points = gr.repairNodes();
                 break;
             case Roulette::RELATED_GREEDY:
-                rere.removeNodes(ELEMENT_TO_DESTROY);
+                rere.removeNodes(element_to_destroy);
                 points = gr.repairNodes();
                 break;
             case Roulette::CLUSTER_GREEDY:
-                clre.removeNodes(ELEMENT_TO_DESTROY);
+                clre.removeNodes(element_to_destroy);
                 points = gr.repairNodes();
                 break;
             case Roulette::RANDOM_REGRET:
-                rare.removeNodes(ELEMENT_TO_DESTROY);
+                rare.removeNodes(element_to_destroy);
                 points = rr.repairNodes();
                 break;
             case Roulette::WORST_REGRET:
-                wore.removeNodes(ELEMENT_TO_DESTROY);
+                wore.removeNodes(element_to_destroy);
                 points = rr.repairNodes();
                 break;
             case Roulette::RELATED_REGRET:
-                rere.removeNodes(ELEMENT_TO_DESTROY);
+                rere.removeNodes(element_to_destroy);
                 points = rr.repairNodes();
                 break;
             case Roulette::CLUSTER_REGRET:
-                clre.removeNodes(ELEMENT_TO_DESTROY);
+                clre.removeNodes(element_to_destroy);
                 points = rr.repairNodes();
                 break;
             

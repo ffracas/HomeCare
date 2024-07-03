@@ -42,7 +42,7 @@ double RelatedRemoval::calculateSimilarity(int distance, int difOpenWin, int dif
         string service_i, string service_j) {
     int caregivers_i = 0, caregivers_j = 0;
     int sharedCaregivers = calculateSharedCaregivers(service_i, service_j, caregivers_i, caregivers_j);
-    int caregiversDenominator = caregivers_i > caregivers_j ? caregivers_j : caregivers_i;
+    int caregiversDenominator = min(caregivers_i, caregivers_j);
     return (m_distanceWeight * distance)
             + m_windowWeight * (difOpenWin + difCloseWin)
             + m_serviceWeight * abs(1.0 - (double(sharedCaregivers) / caregiversDenominator));
@@ -90,6 +90,7 @@ void RelatedRemoval::removeNodes(int elementsToDestroy) {
             }
         }
         int pos = floor(pow(ALNSOptimisation::generateRandom(), m_related_exp_coef) * similarityRank.size());
+        if (pos == similarityRank.size()) { pos --;}
         Node toDelete =
             routes.getNodeFromRoute(similarityRank[pos].getRouteNumber(), similarityRank[pos].getNodePosition());
         ScheduleOptimiser newRoutes(

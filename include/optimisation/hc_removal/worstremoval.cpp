@@ -29,6 +29,7 @@ void WorstRemoval::removeNodes(int elementsToDestroy) {
             }
         }
         int pos = floor(pow(m_data->generateRandom(), p_worst) * worstList.size());
+        if (pos == worstList.size()) { pos --;}
         ScheduleOptimiser newRoutes(m_data->destroy(routes,
                             worstList[pos].getRouteNumber(), worstList[pos].getNodePosition()));
         if (!newRoutes.isEmpty()) {

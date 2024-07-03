@@ -157,17 +157,13 @@ double Schedule::getCost() const {
     int maxIdleTime = 0;
     int maxTardiness = 0;
     int totalTardiness = 0;
-    int totalWaitingTime = 0;
     int travelTime = 0;
-    int totalExtraTime = 0;
     // calculate variables
     for (const Route &route : m_routes) {
         maxIdleTime = route.getMaxIdleTime() > maxIdleTime ? route.getMaxIdleTime() : maxIdleTime;
         maxTardiness = route.getMaxTardiness() > maxTardiness ? route.getMaxTardiness() : maxTardiness;
         totalTardiness += route.getTotalTardiness();
-        totalWaitingTime += route.getTotalWaitingTime();
         travelTime += route.getTravelTime();
-        totalExtraTime += route.getExtraTime();
     }
     // calculate cost and return
     return maxTardiness   / HCData::MAX_TARDINESS_WEIGHT + 

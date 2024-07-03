@@ -53,6 +53,8 @@ Schedule HCOptimisation::optimise() {
     for (int i = 0; i < PERIOD; i++) {
         cout<< "\n periodo "<<i<<endl;
         while (m_ops->startIteration() < MAX_ITERATIONS) {
+            element_to_destroy = m_ops->getNElementToDestroy();
+            cout<< "\n elementi da eliminare "<<element_to_destroy<<endl;
             cout<< "\n nuova iterazione\n";
             int pairIndex = roulette.selectPair();
             int points = 0;

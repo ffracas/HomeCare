@@ -1,0 +1,95 @@
+{
+	"cost_components" : 
+	{
+		"EHHC_HighestTardiness" : 0,
+		"EHHC_MaxIdleTime" : 0,
+		"EHHC_TotalExtraTime" : 0,
+		"EHHC_TotalTardiness" : 0,
+		"EHHC_TotalWaitingTime" : 0,
+		"EHHC_TravelTime" : 259
+	},
+	"global_ordering" : 
+	[
+		"p3",
+		"p2",
+		"p4",
+		"p1",
+		"p5",
+		"p6"
+	],
+	"routes" : 
+	[
+		{
+			"caregiver_id" : "c1",
+			"locations" : 
+			[
+				{
+					"arrival_time" : 56,
+					"departure_time" : 101,
+					"patient" : "p3",
+					"service" : "s2"
+				},
+				{
+					"arrival_time" : 240,
+					"departure_time" : 270,
+					"patient" : "p1",
+					"service" : "s2"
+				},
+				{
+					"arrival_time" : 320,
+					"departure_time" : 335,
+					"patient" : "p5",
+					"service" : "s1"
+				},
+				{
+					"arrival_time" : 370,
+					"departure_time" : 415,
+					"patient" : "p6",
+					"service" : "s1"
+				}
+			]
+		},
+		{
+			"caregiver_id" : "c2",
+			"locations" : 
+			[
+				{
+					"arrival_time" : 120,
+					"departure_time" : 150,
+					"patient" : "p4",
+					"service" : "s3"
+				},
+				{
+					"arrival_time" : 178,
+					"departure_time" : 198,
+					"patient" : "p2",
+					"service" : "s3"
+				}
+			]
+		},
+		{
+			"caregiver_id" : "c3",
+			"locations" : 
+			[
+				{
+					"arrival_time" : 120,
+					"departure_time" : 150,
+					"patient" : "p4",
+					"service" : "s2"
+				},
+				{
+					"arrival_time" : 350,
+					"departure_time" : 380,
+					"patient" : "p5",
+					"service" : "s3"
+				},
+				{
+					"arrival_time" : 430,
+					"departure_time" : 450,
+					"patient" : "p6",
+					"service" : "s3"
+				}
+			]
+		}
+	]
+}

@@ -14,9 +14,10 @@ std::optional<ALNSOptimisation*> ALNSOptimisation::m_instance;
 ALNSOptimisation::ALNSOptimisation(Schedule t_firstSchedule, double t_cost)
     : m_currentCost(t_cost), m_currentSol(makeHash(t_firstSchedule.getSchedule())),
       m_nodeToRelocate(), m_ops(t_firstSchedule)
-{
+    {
     m_solutionsDump.emplace(m_currentSol, t_firstSchedule);
     m_solutionsRank.push_back(make_pair(t_cost, m_currentSol));
+    m_t_start = - ( m_omega_T / log(0.5) ) * t_cost; 
 }
 
 
@@ -48,6 +49,13 @@ ALNSOptimisation* ALNSOptimisation::getInstance() noexcept (false) {
         throw runtime_error("\n[ALNSOpt] Error: No solution found for optimisation\n");
     }
     return m_instance.value();
+}
+
+int ALNSOptimisation::getNElementToDestroy() {
+    int size = HCData::getPatients().size();
+    int lower_bound = min(max((int) (size * 0.1), 1), 30);
+    int upper_bound = min(max((int) (size * 0.4), 1), 60);
+    return rand() % (upper_bound - lower_bound + 1) + lower_bound;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////         DESTROY
@@ -115,7 +123,7 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
 
 int ALNSOptimisation::startIteration() {
     resetOperation();
-    m_t_start = m_t_start * 0.7;  // update temperature with cooling rate
+    m_t_start = m_t_start * m_coolingRate;  // update temperature with cooling rate
     return m_iteration ++;
 }
 

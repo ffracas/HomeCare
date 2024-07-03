@@ -4,6 +4,7 @@
 #include <map>
 #include <sstream>
 #include <cmath>
+#include <math.h>
 #include <random>
 #include <optional>
 
@@ -19,7 +20,9 @@ private:
     static std::optional<ALNSOptimisation*> m_instance;
 
     int m_iteration = 0;
-    double m_t_start = 1000.5;
+    double m_t_start = 100;
+    double m_coolingRate = 0.980;
+    double m_omega_T = 0.05;
     double m_currentCost;
     std::string m_currentSol;
     std::vector<std::string> m_nodeToRelocate;
@@ -50,6 +53,7 @@ public:
     ScheduleOptimiser repairSingle(ScheduleOptimiser, Patient, int);
     int startIteration();
     int resetIteration();
+    int getNElementToDestroy();
 
     // save operation
     void saveDestruction(ScheduleOptimiser&, int, int);

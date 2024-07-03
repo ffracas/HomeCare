@@ -40,7 +40,7 @@ ScheduleOptimiser RegretRepair::regret2(const std::vector<std::string>& nodesToR
     for (const string &nodeToTest : nodesToRepair) {
         Patient patient(HCData::getPatient(nodeToTest));
         //cout<<patient.getID()<<endl; // fixme: delete debug print
-        RepairResult result = patient.isInterdependent() 
+        RegretResult result = patient.isInterdependent() 
             ? repairInterdependentService(schedule, patient) 
             : repairIndependentService(schedule, patient);
 
@@ -93,8 +93,8 @@ ScheduleOptimiser RegretRepair::regret2(const std::vector<std::string>& nodesToR
 
 ////////////////////////////////////////////////////////////////////////////////                        REPAIR
 
-RepairResult RegretRepair::repairIndependentService(ScheduleOptimiser& routes, Patient& patient) {
-    RepairResult bestPair;
+RegretResult RegretRepair::repairIndependentService(ScheduleOptimiser& routes, Patient& patient) {
+    RegretResult bestPair;
 
     for (int i = 0; i < routes.getNumberOfRoutes(); ++i) {
         if (routes.isServiceAvailableInRoute(patient.getCurrentService().getService(), i) &&
@@ -122,8 +122,8 @@ RepairResult RegretRepair::repairIndependentService(ScheduleOptimiser& routes, P
     return bestPair;
 }
 
-RepairResult RegretRepair::repairInterdependentService(ScheduleOptimiser& routes, Patient& patient) {
-    RepairResult bestPair;
+RegretResult RegretRepair::repairInterdependentService(ScheduleOptimiser& routes, Patient& patient) {
+    RegretResult bestPair;
 
     for (int i = 0; i < routes.getNumberOfRoutes(); ++i) {
         for (int j = 0; j < routes.getNumberOfRoutes(); ++j) {

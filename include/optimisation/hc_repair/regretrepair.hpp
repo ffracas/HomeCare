@@ -6,18 +6,15 @@
 namespace homecare {
 
 struct RegretResult {
-    ScheduleOptimiser solution1;
-    ScheduleOptimiser solution2;
-    double cost1 = HCData::MAX_COST;
-    double cost2 = HCData::MAX_COST;
+    ScheduleOptimiser solution;
+    double difference;
 };
 
 class RegretRepair : public NodeRepair {
 
 private:
     RegretResult repairIndependentService(ScheduleOptimiser&, Patient&);
-    RegretResult repairInterdependentService(ScheduleOptimiser&, Patient&); 
-    ScheduleOptimiser regret2(const std::vector<std::string>& nodesToRepair, ScheduleOptimiser& schedule);  
+    RegretResult repairInterdependentService(ScheduleOptimiser&, Patient&);   
 
 public:
     RegretRepair();

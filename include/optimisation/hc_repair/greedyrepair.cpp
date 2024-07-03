@@ -19,7 +19,6 @@ int GreedyRepair::repairNodes()
 
     while (m_data->hasNodeToRepair())
     {
-
         // Best route initialization
         ScheduleOptimiser bestSolution;
         double bestCost = HCData::MAX_COST;

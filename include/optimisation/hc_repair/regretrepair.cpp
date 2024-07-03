@@ -10,92 +10,64 @@ RegretRepair::RegretRepair() : NodeRepair() {}
 RegretRepair::~RegretRepair() {}
 
 int RegretRepair::repairNodes() {
-    ScheduleOptimiser schedule(m_data->getCurrentSchedule());
+    ScheduleOptimiser current(m_data->getCurrentSchedule());
     
-    ScheduleOptimiser solution = regret2(m_data->getNodesToRepair(), schedule);
-    for (const string &node : m_data->getNodesToRepair()) {
-        m_data->scheduledNode(node);
+    while (m_data->hasNodeToRepair()) {
+        // Best route initialization
+        std::string bestNode;
+        ScheduleOptimiser bestInsertion;
+        double bestRegret = -HCData::MAX_COST;
+
+        for (const string &nodeToTest : m_data->getNodesToRepair()) {
+            Patient patient(HCData::getPatient(nodeToTest));
+            //cout << endl<< patient.getID() << endl; // fixme: delete debug print
+            RegretResult result = patient.isInterdependent() 
+                ? repairInterdependentService(current, patient) 
+                : repairIndependentService(current, patient);
+            
+            if (result.difference > bestRegret 
+                || (result.difference == bestRegret && result.solution.getCost() < bestInsertion.getCost())) {
+                bestRegret = result.difference;
+                bestNode = nodeToTest;
+                bestInsertion = result.solution;
+            }
+            else {
+                if (result.difference == HCData::MAX_COST) {
+                    bestInsertion = result.solution;
+                    bestNode = nodeToTest;
+                    bestRegret = result.difference;
+                }
+            }
+        }
+        if (bestRegret == HCData::MAX_COST && bestInsertion.isEmpty()) {
+            return ALNSOptimisation::OTHERWISE;
+        }
+        // update data
+        current = bestInsertion;
+        m_data->scheduledNode(bestNode);
     }
-    if (solution.isEmpty()) {
-        return ALNSOptimisation::OTHERWISE;
+
+    // fixme: debug print
+    for (auto route : current.getSchedule()) {
+        for (auto node : route.getNodes()) {
+            //cout << node.getId() << "->";
+        }
+        //cout << endl;
     }
-    if (HCValidation(solution.getSchedule()).checkSolution()) {
-        //cout<<"cost: "<<solution.getCost()<<endl;
-        return m_data->saveRepair(solution);
+    //cout << "\nCurrent cost: " << current.getCost() << "\n";
+
+    if (HCValidation(current.getSchedule()).checkSolution()) {
+        return m_data->saveRepair(current);
     }
     return ALNSOptimisation::OTHERWISE;
-}
-
-ScheduleOptimiser RegretRepair::regret2(const std::vector<std::string>& nodesToRepair, ScheduleOptimiser& schedule) {
-    // Best route initialization
-    if (schedule.isEmpty()) {
-        return ScheduleOptimiser();
-    }
-
-    std::string bestNode;
-    ScheduleOptimiser bestInsertion1, bestInsertion2;
-    double bestRegret = -HCData::MAX_COST;
-
-    // look for the pair with the biggest difference
-    for (const string &nodeToTest : nodesToRepair) {
-        Patient patient(HCData::getPatient(nodeToTest));
-        //cout<<patient.getID()<<endl; // fixme: delete debug print
-        RegretResult result = patient.isInterdependent() 
-            ? repairInterdependentService(schedule, patient) 
-            : repairIndependentService(schedule, patient);
-
-        // comapare pairs
-        if (result.solution1.isEmpty() && result.solution2.isEmpty()) {
-            continue;
-        }
-        if (!result.solution1.isEmpty() && result.solution2.isEmpty()) {
-            bestRegret = HCData::MAX_COST;
-            bestNode = nodeToTest;
-            bestInsertion1 = result.solution1;
-            bestInsertion2 = result.solution2;
-        }
-        double regret = result.cost2 - result.cost1;
-        if (regret > bestRegret) {
-            bestRegret = regret;
-            bestNode = nodeToTest;
-            bestInsertion1 = result.solution1;
-            bestInsertion2 = result.solution2;
-        }
-    }
-    // schedule the best node
-    vector<string> updateToRepair (nodesToRepair);
-    updateToRepair.erase(remove(updateToRepair.begin(), updateToRepair.end(), bestNode), updateToRepair.end());
-
-    if (updateToRepair.empty()) {
-        if (HCValidation(bestInsertion1.getSchedule()).checkSolution()) {
-            return bestInsertion1;        
-        }
-        if (HCValidation(bestInsertion2.getSchedule()).checkSolution()) {
-            return bestInsertion2;
-        }
-        return ScheduleOptimiser();
-    }
-    
-    // if there is not best so there's no solution
-    if (bestInsertion1.isEmpty()) { return ScheduleOptimiser(); }
-    // calculate best solution
-    ScheduleOptimiser bestSolution = regret2(updateToRepair, bestInsertion1);
-    // if there are not alternatives return best solution
-    if (bestInsertion2.isEmpty()) { return bestSolution; }
-    // if there is an alternative calculate solution
-    ScheduleOptimiser solution2 = regret2(updateToRepair, bestInsertion2);
-    // if the best solution is more expensive than the alternative, return alternative
-    if (bestSolution.getCost() > solution2.getCost()) { return solution2; }
-    return bestSolution;
-    
-    return ScheduleOptimiser();
 }
 
 ////////////////////////////////////////////////////////////////////////////////                        REPAIR
 
 RegretResult RegretRepair::repairIndependentService(ScheduleOptimiser& routes, Patient& patient) {
-    RegretResult bestPair;
-
+    ScheduleOptimiser bestRoute;
+    double bestCost1 = HCData::MAX_COST;
+    double bestCost2 = HCData::MAX_COST;
     for (int i = 0; i < routes.getNumberOfRoutes(); ++i) {
         if (routes.isServiceAvailableInRoute(patient.getCurrentService().getService(), i) &&
             patient.isCaregiverValid(routes.getRoute(i).getCaregiver())) {
@@ -106,25 +78,29 @@ RegretResult RegretRepair::repairIndependentService(ScheduleOptimiser& routes, P
                 double cost = newRoutes.getCost();
                 //cout << "cost: " << cost << endl;//fixme: delete
                 //cout << "bestPair cost1: " << bestPair.cost1 << endl;//fixme: delete
-                if (cost < bestPair.cost1) {
-                    bestPair.cost2 = bestPair.cost1;
-                    bestPair.solution2 = bestPair.solution1;
-                    bestPair.cost1 = cost;
-                    bestPair.solution1 = newRoutes;
+                if (cost < bestCost1) {
+                    bestCost2 = bestCost1;
+                    bestCost1 = cost;
+                    bestRoute = newRoutes;
                 }
-                else if (cost < bestPair.cost2) {
-                    bestPair.cost2 = cost;
-                    bestPair.solution2 = newRoutes;
+                else if (cost < bestCost2) {
+                    bestCost2 = cost;
+                    bestRoute = newRoutes;
                 }
             }
         }
     }
-    return bestPair;
+    RegretResult result {
+        bestRoute,
+        bestCost2 - bestCost1
+    };
+    return result;
 }
 
 RegretResult RegretRepair::repairInterdependentService(ScheduleOptimiser& routes, Patient& patient) {
-    RegretResult bestPair;
-
+    ScheduleOptimiser bestRoute;
+    double bestCost1 = HCData::MAX_COST;
+    double bestCost2 = HCData::MAX_COST;
     for (int i = 0; i < routes.getNumberOfRoutes(); ++i) {
         for (int j = 0; j < routes.getNumberOfRoutes(); ++j) {
             if (i != j &&
@@ -137,20 +113,22 @@ RegretResult RegretRepair::repairInterdependentService(ScheduleOptimiser& routes
                 if (!newRoutes.isEmpty()) {
                     //cout << "successful\n";//fixme: delete
                     double cost = newRoutes.getCost();
-                    if (cost < bestPair.cost1) {
-                        bestPair.cost2 = bestPair.cost1;
-                        bestPair.solution2 = bestPair.solution1;
-                        bestPair.cost1 = cost;
-                        bestPair.solution1 = newRoutes;
+                    if (cost < bestCost1) {
+                        bestCost2 = bestCost1;
+                        bestCost1 = cost;
+                        bestRoute = newRoutes;
                     }
-                    else if (cost < bestPair.cost2) {
-                        bestPair.cost2 = cost;
-                        bestPair.solution2 = newRoutes;
+                    else if (cost < bestCost2) {
+                        bestCost2 = cost;
+                        bestRoute = newRoutes;
                     }
                 }
             }
         }
     }
-
-    return bestPair;
+    RegretResult result {
+        bestRoute,
+        bestCost2 - bestCost1
+    };
+    return result;
 } 

@@ -49,63 +49,70 @@ Schedule HCOptimisation::optimise() {
     signal(SIGSEGV, signalHandler);
     
     //cout<<"\n-----\nIterarion "<<m_ops->startIteration()<<endl;
-    m_ops->resetIteration();
-    for (int i = 0; i < PERIOD; i++) {
-        cout<< "\n periodo "<<i<<endl;
-        while (m_ops->startIteration() < MAX_ITERATIONS) {
-            element_to_destroy = m_ops->getNElementToDestroy();
-            cout<< "\n elementi da eliminare "<<element_to_destroy<<endl;
-            cout<< "\n nuova iterazione\n";
-            int pairIndex = roulette.selectPair();
-            int points = 0;
-            switch (pairIndex)
-            {
-            case Roulette::RANDOM_GREEDY:
-                rare.removeNodes(element_to_destroy);
-                points = gr.repairNodes();
-                break;
-            case Roulette::WORST_GREEDY:
-                wore.removeNodes(element_to_destroy);
-                points = gr.repairNodes();
-                break;
-            case Roulette::RELATED_GREEDY:
-                rere.removeNodes(element_to_destroy);
-                points = gr.repairNodes();
-                break;
-            case Roulette::CLUSTER_GREEDY:
-                clre.removeNodes(element_to_destroy);
-                points = gr.repairNodes();
-                break;
-            case Roulette::RANDOM_REGRET:
-                rare.removeNodes(element_to_destroy);
-                points = rr.repairNodes();
-                break;
-            case Roulette::WORST_REGRET:
-                wore.removeNodes(element_to_destroy);
-                points = rr.repairNodes();
-                break;
-            case Roulette::RELATED_REGRET:
-                rere.removeNodes(element_to_destroy);
-                points = rr.repairNodes();
-                break;
-            case Roulette::CLUSTER_REGRET:
-                clre.removeNodes(element_to_destroy);
-                points = rr.repairNodes();
-                break;
-            
-            default:
-                break;
+    m_ops->resetWeight();
+    int i = 0;
+    int firebreak = 0;
+    while (m_ops->startIteration() && firebreak < 5) {
+        
+        if (i == 20) {
+            i = 0;
+            firebreak++;
+            vector<int> occ = roulette.getOccurrences();
+            for (int i = 0; i < occ.size(); ++i) {
+                cout<<i<<": "<<occ[i]<<endl;
             }
-            
-            cout<<"\nPoints: "<<points<<endl;
-            roulette.updatePoints(pairIndex, points);
+            roulette.updateProbabilities();
+            m_ops->resetWeight();
         }
-        vector<int> occ = roulette.getOccurrences();
-        for (int i = 0; i < occ.size(); ++i) {
-            cout<<i<<": "<<occ[i]<<endl;
+        i++;
+
+        cout<< "\n periodo "<<i<<endl;
+        element_to_destroy = m_ops->getNElementToDestroy();
+        cout<< "\n elementi da eliminare "<<element_to_destroy<<endl;
+        cout<< "\n nuova iterazione\n";
+        int pairIndex = roulette.selectPair();
+        int points = 0;
+        switch (pairIndex)
+        {
+        case Roulette::RANDOM_GREEDY:
+            rare.removeNodes(element_to_destroy);
+            points = gr.repairNodes();
+            break;
+        case Roulette::WORST_GREEDY:
+            wore.removeNodes(element_to_destroy);
+            points = gr.repairNodes();
+            break;
+        case Roulette::RELATED_GREEDY:
+            rere.removeNodes(element_to_destroy);
+            points = gr.repairNodes();
+            break;
+        case Roulette::CLUSTER_GREEDY:
+            clre.removeNodes(element_to_destroy);
+            points = gr.repairNodes();
+            break;
+        case Roulette::RANDOM_REGRET:
+            rare.removeNodes(element_to_destroy);
+            points = rr.repairNodes();
+            break;
+        case Roulette::WORST_REGRET:
+            wore.removeNodes(element_to_destroy);
+            points = rr.repairNodes();
+            break;
+        case Roulette::RELATED_REGRET:
+            rere.removeNodes(element_to_destroy);
+            points = rr.repairNodes();
+            break;
+        case Roulette::CLUSTER_REGRET:
+            clre.removeNodes(element_to_destroy);
+            points = rr.repairNodes();
+            break;
+        
+        default:
+            break;
         }
-        roulette.updateProbabilities();
-        m_ops->resetIteration();
+        
+        cout<<"\nPoints: "<<points<<endl;
+        roulette.updatePoints(pairIndex, points);
     }
 
     cout<<"\n----------\n";

@@ -18,11 +18,13 @@ namespace homecare {
 class ALNSOptimisation {
 private:
     static std::optional<ALNSOptimisation*> m_instance;
-
+    // params
     int m_iteration = 0;
     double m_t_start = 100;
     double m_coolingRate = 0.980;
     double m_omega_T = 0.05;
+    const double m_t_f = 0.05;
+    // fields
     double m_currentCost;
     std::string m_currentSol;
     std::vector<std::string> m_nodeToRelocate;
@@ -51,8 +53,8 @@ public:
     ScheduleOptimiser destroy(ScheduleOptimiser, int, int) noexcept (false);   
     ScheduleOptimiser repairDouble(ScheduleOptimiser, Patient, int, int);
     ScheduleOptimiser repairSingle(ScheduleOptimiser, Patient, int);
-    int startIteration();
-    int resetIteration();
+    bool startIteration();
+    int resetWeight();
     int getNElementToDestroy();
 
     // save operation

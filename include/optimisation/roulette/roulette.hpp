@@ -12,8 +12,10 @@ class Roulette {
     private:
         std::vector<double> m_probabilities; //probabilità accumulata
         std::vector<int> m_scores;
+        std::vector<int> m_prec_scores;
         std::vector<int> m_occurrences;
         static const int PAIRS_NUM = 8;
+        double m_r = 0.5;
 
         double generateRandom();
 

@@ -56,6 +56,7 @@ int ALNSOptimisation::getNElementToDestroy() {
     int lower_bound = min(max((int) (size * 0.1), 1), 30);
     int upper_bound = min(max((int) (size * 0.4), 1), 60);
     return rand() % (upper_bound - lower_bound + 1) + lower_bound;
+    //return 7;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////         DESTROY
@@ -121,13 +122,17 @@ ScheduleOptimiser ALNSOptimisation::repairDouble(ScheduleOptimiser routes, Patie
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////      ITER
 
-int ALNSOptimisation::startIteration() {
+bool ALNSOptimisation::startIteration() {
     resetOperation();
     m_t_start = m_t_start * m_coolingRate;  // update temperature with cooling rate
-    return m_iteration ++;
+    m_iteration++;
+    if (m_iteration > 100) {
+        return false;
+    }
+    return m_t_start > m_t_f;
 }
 
-int ALNSOptimisation::resetIteration() {
+int ALNSOptimisation::resetWeight() {
     m_iteration = 0;
     return m_iteration;
 }

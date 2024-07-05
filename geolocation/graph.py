@@ -11,6 +11,7 @@ def find(id, patients):
         if patient['id'] == id:
             return i
 
+# genera il percorso nel grafo
 def generateGraph(solution, patients):
     graph = []
     edges = []
@@ -36,6 +37,7 @@ def generateGraph(solution, patients):
         graph.append(nodesPath)
     return graph, edges
 
+# disegna il singolo grafo (percorso)
 def plot_graph(points, edges, color):
     # Estrai le coordinate x e y dai punti
     x_coords = [point['x'] for point in points]
@@ -62,9 +64,8 @@ def plot_graph(points, edges, color):
     plt.ylabel('Y')
     plt.title('Grafo con punti e percorsi')
     #plt.grid(True)
-
-    # Mostra il grafico
     
+# prepara i dati dell'istanza per la trasformazione in grafo
 def formatPatients(patients, depot):
     co = { "id": depot['id'], "location": depot['location'] }
     nodes = [co]
@@ -76,6 +77,7 @@ def formatPatients(patients, depot):
         nodes.append(node)
     return nodes
 
+# prepara i dati della soluzione per la trasformazione in grafo
 def formatSolution(routes, depot):
     paths = []
     for route in routes:
@@ -86,24 +88,25 @@ def formatSolution(routes, depot):
         paths.append(path)
     return paths
 
+# crea un colore
 def randomColorV():
     return np.random.choice(range(256))
 
-sol  = load_data('../resources/hr_solutions/001-firenze-2.json')
-data = load_data('../resources/hr_input/instance_001-florence-r19-p165-s3-sim20.3-seq22.1.json')
+if __name__ == "__main__":
+    # caricamento file
+    sol  = load_data('../resources/hr_solutions/001-firenze-2.json')
+    data = load_data('../resources/hr_input/instance_001-florence-r19-p165-s3-sim20.3-seq22.1.json')
+    # formattazione dati
+    nodes = formatPatients(data['patients'], data['central_offices'][0])
+    sol   = formatSolution(sol['routes'], data['central_offices'][0])
+    # creazione grafo
+    graph, edge = generateGraph(sol, nodes)
+    #print (graph, edge)
 
-nodes = formatPatients(data['patients'], data['central_offices'][0])
-sol   = formatSolution(sol['routes'], data['central_offices'][0])
-
-print(nodes, sol)
-
-
-graph, edge = generateGraph(sol, nodes)
-#print (graph, edge)
-
-# Chiama la funzione per disegnare il grafo con i punti e i percorsi
-for path, edges in zip(graph, edge):
-    color = (randomColorV(), randomColorV(), randomColorV())
-    #print(color)
-    plot_graph(path, edges, color)
-plt.show()
+    # Chiama la funzione per disegnare il grafo con i punti e i percorsi
+    for path, edges in zip(graph, edge):
+        color = (randomColorV(), randomColorV(), randomColorV())
+        #print(color)
+        plot_graph(path, edges, color)
+    #mostra grafo
+    plt.show()

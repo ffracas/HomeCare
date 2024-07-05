@@ -52,9 +52,9 @@ Schedule HCOptimisation::optimise() {
     m_ops->resetWeight();
     int i = 0;
     int firebreak = 0;
-    while (m_ops->startIteration() && firebreak < 5) {
+    while (m_ops->startIteration() && firebreak < MAX_ITERATIONS) {
         
-        if (i == 20) {
+        if (i == MAX_ITERATIONS) {
             i = 0;
             firebreak++;
             vector<int> occ = roulette.getOccurrences();

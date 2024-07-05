@@ -1,7 +1,22 @@
 # HomeCare
 ## Introduction
-Welcome to the documentation for the HomeCare application. This C++ application is designed to address the needs related to planning and optimizing travel for doctors and nurses in the context of home care.
-
+The aim of the application is to solve the Home Health Care Routing and Scheduling Problem (HHCRSP) in everyday life.
+Optimising the routing and scheduling of doctors and nurses in the context of home care is an important goal of today's health care systems, as home care is becoming a crucial part of the health care system due to the positive implications on patients' quality of life.
+The HHCRSP is a complex, mathematically proven np-hard problem that requires the use of a variety of heuristics and meta-heuristics to find a solution.
+The meta-heuristic used is ALNS (Adaptive Large Neighbourhood Search), a popular algorithm used in VRP that is very similar to this HHCRSP.
+The operation implemented in ALNS are:
+- Random Removal
+- Related Removal
+- Worst Removal
+- Cluster Removal
+- Greedy Repair
+- Regret Repair
+The heuristic algorithms used in ALNS are:
+- Simulated annealing
+- 2-otp
+- 3-otp
+- dinamic programming
+The application core is a C++17 program.
 
 ## System Requirements
 - **C++ compiler** compatible with C++17 standard or later.

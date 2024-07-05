@@ -10,12 +10,12 @@ The operation implemented in ALNS are:
 - Worst Removal
 - Cluster Removal
 - Greedy Repair
-- Regret Repair
+- Regret Repair  
 The heuristic algorithms used in ALNS are:
 - Simulated annealing
 - 2-otp
 - 3-otp
-- dinamic programming
+- dinamic programming  
 The application core is a C++17 program.
 
 ## System Requirements

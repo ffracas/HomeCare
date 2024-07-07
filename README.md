@@ -3,7 +3,9 @@
 The aim of the application is to solve the Home Health Care Routing and Scheduling Problem (HHCRSP) in everyday life.
 Optimising the routing and scheduling of doctors and nurses in the context of home care is an important goal of today's health care systems, as home care is becoming a crucial part of the health care system due to the positive implications on patients' quality of life.
 The HHCRSP is a complex, mathematically proven np-hard problem that requires the use of a variety of heuristics and meta-heuristics to find a solution.
-The meta-heuristic used is ALNS (Adaptive Large Neighbourhood Search), a popular algorithm used in VRP that is very similar to this HHCRSP.
+The meta-heuristic used is ALNS (Adaptive Large Neighbourhood Search), a popular algorithm used in VRP that is very similar to this HHCRSP.  
+The goal is to optimize the allocation of caregivers to patient requests, minimizing costs and respecting time and capacity constraints.
+
 ## Main Features
 
 - **Implemented Heuristic Algorithms:**
